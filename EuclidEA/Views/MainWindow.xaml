@@ -1,0 +1,78 @@
+﻿<Window x:Class="EuclidEA.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:converters="clr-namespace:EuclidEA.Converters"
+        xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+        xmlns:services="clr-namespace:EuclidEA.Services"
+        syncfusion:SfSkinManager.Theme="{syncfusion:SkinManagerExtension ThemeName=FluentDark}"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        Title="{Binding Title}" Height="350" Width="525" WindowState="Maximized">
+    <Grid>
+        <Grid.Resources>
+            <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
+            <converters:AddConverter x:Key="Add" />
+            <converters:PatternGenerationToSymbolConverter x:Key="PatternGenerationToSymbol"></converters:PatternGenerationToSymbolConverter>
+
+            <DataTemplate DataType="{x:Type services:RhythmGenerationMethod}" x:Key="PatternGeneration">
+                <wpf:MaterialIcon Kind="{Binding ConverterParameter={StaticResource PatternGenerationToSymbol}}" 
+                                  Width="20"
+                                  FontFamily="Arial"/>
+            </DataTemplate>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        
+        <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding Rhythms}" />
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Right" Margin="10">
+            <Ellipse Style="{StaticResource LedEllipseStyle}"
+                     Fill="{Binding LedOn, Converter={StaticResource BooleanToBrush}, ConverterParameter=Red}"
+                     Stroke="{Binding LedOn, Converter={StaticResource BooleanToBrush}, ConverterParameter=DarkRed}"
+                     Width="12" Height="12" />
+            <TextBlock Text="Clock"/>
+        </StackPanel>
+
+        <GroupBox Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Header="Generator">
+            <StackPanel Orientation="Vertical">
+                <Button Style="{StaticResource Round3DButton}" 
+                        Background="Red" BorderBrush="DarkRed"
+                        Width="100" Height="100"
+                        Margin="0,10"
+                        Command="{Binding GenerateRhythmCommand}">
+                    <wpf:MaterialIcon Kind="Electricity" Height="50" Opacity="0.6" Foreground="DarkRed" />
+                </Button>
+                <Separator />
+                <TextBlock Text="{Binding SelectedGenerator.Name}" 
+                           HorizontalAlignment="Center" Margin="0,5"/>
+                <syncfusion:SfRadialSlider Width="120" Height="120"
+                                           Minimum="0" Maximum="5"
+                                           Value="{Binding RhythmGeneration}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405" 
+                                           TickFrequency="1"
+                                           TickVisibility="Visible" 
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
+                                           FontFamily="Kristen ITC"
+                                           LabelTemplate="{StaticResource PatternGeneration}"/>
+                <ContentControl Content="{Binding SelectedGenerator}" />
+
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+</Window>
