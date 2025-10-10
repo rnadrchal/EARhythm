@@ -15,12 +15,12 @@ public class PatternGenerationToSymbolConverter : IValueConverter
         {
             return (RhythmGenerationMethod)i switch
             {
-                RhythmGenerationMethod.Euclid => MaterialIconKind.LockPattern,
-                RhythmGenerationMethod.Bernoulli => MaterialIconKind.DistributeHorizontalCenter,
-                RhythmGenerationMethod.Poisson => MaterialIconKind.DistributeHorizontalLeft,
-                RhythmGenerationMethod.CellullarAutomaton => MaterialIconKind.Grid,
-                RhythmGenerationMethod.LSystem => MaterialIconKind.CodeBraces,
-                RhythmGenerationMethod.Polyrhythm => MaterialIconKind.MusicNotePlus,
+                RhythmGenerationMethod.Euclid => MaterialIconKind.ArrowLeftRight,
+                RhythmGenerationMethod.Bernoulli => MaterialIconKind.ChartBellCurve,
+                RhythmGenerationMethod.Poisson => MaterialIconKind.ChartBellCurveCumulative,
+                RhythmGenerationMethod.CellullarAutomaton => MaterialIconKind.DotsGrid,
+                RhythmGenerationMethod.LSystem => MaterialIconKind.FormatTextVariant,
+                RhythmGenerationMethod.Polyrhythm => MaterialIconKind.MusicNote,
                 _ => MaterialIconKind.BlurLinear
             };
         }
