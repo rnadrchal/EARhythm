@@ -4,23 +4,24 @@
                     xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
     <DataTemplate DataType="{x:Type vm:PoissonGeneratorViewModel}">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+            <TextBlock Text="Steps" Style="{StaticResource LabelStyle}" />
 			<syncfusion:SfRadialSlider Width="120" Height="120"
-								   Minimum="0" Maximum="64"
-								   Value="{Binding Steps}"
-								   OuterRimRadiusFactor="0.6"
-								   OuterRimStroke="#444"
-								   OuterRimStrokeThickness="3"
-								   InnerRimFill="#666"
-								   InnerRimStroke="#444"
-								   InnerRimRadiusFactor="0.4"
-								   StartAngle="135" EndAngle="405"
-								   TickFrequency="8"
-								   TickVisibility="Visible"
-								   TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
-								   FontFamily="Kristen ITC">
+                                       Minimum="0" Maximum="64"
+                                       Value="{Binding Steps}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickFrequency="8"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
+                                       FontFamily="Kristen ITC">
 				<TextBlock Text="{Binding Steps}" FontSize="16"></TextBlock>
 			</syncfusion:SfRadialSlider>
-			<TextBlock Text="Steps" Style="{StaticResource LabelStyle}" />
+            <TextBlock Text="λ/Bar" Style="{StaticResource LabelStyle}" />
 			<syncfusion:SfRadialSlider Width="120" Height="120"
                                        Minimum="0" Maximum="64"
                                        Value="{Binding LambdaPerBar}"
@@ -37,7 +38,6 @@
                                        FontFamily="Kristen ITC">
                 <TextBlock Text="{Binding LambdaPerBar}" FontSize="16"></TextBlock>
             </syncfusion:SfRadialSlider>
-            <TextBlock Text="λ/Bar" Style="{StaticResource LabelStyle}" />
         </StackPanel>
     </DataTemplate>
 

@@ -4,6 +4,7 @@
                     xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
     <DataTemplate DataType="{x:Type models:EuclidGeneratorViewModel}">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+            <TextBlock Text="Steps" Style="{StaticResource LabelStyle}" />
             <syncfusion:SfRadialSlider Width="120" Height="120"
                                        Minimum="0" Maximum="64"
                                        Value="{Binding Steps}"
@@ -20,7 +21,7 @@
                                        FontFamily="Kristen ITC">
                 <TextBlock Text="{Binding Steps}" FontSize="16"></TextBlock>
             </syncfusion:SfRadialSlider>
-            <TextBlock Text="Steps" Style="{StaticResource LabelStyle}" />
+            <TextBlock Text="Beats" Style="{StaticResource LabelStyle}" />
             <syncfusion:SfRadialSlider Width="120" Height="120"
                                        Minimum="0" Maximum="64"
                                        Value="{Binding Pulses}"
@@ -37,7 +38,7 @@
                                        FontFamily="Kristen ITC">
                 <TextBlock Text="{Binding Pulses}" FontSize="16"></TextBlock>
             </syncfusion:SfRadialSlider>
-            <TextBlock Text="Beats" Style="{StaticResource LabelStyle}" />
+            <TextBlock Text="Rotate" Style="{StaticResource LabelStyle}" />
             <syncfusion:SfRadialSlider Width="120" Height="120"
                                        Minimum="-32" Maximum="32"
                                        Value="{Binding Rotation}"
@@ -52,9 +53,7 @@
                                        TickVisibility="Visible" 
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
                                        FontFamily="Kristen ITC">
-                <TextBlock Text="{Binding Rotation}" FontSize="16"></TextBlock>
             </syncfusion:SfRadialSlider>
-            <TextBlock Text="Rotate" Style="{StaticResource LabelStyle}" />
         </StackPanel>
 
     </DataTemplate>

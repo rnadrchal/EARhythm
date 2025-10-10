@@ -4,6 +4,7 @@
                     xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
     <DataTemplate DataType="{x:Type vm:BernoulliGeneratorViewModel}">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+            <TextBlock Text="Steps" Style="{StaticResource LabelStyle}" />
             <syncfusion:SfRadialSlider Width="120" Height="120"
                                        Minimum="0" Maximum="64"
                                        Value="{Binding Steps}"
@@ -20,7 +21,7 @@
                                        FontFamily="Kristen ITC">
                 <TextBlock Text="{Binding Steps}" FontSize="16"></TextBlock>
             </syncfusion:SfRadialSlider>
-            <TextBlock Text="Steps" Style="{StaticResource LabelStyle}" />
+            <TextBlock Text="Prob. 0 -> 1" Style="{StaticResource LabelStyle}" />
             <syncfusion:SfRadialSlider Width="120" Height="120"
                                        Minimum="0" Maximum="1"
                                        Value="{Binding Probability01}"
@@ -36,7 +37,6 @@
                                        FontFamily="Kristen ITC">
                 <TextBlock Text="{Binding Probability01}" FontSize="16"></TextBlock>
             </syncfusion:SfRadialSlider>
-            <TextBlock Text="Prob. 0 -> 1" Style="{StaticResource LabelStyle}" />
         </StackPanel>
     </DataTemplate>
 </ResourceDictionary>

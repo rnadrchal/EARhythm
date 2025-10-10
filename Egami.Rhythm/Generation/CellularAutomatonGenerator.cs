@@ -20,23 +20,22 @@ public enum CaRule
 public enum CaBoundary
 {
     Wrap,      // zirkulär (Torus)
-    FixedZero, // außen immer 0
-    FixedOne   // außen immer 1
+    Fixed0, // außen immer 0
+    Fixed1   // außen immer 1
 }
 
 public enum CaSeed
 {
-    SingleCenter,   // eine 1 in der Mitte
-    Random,         // RNG-basiert
-    Custom          // vom Aufrufer via ctor übergeben
+    Center,   // eine 1 in der Mitte
+    Random          // vom Aufrufer via ctor übergeben
 }
 
 public enum CaMapMode
 {
-    LastRow,     // nur letzte Generation → Pattern
-    AnyHit,      // OR über alle Generationen
-    SumClip,     // Summe der Hits pro Zelle, auf Velocity gemappt (clip 1..127)
-    EveryN       // jede N-te Generation als Schritt (temporal flatten)
+    Last,     // nur letzte Generation → Pattern
+    Any,      // OR über alle Generationen
+    Sum,     // Summe der Hits pro Zelle, auf Velocity gemappt (clip 1..127)
+    N       // jede N-te Generation als Schritt (temporal flatten)
 }
 
 /// <summary>
@@ -47,8 +46,8 @@ public class CellularAutomatonGenerator(
     int generations = 1,
     CaRule rule = CaRule.Rule90,
     CaBoundary boundary = CaBoundary.Wrap,
-    CaSeed seedMode = CaSeed.SingleCenter,
-    CaMapMode mapMode = CaMapMode.LastRow,
+    CaSeed seedMode = CaSeed.Center,
+    CaMapMode mapMode = CaMapMode.Last,
     int everyN = 2,
     bool[]? customSeed = null) : IRhythmGenerator
 {
@@ -82,7 +81,7 @@ public class CellularAutomatonGenerator(
 
         switch (_mapMode)
         {
-            case CaMapMode.LastRow:
+            case CaMapMode.Last:
                 {
                     var last = history[^1];
                     for (int i = 0; i < n; i++)
@@ -95,7 +94,7 @@ public class CellularAutomatonGenerator(
                     break;
                 }
 
-            case CaMapMode.AnyHit:
+            case CaMapMode.Any:
                 {
                     // OR über alle Generationen an Position i%width
                     for (int i = 0; i < n; i++)
@@ -112,7 +111,7 @@ public class CellularAutomatonGenerator(
                     break;
                 }
 
-            case CaMapMode.SumClip:
+            case CaMapMode.Sum:
                 {
                     for (int i = 0; i < n; i++)
                     {
@@ -133,7 +132,7 @@ public class CellularAutomatonGenerator(
                     break;
                 }
 
-            case CaMapMode.EveryN:
+            case CaMapMode.N:
                 {
                     // Falte die Zeitdimension: jede N-te Generation erzeugt der Reihe nach Schritte.
                     // Effektiv entstehen (_generations/_everyN)*_width Schritte; wir samplen modulo auf n.
@@ -169,7 +168,7 @@ public class CellularAutomatonGenerator(
 
         switch (_seedMode)
         {
-            case CaSeed.SingleCenter:
+            case CaSeed.Center:
                 row[ctx.StepsTotal / 2] = true;
                 break;
 
@@ -180,13 +179,6 @@ public class CellularAutomatonGenerator(
                         row[i] = rng.Next(2) == 1;
                     break;
                 }
-
-            case CaSeed.Custom:
-            default:
-                if (_customSeed is null || _customSeed.Length != ctx.StepsTotal)
-                    throw new ArgumentException("Custom seed must be provided with exact 'width' length.", nameof(_customSeed));
-                Array.Copy(_customSeed, row, ctx.StepsTotal);
-                break;
         }
         return row;
     }
@@ -206,16 +198,16 @@ public class CellularAutomatonGenerator(
             left = boundary switch
             {
                 CaBoundary.Wrap => cur[(li + n) % n],
-                CaBoundary.FixedZero => li >= 0 && cur[li],
-                CaBoundary.FixedOne => li < 0 || cur[li],
+                CaBoundary.Fixed0 => li >= 0 && cur[li],
+                CaBoundary.Fixed1 => li < 0 || cur[li],
                 _ => cur[(li + n) % n]
             };
 
             right = boundary switch
             {
                 CaBoundary.Wrap => cur[ri % n],
-                CaBoundary.FixedZero => ri < n && cur[ri],
-                CaBoundary.FixedOne => ri >= n || cur[ri],
+                CaBoundary.Fixed0 => ri < n && cur[ri],
+                CaBoundary.Fixed1 => ri >= n || cur[ri],
                 _ => cur[ri % n]
             };
 

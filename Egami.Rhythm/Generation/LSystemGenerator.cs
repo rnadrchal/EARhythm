@@ -14,6 +14,36 @@ public class LSystemGenerator(
     private readonly int _it = Math.Min(30, Math.Max(0, iterations)); // Begrenzung der Iterationen, um exponentielles Wachstum zu vermeiden
     private readonly char _hit = hitSymbol;
 
+    public static List<Dictionary<char, string>> Rules = new()
+    {
+        // Periodisch
+        new()
+        {
+            { 'A', "AB" },
+            { 'B', "A" }
+        },
+        // Alternierend
+        new()
+        {
+            { 'X', "XY" },
+            {'Y', "X" }
+        },
+        // Verdichtend
+        new()
+        {
+            { 'A', "AA" },
+            { 'B', "B"}
+        },
+        // Expandierend
+        new()
+        {
+            { 'A', "AB" },
+            { 'B', "BB" }
+        }
+    };
+
+
+
     public RhythmPattern Generate(RhythmContext ctx)
     {
         string current = _axiom;

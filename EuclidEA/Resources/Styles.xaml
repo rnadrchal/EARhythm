@@ -5,6 +5,7 @@
         <Setter Property="FontFamily" Value="Kristen ITC"/>
         <Setter Property="FontSize" Value="14"/>
     </Style>
+
     <Style TargetType="{x:Type TextBlock}" x:Key="LabelStyle">
         <Setter Property="FontSize" Value="10" />
         <Setter Property="HorizontalAlignment" Value="Center" />

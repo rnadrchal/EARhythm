@@ -11,6 +11,9 @@
                 <ResourceDictionary Source="Resources/EuclidGeneratorTemplate.xaml" />
                 <ResourceDictionary Source="Resources/BernoulliGeneratorTemplate.xaml" />
                 <ResourceDictionary Source="Resources/PoissonGeneratorTemplate.xaml" />
+                <ResourceDictionary Source="Resources/CellularAutomatonTemplate.xaml" />
+                <ResourceDictionary Source="Resources/LSystemGeneratorTemplate.xaml" />
+                <ResourceDictionary Source="Resources/PolyrhythmTemplate.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
