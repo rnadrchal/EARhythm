@@ -27,6 +27,26 @@
         </Setter>
     </Style>
 
+    <Style x:Key="LedEllipseBlinkStyle" TargetType="Ellipse" BasedOn="{StaticResource LedEllipseStyle}">
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="Loaded">
+                <BeginStoryboard>
+                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                        <ColorAnimation
+                            Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"
+                            To="#222"
+                            Duration="0:0:0.5"/>
+                        <ColorAnimation
+                            Storyboard.TargetProperty="(Shape.Stroke).(SolidColorBrush.Color)"
+                            To="#111"
+                            Duration="0:0:0.5"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+
+
     <Style x:Key="Round3DButton" TargetType="Button">
         <Setter Property="Width" Value="40"/>
         <Setter Property="Height" Value="40"/>
@@ -80,22 +100,5 @@
             </Setter.Value>
         </Setter>
     </Style>
-
-    <!--<Style TargetType="{x:Type syncfusion:SfRadialSlider}" x:Key="MyRadialSlider">
-        <Setter Property="OuterRimRadiusFactor" Value="0.6" />
-        <Setter Property="OuterRimStroke" Value="#444" />
-        <Setter Property="OuterRimStrokeThickness" Value="3" />
-        <Setter Property="InnerRimFill" Value="#666" />
-        <Setter Property="InnerRimStroke" Value="#444" />
-        <Setter Property="InnerRimRadiusFactor" Value="0.4" />
-        <Setter Property="TickVisibility" Value="Visible" />
-        <Setter Property="TickRadiusFactor" Value="0.9" />
-        <Setter Property="TickFrequency" Value="1" />
-        <Setter Property="StartAngle" Value="135" />
-        <Setter Property="EndAngle" Value="405" />
-        <Setter Property="LabelRadiusFactor" Value="0" />
-        <Setter Property="LabelVisibility" Value="Collapsed" />
-        <Setter Property="PointerRadiusFactor" Value="0.55" />
-    </Style>-->
 
 </ResourceDictionary>

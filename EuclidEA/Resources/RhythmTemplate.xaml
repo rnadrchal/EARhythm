@@ -3,9 +3,15 @@
                     xmlns:models="clr-namespace:EuclidEA.Models"
                     xmlns:vm="clr-namespace:EuclidEA.ViewModels"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime"
-                    xmlns:converters="clr-namespace:EuclidEA.Converters">
+                    xmlns:converters="clr-namespace:EuclidEA.Converters"
+                    xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
     <converters:HitToBrushConverter x:Key="HitToBrush" />
     <converters:MultConverter x:Key="Mult" />
+    <converters:AddConverter x:Key="Add" />
+    <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibility" />
     <DataTemplate DataType="{x:Type sys:Boolean}" x:Key="HitsTemplate">
         <Rectangle Stroke="#AAA" StrokeThickness="1" Width="10" Height="10" 
                    Fill="{Binding Converter={StaticResource HitToBrush}}" />
@@ -21,15 +27,66 @@
     <DataTemplate DataType="{x:Type vm:RhythmViewModel}">
         <Border BorderBrush="#EEE" BorderThickness="1"
                 Padding="10">
-            <StackPanel Orientation="Vertical">
-                <ItemsControl ItemsSource="{Binding Steps}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
-            </StackPanel>
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Vertical" Margin="0,0,15,0">
+                            <TextBlock Text="Rate" Style="{StaticResource LabelStyle}" />
+                            <syncfusion:SfRadialSlider Width="70" Height="70" Margin="-12,-10, -12, -12"
+                                                       Minimum="0" Maximum="{Binding Rates.Length, Converter={StaticResource Add}, ConverterParameter=-1}"
+                                                       Value="{Binding RateIndex}"
+                                                       OuterRimRadiusFactor="0.6"
+                                                       OuterRimStroke="#444"
+                                                       OuterRimStrokeThickness="3"
+                                                       InnerRimFill="#666"
+                                                       InnerRimStroke="#444"
+                                                       InnerRimRadiusFactor="0.4"
+                                                       StartAngle="135" EndAngle="405"
+                                                       TickFrequency="8"
+                                                       TickVisibility="Visible"
+                                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                                       LabelVisibility="Hidden"
+                                                       FontFamily="Kristen ITC">
+                                <TextBlock  FontSize="10">
+                                    <Run Text="1/" /><Run Text="{Binding Rate, Mode=OneWay}" />
+                                </TextBlock>
+                            </syncfusion:SfRadialSlider>
+                        </StackPanel>
+
+                        <ItemsControl ItemsSource="{Binding Steps}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+
+                        <Ellipse Style="{StaticResource LedEllipseBlinkStyle}"
+                                 Fill="Red"
+                                 Stroke="DarkRed"
+                                 Width="12" Height="12"
+                                 Visibility="{Binding WaitingForTarget, Converter={StaticResource BooleanToVisibility}}"
+                                 Margin="15,0"/>
+
+                        <wpf:MaterialIcon Kind="ArrowRight" Margin="15,0"
+                                          Visibility="{Binding TargetSteps, Converter={StaticResource NotNullToVisibility}}"/>
+
+                        <ItemsControl ItemsSource="{Binding TargetSteps}" 
+                                      Visibility="{Binding TargetSteps, Converter={StaticResource NotNullToVisibility}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                    <Button Style="{StaticResource Round3DButton}" HorizontalAlignment="Right" Height="32" Width="32"
+                             Background="Red" BorderBrush="DarkRed"
+                             Command="{Binding DeleteMeCommand}">
+                        <wpf:MaterialIcon Kind="Delete" Height="24" Opacity="0.5" />
+                    </Button>
+                </Grid>
+            </ScrollViewer>
         </Border>
     </DataTemplate>
 </ResourceDictionary>

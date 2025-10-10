@@ -29,7 +29,7 @@
                                        FontFamily="Kristen ITC">
                 <TextBlock Text="{Binding Steps}" FontSize="16"></TextBlock>
             </syncfusion:SfRadialSlider>
-            <TextBlock Text="Steps" Style="{StaticResource LabelStyle}" />
+            <TextBlock Text="Rule" Style="{StaticResource LabelStyle}" />
             <syncfusion:SfRadialSlider Width="120" Height="120"
                                        Minimum="0" Maximum="{Binding NumberOfRules, Converter={StaticResource Add}, ConverterParameter=-1}"
                                        Value="{Binding RuleIndex}"

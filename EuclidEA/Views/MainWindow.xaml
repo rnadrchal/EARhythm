@@ -6,6 +6,7 @@
         xmlns:converters="clr-namespace:EuclidEA.Converters"
         xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
         xmlns:services="clr-namespace:EuclidEA.Services"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
         syncfusion:SfSkinManager.Theme="{syncfusion:SkinManagerExtension ThemeName=FluentDark}"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Title="{Binding Title}" Height="350" Width="525" WindowState="Maximized">
@@ -13,12 +14,13 @@
         <Grid.Resources>
             <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
             <converters:AddConverter x:Key="Add" />
-            <converters:PatternGenerationToSymbolConverter x:Key="PatternGenerationToSymbol"></converters:PatternGenerationToSymbolConverter>
+            <converters:PatternGenerationToSymbolConverter x:Key="PatternGenerationToSymbol" />
+            <converters:RhythmGeneratorToSymbolConverter x:Key="GeneratorSymbol" />
+            <converters:RunningToIconConverter x:Key="RunningToIcon" />
 
-            <DataTemplate DataType="{x:Type services:RhythmGenerationMethod}" x:Key="PatternGeneration">
-                <wpf:MaterialIcon Kind="{Binding ConverterParameter={StaticResource PatternGenerationToSymbol}}" 
-                                  Width="20"
-                                  FontFamily="Arial"/>
+            <DataTemplate x:Key="PatternGeneration">
+                <wpf:MaterialIcon Kind="{Binding Converter={StaticResource PatternGenerationToSymbol}}" 
+                                  Width="12" />
             </DataTemplate>
         </Grid.Resources>
         <Grid.RowDefinitions>
@@ -34,27 +36,41 @@
         <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <ItemsControl ItemsSource="{Binding Rhythms}" />
         </ScrollViewer>
+        
+    
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="10">
+            <StackPanel Orientation="Vertical">
+                <Button Style="{StaticResource Round3DButton}" Background="OrangeRed"
+                        Command="{Binding StartStopEvolutionCommand}">
+                    <wpf:MaterialIcon Kind="{Binding IsEvolutionInProgress, Converter={StaticResource RunningToIcon}}" 
+                                      Height="32" Opacity="0.5"
+                                      Animation="Pulse" />
+                </Button>
+                <TextBlock Text="Start/Pause Evolution" Style="{StaticResource LabelStyle}" Margin="0,5,0,0" />
+            </StackPanel>
 
+        </StackPanel>
         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Right" Margin="10">
             <Ellipse Style="{StaticResource LedEllipseStyle}"
                      Fill="{Binding LedOn, Converter={StaticResource BooleanToBrush}, ConverterParameter=Red}"
                      Stroke="{Binding LedOn, Converter={StaticResource BooleanToBrush}, ConverterParameter=DarkRed}"
                      Width="12" Height="12" />
-            <TextBlock Text="Clock"/>
+            <TextBlock Text="Clock" Style="{StaticResource LabelStyle}"/>
         </StackPanel>
 
         <GroupBox Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Header="Generator">
             <StackPanel Orientation="Vertical">
                 <Button Style="{StaticResource Round3DButton}" 
-                        Background="Red" BorderBrush="DarkRed"
+                        Background="OrangeRed" BorderBrush="DarkRed"
                         Width="100" Height="100"
                         Margin="0,10"
                         Command="{Binding GenerateRhythmCommand}">
-                    <wpf:MaterialIcon Kind="Electricity" Height="50" Opacity="0.6" Foreground="DarkRed" />
+                    <wpf:MaterialIcon Kind="Electricity" Height="50" Opacity="0.5" />
                 </Button>
                 <Separator />
                 <TextBlock Text="{Binding SelectedGenerator.Name}" 
-                           HorizontalAlignment="Center" Margin="0,5"/>
+                           HorizontalAlignment="Center" Margin="0,5"
+                           Foreground="Orange"/>
                 <syncfusion:SfRadialSlider Width="120" Height="120"
                                            Minimum="0" Maximum="5"
                                            Value="{Binding RhythmGeneration}"
