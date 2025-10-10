@@ -2,10 +2,10 @@
 
 public sealed class RhythmPattern
 {
-    public int StepsTotal { get; }
-    public bool[] Hits { get; }          // Länge = StepsTotal
-    public byte[] Velocity { get; }      // optional akzentuierte Werte, Länge = StepsTotal
-    public int[] Lengths { get; }        // optional Längen in Steps (per Index), Länge = StepsTotal
+    public int StepsTotal { get; set; }
+    public bool[] Hits { get; set; }          // Länge = StepsTotal
+    public byte[] Velocity { get; set; }      // optional akzentuierte Werte, Länge = StepsTotal
+    public int[] Lengths { get; set; }        // optional Längen in Steps (per Index), Länge = StepsTotal
 
     public RhythmPattern(int stepsTotal)
     {
