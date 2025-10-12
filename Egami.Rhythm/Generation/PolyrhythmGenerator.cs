@@ -23,8 +23,8 @@ public sealed class PolyrhythmGenerator(int a, int b, byte velA = 110, byte velB
             if (hitA || hitB)
             {
                 p.Hits[i] = true;
-                p.Lengths[i] = hitA && hitB ? Math.Max(_la, _lb) : (hitA ? _la : hitB ? _lb : 0);
-                p.Velocity[i] = (byte)Math.Clamp((hitA ? _va : 0) + (hitB ? _vb : 0), 1, 127);
+                p.Lengths[i] = hitA && hitB ? Math.Max(_la, _lb) : (hitA ? _la : hitB ? _lb : 1);
+                p.Velocities[i] = (byte)Math.Clamp((hitA ? _va : 0) + (hitB ? _vb : 0), 1, 127);
             }
         }
         return p;

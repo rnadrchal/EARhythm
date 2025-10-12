@@ -1,0 +1,75 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:EuclidEA.ViewModels"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+                    xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+                    xmlns:midi="clr-namespace:Egami.Rhythm.Midi.Generation;assembly=Egami.Rhythm.Midi"
+                    xmlns:converters="clr-namespace:EuclidEA.Converters">
+    <converters:AddConverter x:Key="Add" />
+    <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibility" />
+
+    <DataTemplate DataType="{x:Type midi:TrackRhythmPattern}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="{Binding Channel}" />
+            <TextBlock Grid.Column="1" Text="{Binding DrumLikelihood}"></TextBlock>
+        </Grid>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:TrackChunkGeneratorViewModel}">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+            <TextBlock Text="Steps" Style="{StaticResource LabelStyle}" />
+            <Grid>
+                <syncfusion:SfRadialSlider Width="120" Height="120"
+                                           Minimum="0" Maximum="64"
+                                           Value="{Binding Steps}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405" 
+                                           TickFrequency="8"
+                                           TickVisibility="Visible" 
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
+                                           FontFamily="Kristen ITC">
+                    <TextBlock Text="{Binding Steps}" FontSize="16"></TextBlock>
+                </syncfusion:SfRadialSlider>
+
+                <Button Style="{StaticResource Round3DButton}" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                        Height="28" Width="28" Margin="0,0,-24,5" Background="OrangeRed"
+                        Command="{Binding LoadCommand}">
+                    <wpf:MaterialIcon Kind="Folder" Height="16" Opacity="0.5" />
+                </Button>
+            </Grid>
+            <TextBlock Text="{Binding SelectedPattern}" TextWrapping="Wrap"
+                       Visibility="{Binding SelectedPattern, Converter={StaticResource NotNullToVisibility}}"
+                       Foreground="Orange" HorizontalAlignment="Center" FontSize="12"/>
+            <syncfusion:SfRadialSlider Width="120" Height="120" Margin="0,-16"
+                                       Minimum="0" Maximum="{Binding Patterns.Count, ConverterParameter=-1, Converter={StaticResource Add}}"
+                                       Value="{Binding SelectedPatternIndex}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405" 
+                                       TickFrequency="8"
+                                       TickVisibility="Visible" 
+                                       LabelVisibility="Hidden"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
+                                       FontFamily="Kristen ITC"
+                                       Visibility="{Binding  PatternSelectorVisibility}">
+                <TextBlock FontSize="10">
+                    <Run Text="CH" />
+                    <Run Text="{Binding SelectedPattern.Channel, ConverterParameter=1, Converter={StaticResource Add}, Mode=OneWay}" />
+                </TextBlock>
+            </syncfusion:SfRadialSlider>
+
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

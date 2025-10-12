@@ -32,6 +32,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Egami.Pitch\Egami.Pitch.csproj" />
     <ProjectReference Include="..\Egami.Rhythm.EA\Egami.Rhythm.EA.csproj" />
+    <ProjectReference Include="..\Egami.Rhythm.Midi\Egami.Rhythm.Midi.csproj" />
     <ProjectReference Include="..\Egami.Rhythm\Egami.Rhythm.csproj" />
   </ItemGroup>
 </Project>

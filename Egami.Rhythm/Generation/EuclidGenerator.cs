@@ -1,4 +1,5 @@
-﻿using Egami.Rhythm.Pattern;
+﻿using System.Xml;
+using Egami.Rhythm.Pattern;
 
 namespace Egami.Rhythm.Generation;
 
@@ -17,7 +18,7 @@ public sealed class EuclidGenerator(int pulses, int rotate = 0) : IRhythmGenerat
         if (k == 0) return p; // alles Off
         if (k == n)
         {
-            for (int i = 0; i < n; i++) { p.Hits[i] = true; p.Velocity[i] = ctx.DefaultVelocity; }
+            for (int i = 0; i < n; i++) { p.Hits[i] = true; p.Velocities[i] = ctx.DefaultVelocity; }
             return ApplyRotate(p, _rotate);
         }
 
@@ -29,8 +30,8 @@ public sealed class EuclidGenerator(int pulses, int rotate = 0) : IRhythmGenerat
             int b = ((i + 1) * k) / n;
             bool hit = a != b;
             p.Hits[i] = hit;
-            p.Velocity[i] = hit ? ctx.DefaultVelocity : (byte)0;
-            p.Lengths[i] = hit ? 1 : 0;
+            p.Velocities[i] = hit ? ctx.DefaultVelocity : (byte)0;
+            p.Lengths[i] = 1;
         }
 
         return ApplyRotate(p, _rotate);
@@ -49,8 +50,9 @@ public sealed class EuclidGenerator(int pulses, int rotate = 0) : IRhythmGenerat
             Array.Copy(tmp, arr, n);
         }
         Rot(outp.Hits);
-        Rot(outp.Velocity);
+        Rot(outp.Velocities);
         Rot(outp.Lengths);
+        Rot(outp.Pitches);
         return outp;
     }
 }

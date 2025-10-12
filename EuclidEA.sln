@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Egami.Rhythm.EA", "Egami.Rh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Egami.Pitch", "Egami.Pitch\Egami.Pitch.csproj", "{293EB33B-BB9C-44F4-B292-98FF98BEAB9D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Egami.Rhythm.Midi", "Egami.Rhythm.Midi\Egami.Rhythm.Midi.csproj", "{844974C7-A9E8-4212-9120-1EC6F017069E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{293EB33B-BB9C-44F4-B292-98FF98BEAB9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{293EB33B-BB9C-44F4-B292-98FF98BEAB9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{293EB33B-BB9C-44F4-B292-98FF98BEAB9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{844974C7-A9E8-4212-9120-1EC6F017069E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{844974C7-A9E8-4212-9120-1EC6F017069E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{844974C7-A9E8-4212-9120-1EC6F017069E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{844974C7-A9E8-4212-9120-1EC6F017069E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

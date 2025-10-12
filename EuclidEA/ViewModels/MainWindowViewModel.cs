@@ -8,15 +8,18 @@ using Egami.Rhythm.Generation;
 using EuclidEA.Events;
 using EuclidEA.Models;
 using EuclidEA.Services;
+using Melanchall.DryWetMidi.Multimedia;
 using Prism.Events;
 using Prism.Mvvm;
 using Syncfusion.Windows.Shared;
+using MidiClock = EuclidEA.Services.MidiClock;
 
 namespace EuclidEA.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
         private readonly IEventAggregator _eventAggregator;
+        private readonly OutputDevice _midiOut;
 
         private string _title = "Euclid EA";
         public string Title
@@ -56,7 +59,8 @@ namespace EuclidEA.ViewModels
             new PoissonGeneratorViewModel(),
             new CellularAutomatonViewModel(),
             new LSystemViewModel(),
-            new PolyRhythmViewModel()
+            new PolyRhythmViewModel(),
+            new TrackChunkGeneratorViewModel()
         };
 
         public ObservableCollection<RhythmViewModel> Rhythms { get; private set; } = new();
@@ -71,9 +75,10 @@ namespace EuclidEA.ViewModels
         public ICommand GenerateRhythmCommand { get; }
         public ICommand StartStopEvolutionCommand { get; }
 
-        public MainWindowViewModel(IEventAggregator eventAggregator, MidiClock midiClock)
+        public MainWindowViewModel(IEventAggregator eventAggregator, MidiClock midiClock, OutputDevice midiOut)
         {
             _eventAggregator = eventAggregator;
+            _midiOut = midiOut;
 
             _eventAggregator.GetEvent<BeatEvent>().Subscribe(() => LedOn = true);
             _eventAggregator.GetEvent<OffBeatEvent>().Subscribe(() => LedOn = false);
@@ -97,8 +102,17 @@ namespace EuclidEA.ViewModels
             }
             else
             {
-                Rhythms.Add(new RhythmViewModel(pattern, _eventAggregator));
+                var nextChannel = GetFreeChannel();
+                if (nextChannel == null) return;
+                Rhythms.Add(new RhythmViewModel(pattern, nextChannel.Value, _eventAggregator, _midiOut));
             }
+        }
+
+        private byte? GetFreeChannel()
+        {
+            byte channel = 0;
+            var occupiedChannels = Rhythms.Select(r => r.Channel).ToList();
+            return (byte?)Enumerable.Range(0, 16).FirstOrDefault(c => !occupiedChannels.Contains((byte)c));
         }
     }
 }

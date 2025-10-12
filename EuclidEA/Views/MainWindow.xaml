@@ -15,7 +15,6 @@
             <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
             <converters:AddConverter x:Key="Add" />
             <converters:PatternGenerationToSymbolConverter x:Key="PatternGenerationToSymbol" />
-            <converters:RhythmGeneratorToSymbolConverter x:Key="GeneratorSymbol" />
             <converters:RunningToIconConverter x:Key="RunningToIcon" />
 
             <DataTemplate x:Key="PatternGeneration">
@@ -79,7 +78,7 @@
                                        HorizontalAlignment="Center" Margin="0,5"
                                        Foreground="Orange"/>
                             <syncfusion:SfRadialSlider Width="120" Height="120"
-                                                       Minimum="0" Maximum="5"
+                                                       Minimum="0" Maximum="6"
                                                        Value="{Binding RhythmGeneration}"
                                                        OuterRimRadiusFactor="0.6"
                                                        OuterRimStroke="#444"

@@ -62,8 +62,8 @@ public class LSystemGenerator(
             var c = current[i % current.Length];
             bool hit = c == _hit;
             p.Hits[i] = hit;
-            p.Lengths[i] = hit ? 1 : 0;
-            p.Velocity[i] = (byte)(hit ? ctx.DefaultVelocity : 0);
+            p.Lengths[i] = 1;
+            p.Velocities[i] = (byte)(hit ? ctx.DefaultVelocity : 0);
         }
         return p;
     }

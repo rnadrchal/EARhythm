@@ -29,7 +29,7 @@ public static class RhythmCompose
                 if (p.Hits[i])
                 {
                     outp.Hits[i] = true;
-                    outp.Velocity[i] = (byte)Math.Clamp(outp.Velocity[i] + Math.Max((int)p.Velocity[i], 1), 1, 127);
+                    outp.Velocities[i] = (byte)Math.Clamp(outp.Velocities[i] + Math.Max((int)p.Velocities[i], 1), 1, 127);
                     outp.Lengths[i] = Math.Max(outp.Lengths[i], p.Lengths[i]);
                 }
             }

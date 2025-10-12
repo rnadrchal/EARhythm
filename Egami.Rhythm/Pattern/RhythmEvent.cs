@@ -1,7 +1,7 @@
 ﻿namespace Egami.Rhythm.Pattern;
 
 /// <summary>
-/// Ein einzelnes Ereignis im Raster (Grid-orientiert, optional Länge/Velocity)
+/// Ein einzelnes Ereignis im Raster (Grid-orientiert, optional Länge/Velocities)
 /// </summary>
 /// <param name="Step"></param>
 /// <param name="Velocity"></param>

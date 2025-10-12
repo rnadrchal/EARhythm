@@ -34,7 +34,7 @@ public abstract class RhythmGeneratorViewModel : BindableBase, IRhythmGeneratorV
         }
     }
 
-    public IPitchGeneratorViewModel PitchGenerator => _pitchGeneratorIndex.HasValue ? PitchGenerators[_pitchGeneratorIndex.Value] : null;
+    public virtual IPitchGeneratorViewModel PitchGenerator => _pitchGeneratorIndex.HasValue ? PitchGenerators[_pitchGeneratorIndex.Value] : null;
 
     protected int _steps = 16;
 
