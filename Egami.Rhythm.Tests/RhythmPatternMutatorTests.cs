@@ -73,6 +73,10 @@ public class RhythmPatternMutatorTests
         var originalLength = _individual1.Hits.Length;
         mutator.Insert(_individual1, _ctx);
         _individual1.Hits.Length.Should().Be(originalLength + 1);
+        _individual1.Lengths.Length.Should().Be(originalLength + 1);
+        _individual1.Velocity.Length.Should().Be(originalLength + 1);
+        _individual1.StepsTotal.Should().Be(originalLength + 1);
+        _individual1.Pitches.Length.Should().Be(originalLength + 1);
     }
 
     [TestMethod]

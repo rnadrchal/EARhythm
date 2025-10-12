@@ -6,6 +6,7 @@ public sealed class RhythmPattern
     public bool[] Hits { get; set; }          // Länge = StepsTotal
     public byte[] Velocity { get; set; }      // optional akzentuierte Werte, Länge = StepsTotal
     public int[] Lengths { get; set; }        // optional Längen in Steps (per Index), Länge = StepsTotal
+    public int?[] Pitches { get; set; }    // optional Pitch pro Step (per Index), Länge = StepsTotal}
 
     public RhythmPattern(int stepsTotal)
     {
@@ -13,6 +14,7 @@ public sealed class RhythmPattern
         Hits = new bool[stepsTotal];
         Velocity = new byte[stepsTotal];     // 0 => keine Note
         Lengths = new int[stepsTotal];       // 0 => Default 1
+        Pitches = new int?[stepsTotal]; // null => kein Pitch
     }
 
     public IEnumerable<RhythmEvent> ToEvents()
@@ -22,7 +24,8 @@ public sealed class RhythmPattern
             if (!Hits[i]) continue;
             var vel = Velocity[i] == 0 ? (byte)100 : Velocity[i];
             var len = Lengths[i] <= 0 ? 1 : Lengths[i];
-            yield return new RhythmEvent(i, vel, len);
+            var pitch = Pitches[i];
+            yield return new RhythmEvent(i, vel, len, pitch);
         }
     }
 
@@ -32,6 +35,7 @@ public sealed class RhythmPattern
         Array.Copy(Hits, p.Hits, StepsTotal);
         Array.Copy(Velocity, p.Velocity, StepsTotal);
         Array.Copy(Lengths, p.Lengths, StepsTotal);
+        Array.Copy(Pitches, p.Pitches, StepsTotal);
         return p;
     }
 }

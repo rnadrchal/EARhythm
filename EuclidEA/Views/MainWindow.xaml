@@ -62,31 +62,52 @@
             <StackPanel Orientation="Vertical">
                 <Button Style="{StaticResource Round3DButton}" 
                         Background="OrangeRed" BorderBrush="DarkRed"
-                        Width="100" Height="100"
                         Margin="0,10"
                         Command="{Binding GenerateRhythmCommand}">
-                    <wpf:MaterialIcon Kind="Electricity" Height="50" Opacity="0.5" />
+                    <wpf:MaterialIcon Kind="CreateOutline" Height="28" Opacity="0.5" />
                 </Button>
+                <TextBlock Text="Generate Pattern" Style="{StaticResource LabelStyle}"></TextBlock>
                 <Separator />
-                <TextBlock Text="{Binding SelectedGenerator.Name}" 
-                           HorizontalAlignment="Center" Margin="0,5"
-                           Foreground="Orange"/>
-                <syncfusion:SfRadialSlider Width="120" Height="120"
-                                           Minimum="0" Maximum="5"
-                                           Value="{Binding RhythmGeneration}"
-                                           OuterRimRadiusFactor="0.6"
-                                           OuterRimStroke="#444"
-                                           OuterRimStrokeThickness="3"
-                                           InnerRimFill="#666"
-                                           InnerRimStroke="#444"
-                                           InnerRimRadiusFactor="0.4"
-                                           StartAngle="135" EndAngle="405" 
-                                           TickFrequency="1"
-                                           TickVisibility="Visible" 
-                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
-                                           FontFamily="Kristen ITC"
-                                           LabelTemplate="{StaticResource PatternGeneration}"/>
-                <ContentControl Content="{Binding SelectedGenerator}" />
+                <syncfusion:TabControlExt TabItemSelectedBorderBrush="Orange" ShowTabItemContextMenu="False" CloseButtonType="Hide" DefaultContextMenuItemVisibility="Hidden"
+                                          TabListContextMenuItems="{x:Null}">
+                    <syncfusion:TabItemExt CanClose="False">
+                        <syncfusion:TabItemExt.Header>
+                            <wpf:MaterialIcon Kind="Pulse"></wpf:MaterialIcon>
+                        </syncfusion:TabItemExt.Header>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="{Binding SelectedGenerator.Name}" 
+                                       HorizontalAlignment="Center" Margin="0,5"
+                                       Foreground="Orange"/>
+                            <syncfusion:SfRadialSlider Width="120" Height="120"
+                                                       Minimum="0" Maximum="5"
+                                                       Value="{Binding RhythmGeneration}"
+                                                       OuterRimRadiusFactor="0.6"
+                                                       OuterRimStroke="#444"
+                                                       OuterRimStrokeThickness="3"
+                                                       InnerRimFill="#666"
+                                                       InnerRimStroke="#444"
+                                                       InnerRimRadiusFactor="0.4"
+                                                       StartAngle="135" EndAngle="405" 
+                                                       TickFrequency="1"
+                                                       TickVisibility="Visible" 
+                                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
+                                                       FontFamily="Kristen ITC"
+                                                       LabelTemplate="{StaticResource PatternGeneration}"/>
+                            <ContentControl Content="{Binding SelectedGenerator}" />
+                        </StackPanel>
+                    </syncfusion:TabItemExt>
+                    <syncfusion:TabItemExt CanClose="False">
+                        <syncfusion:TabItemExt.Header>
+                            <wpf:MaterialIcon Kind="Music"></wpf:MaterialIcon>
+                        </syncfusion:TabItemExt.Header>
+                        <StackPanel Orientation="Vertical" Visibility="{Binding SelectedGenerator.PitchGenerator, Converter={StaticResource NotNullToVisibility} }">
+                            <TextBlock Text="{Binding SelectedGenerator.PitchGenerator.Name}"
+                                       HorizontalAlignment="Center" Margin="0,5"
+                                       Foreground="Orange" />
+                            <ContentControl Content="{Binding SelectedGenerator.PitchGenerator}"></ContentControl>
+                        </StackPanel>
+                    </syncfusion:TabItemExt>
+                </syncfusion:TabControlExt>
 
             </StackPanel>
         </GroupBox>

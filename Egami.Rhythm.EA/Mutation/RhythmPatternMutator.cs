@@ -9,6 +9,15 @@ public class RhythmPatternMutator : IMutator<RhythmPattern>
     {
         var position = RandomProvider.Get(ctx.Seed).Next(0, individual.Hits.Length);
         individual.Hits[position] = !individual.Hits[position];
+        if (individual.Hits[position])
+        {
+            individual.Velocity[position] = (byte)RandomProvider.Get(ctx.Seed).Next(0, 127);
+            individual.Pitches[position] = (byte)RandomProvider.Get(ctx.Seed).Next(21, 108);
+        }
+        else
+        {
+            individual.Pitches[position] = null;
+        }
     }
 
     public void Delete(RhythmPattern individual, EvolutionContext ctx)
@@ -20,10 +29,13 @@ public class RhythmPatternMutator : IMutator<RhythmPattern>
         lengths.RemoveAt(position);
         var velocity = individual.Velocity.ToList();
         velocity.RemoveAt(position);
+        var pitches = individual.Pitches.ToList();
+        pitches.RemoveAt(position);
         individual.StepsTotal--;
         individual.Hits = hits.ToArray();
         individual.Lengths = lengths.ToArray();
         individual.Velocity = velocity.ToArray();
+        individual.Pitches = pitches.ToArray();
     }
 
     public void Insert(RhythmPattern individual, EvolutionContext ctx)
@@ -36,10 +48,16 @@ public class RhythmPatternMutator : IMutator<RhythmPattern>
         lengths.Insert(position, 1);
         var velocity = individual.Velocity.ToList();
         velocity.Insert(position, (byte)RandomProvider.Get(ctx.Seed).Next(40, 80));
+        var minPitch = individual.Pitches.Where(p => p.HasValue).DefaultIfEmpty(60).Min();
+        var maxPitch = individual.Pitches.Where(p => p.HasValue).DefaultIfEmpty(72).Max();
+        if (minPitch == maxPitch) maxPitch = minPitch + 12;
+        var pitches = individual.Pitches.ToList();
+        pitches.Insert(position, (byte)RandomProvider.Get(ctx.Seed).Next(minPitch ?? 60, maxPitch ?? 72));
         individual.StepsTotal++;
         individual.Hits = hits.ToArray();
         individual.Lengths = lengths.ToArray();
         individual.Velocity = velocity.ToArray();
+        individual.Pitches = pitches.ToArray();
     }
 
     public RhythmPattern Crossover(RhythmPattern individual1, RhythmPattern individual2, EvolutionContext ctx)
@@ -48,11 +66,13 @@ public class RhythmPatternMutator : IMutator<RhythmPattern>
         var hits = individual1.Hits.Take(position).Concat(individual2.Hits.Skip(position)).ToArray();
         var lengths = individual1.Lengths.Take(position).Concat(individual2.Lengths.Skip(position)).ToArray();
         var velocity = individual1.Velocity.Take(position).Concat(individual2.Velocity.Skip(position)).ToArray();
+        var pitches = individual1.Pitches.Take(position).Concat(individual2.Pitches.Skip(position)).ToArray();
         return new RhythmPattern(hits.Length)
         {
             Hits = hits,
             Lengths = lengths,
             Velocity = velocity,
+            Pitches = pitches
         };
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Egami.Rhythm.Common;
+using Egami.Rhythm.EA.Mutation;
 
 namespace Egami.Rhythm.EA;
 
@@ -14,11 +15,28 @@ public class Population<TGenotype>
         }
     }
 
-    public void PerformMutations(EvolutionContext ctx)
+    public void Evolve(EvolutionContext ctx, IMutator<TGenotype> mutator, int generations = 1)
     {
-        foreach (var individual in Individuals)
+        for (int i = 0; i < generations; i++)
         {
-            double r = RandomProvider.Get(ctx.Seed).NextDouble();
+            foreach (var individual in Individuals)
+            {
+                double r = RandomProvider.Get(ctx.Seed).NextDouble();
+                if (1.0 - r < ctx.MutationRate)
+                {
+                    mutator.Mutate(individual, ctx);
+                }
+                r = RandomProvider.Get(ctx.Seed).NextDouble();
+                if (1.0 - r < ctx.DeletionRate)
+                {
+                    mutator.Delete(individual, ctx);
+                }
+                r = RandomProvider.Get(ctx.Seed).NextDouble();
+                if (1.0 - r < ctx.InsertionRate)
+                {
+                    mutator.Insert(individual, ctx);
+                }
+            }
         }
     }
 }

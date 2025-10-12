@@ -54,7 +54,8 @@ public class RhythmViewModel : BindableBase
         {
             IsHit = pattern.Hits[i],
             Velocity = pattern.Velocity[i] / 4,
-            Length = Math.Max(1, pattern.Lengths[i])
+            Length = Math.Max(1, pattern.Lengths[i]),
+            Pitch = pattern.Pitches[i]
         }).ToList();
 
         DeleteMeCommand = new DelegateCommand(() => _eventAggregator.GetEvent<Events.DeleteRhythmEvent>().Publish(this));
@@ -67,7 +68,8 @@ public class RhythmViewModel : BindableBase
         {
             IsHit = target.Hits[i],
             Velocity = target.Velocity[i] / 4,
-            Length = Math.Max(1, target.Lengths[i])
+            Length = Math.Max(1, target.Lengths[i]),
+            Pitch = target.Pitches[i]
         }).ToList();
         RaisePropertyChanged(nameof(WaitingForTarget));
     }

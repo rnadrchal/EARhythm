@@ -1,4 +1,6 @@
-﻿namespace Egami.Rhythm.EA;
+﻿using Egami.Rhythm.EA.Mutation;
+
+namespace Egami.Rhythm.EA;
 
 public class EvolutionContext
 {
