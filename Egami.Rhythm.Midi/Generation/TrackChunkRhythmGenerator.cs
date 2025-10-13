@@ -47,7 +47,7 @@ public class TrackChunkRhythmGenerator : IRhythmGenerator
         {
             var ch = kv.Key;
             var s = kv.Value;
-            TrackPatterns.Add(new TrackRhythmPattern(number, s.Pattern, s.DrumProbability, kv.Key, s.DistinctPrograms));
+            TrackPatterns.Add(new TrackRhythmPattern(number++, s.Pattern, s.DrumProbability, kv.Key, s.DistinctPrograms));
         }
     }
 }

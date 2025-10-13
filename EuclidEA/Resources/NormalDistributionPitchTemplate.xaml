@@ -1,0 +1,105 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:EuclidEA.ViewModels"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
+    <DataTemplate DataType="{x:Type vm:NormalDistributionPitchGeneratorViewModel}">
+        <StackPanel Orientation="Vertical">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0"
+                           Text="Note" Style="{StaticResource LabelStyle}" />
+                <syncfusion:SfRadialSlider Grid.Column="0" Grid.Row="0" Width="120" Height="120" Margin="-16,0"
+                                           Minimum="0" Maximum="11"
+                                           Value="{Binding Note}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="8"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden"
+                                           FontFamily="Kristen ITC">
+                    <TextBlock Text="{Binding Note, Converter={StaticResource NoteName}}" FontSize="10" />
+                </syncfusion:SfRadialSlider>
+
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="Octave" Style="{StaticResource LabelStyle}" />
+                <syncfusion:SfRadialSlider Grid.Column="1" Width="120" Height="120" Margin="-16,0"
+                                           Minimum="-4" Maximum="4"
+                                           Value="{Binding Octave}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="8"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden"
+                                           FontFamily="Kristen ITC">
+                    <TextBlock Text="{Binding Octave, Mode=OneWay}" FontSize="10" />
+                </syncfusion:SfRadialSlider>
+            </Grid>
+            <TextBlock Text="Std. Dev." Style="{StaticResource LabelStyle}" />
+            <syncfusion:SfRadialSlider Width="120" Height="120"
+                                       Minimum="1" Maximum="24"
+                                       Value="{Binding StandardDeviation}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405" 
+                                       TickVisibility="Visible" 
+                                       TickFrequency="3"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
+                                       FontFamily="Kristen ITC">
+                <TextBlock Text="{Binding StandardDeviation}" FontSize="16" />
+            </syncfusion:SfRadialSlider>
+            <TextBlock Text="Skewness" Style="{StaticResource LabelStyle}" />
+            <syncfusion:SfRadialSlider Width="120" Height="120"
+                                       Minimum="0" Maximum="10"
+                                       Value="{Binding Skewness}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405" 
+                                       TickVisibility="Visible" 
+                                       TickFrequency="2"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
+                                       FontFamily="Kristen ITC">
+                <TextBlock Text="{Binding Skewness}" FontSize="16" />
+            </syncfusion:SfRadialSlider>
+            <TextBlock Text="Kurtosis" Style="{StaticResource LabelStyle}" />
+            <syncfusion:SfRadialSlider Width="120" Height="120"
+                                       Minimum="0" Maximum="10"
+                                       Value="{Binding Kurtosis}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405" 
+                                       TickVisibility="Visible" 
+                                       TickFrequency="2"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
+                                       FontFamily="Kristen ITC">
+                <TextBlock Text="{Binding Kurtosis}" FontSize="16" />
+            </syncfusion:SfRadialSlider>
+
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

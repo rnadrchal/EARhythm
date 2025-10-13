@@ -5,6 +5,7 @@ using Egami.Rhythm;
 using Egami.Rhythm.Core;
 using Egami.Rhythm.Extensions;
 using Egami.Rhythm.Generation;
+using Egami.Rhythm.Midi.Generation;
 using Egami.Rhythm.Pattern;
 using Prism.Mvvm;
 
@@ -18,7 +19,9 @@ public abstract class RhythmGeneratorViewModel : BindableBase, IRhythmGeneratorV
 
     protected List<IPitchGeneratorViewModel> PitchGenerators { get; } = new()
     {
-        new ConstantPitchGeneratorViewModel(new ConstantPitchGenerator())
+        new ConstantPitchGeneratorViewModel(new ConstantPitchGenerator()),
+        new RandomPitchGeneratorViewModel(new RandomPitchGenerator()),
+        new NormalDistributionPitchGeneratorViewModel(new NormalDistributionPitchGenerator())
     };
 
     private int? _pitchGeneratorIndex = 0;

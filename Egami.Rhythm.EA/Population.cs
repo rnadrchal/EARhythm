@@ -1,4 +1,5 @@
 ﻿using Egami.Rhythm.Common;
+using Egami.Rhythm.EA.Extensions;
 using Egami.Rhythm.EA.Mutation;
 
 namespace Egami.Rhythm.EA;
@@ -37,6 +38,17 @@ public class Population<TGenotype>
                     mutator.Insert(individual, ctx);
                 }
             }
+        }
+    }
+
+    public void Pairing(EvolutionContext ctx, IMutator<TGenotype> mutator, Func<TGenotype, double> fitness)
+    {
+        var result = Individuals.FindTop2AndWorst(fitness);
+        if (RandomProvider.Get(ctx.Seed).NextDouble() > 1.0 - ctx.CrossoverRate)
+        {
+            var offspring = mutator.Crossover(result.Best, result.Second, ctx);
+            Individuals.RemoveAt(result.WorstIndex);
+            Individuals.Add(offspring);
         }
     }
 }

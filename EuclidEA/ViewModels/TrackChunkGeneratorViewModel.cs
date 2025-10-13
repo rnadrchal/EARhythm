@@ -52,6 +52,7 @@ public class TrackChunkGeneratorViewModel : RhythmGeneratorViewModel
         pattern.Lengths = pattern.Lengths.Take(context.StepsTotal).ToArray();
         pattern.Pitches = pattern.Pitches.Take(context.StepsTotal).ToArray();
         pattern.Velocities = pattern.Velocities.Take(context.StepsTotal).ToArray();
+        pattern.StepsTotal = context.StepsTotal;
         return pattern;
     }
 

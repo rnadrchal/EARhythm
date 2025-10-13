@@ -9,5 +9,5 @@ public class ConstantPitchGeneratorViewModel : PitchGeneratorViewModel
     {
     }
 
-    public override string Name => "Constant Pitch";
+    public override string Name => "Constant";
 }

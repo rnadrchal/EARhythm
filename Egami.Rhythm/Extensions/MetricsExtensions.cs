@@ -4,31 +4,33 @@ namespace Egami.Rhythm.Extensions;
 
 public static class MetricsExtensions
 {
+    private const int MaxLift = 16384; // Sicherheitskappe gegen riesige LCMs
+
     // <summary>
     /// Rotationsinvariante Hamming-Ähnlichkeit zwischen zwei binären Patterns.
     /// Gibt einen Wert in [0..1] zurück; 1 == identisch (bis auf Rotation).
     /// </summary>
+    /// <summary>
+    /// Rotationsinvariante Hamming-Ähnlichkeit in [0..1]. Arbeitet via LCM-Lift.
+    /// 1 = identisch bis auf Rotation, 0 = maximal verschieden.
+    /// </summary>
     public static double HammingSimilarityRot(this bool[] pattern, bool[] reference)
     {
         if (pattern is null || reference is null) throw new ArgumentNullException();
-        if (pattern.Length != reference.Length) throw new ArgumentException("Lengths must match.");
-        int n = pattern.Length;
-        if (n == 0) return 1.0;
+        var (A, B) = LiftToCommonCycle(pattern, reference, out int L);
+        if (L == 0) return 1.0;
 
-        int minHamming = n;
-        for (int shift = 0; shift < n; shift++)
+        int minHamming = L;
+        for (int shift = 0; shift < L; shift++)
         {
             int d = 0;
-            for (int i = 0; i < n; i++)
-            {
-                if (pattern[(i + shift) % n] != reference[i]) d++;
-            }
+            for (int i = 0; i < L; i++)
+                if (A[(i + shift) % L] != B[i]) d++;
             if (d < minHamming) minHamming = d;
             if (minHamming == 0) break;
         }
-        return 1.0 - (double)minHamming / n;
+        return 1.0 - (double)minHamming / L;
     }
-
     // <summary>
     /// Rotationsinvariante Hamming-Ähnlichkeit zwischen zwei binären Patterns.
     /// Gibt einen Wert in [0..1] zurück; 1 == identisch (bis auf Rotation).
@@ -39,19 +41,17 @@ public static class MetricsExtensions
     }
 
     /// <summary>
-    /// Jaccard-Ähnlichkeit der Onset-Mengen (Positionsmengen der 1en).
-    /// Wertebereich [0..1]; 1 == gleiche Onset-Positionen.
+    /// Jaccard-Ähnlichkeit der Onset-Mengen in [0..1]. Arbeitet via LCM-Lift.
     /// </summary>
     public static double JaccardSimilarity(this bool[] pattern, bool[] reference)
     {
         if (pattern is null || reference is null) throw new ArgumentNullException();
-        if (pattern.Length != reference.Length) throw new ArgumentException("Lengths must match.");
-        var A = pattern.GetOnsetPositions();
-        var B = reference.GetOnsetPositions();
+        var (A, B) = LiftToCommonCycle(pattern, reference, out int L);
+        if (L == 0) return 1.0;
 
-        if (A.Count == 0 && B.Count == 0) return 1.0;
-        var setA = new HashSet<int>(A);
-        var setB = new HashSet<int>(B);
+        var setA = A.GetOnsetPositions();
+        var setB = B.GetOnsetPositions();
+        if (setA.Count == 0 && setB.Count == 0) return 1.0;
 
         int inter = setA.Intersect(setB).Count();
         int union = setA.Union(setB).Count();
@@ -68,50 +68,36 @@ public static class MetricsExtensions
     }
 
     /// <summary>
-    /// IOI-MAE: Mittlerer absoluter Fehler der Inter-Onset-Intervalle (zirkular).
-    /// Rotationsinvariant, auf [0..1] normalisiert (0 == perfekte Übereinstimmung).
-    /// Bei k&lt;2 (zu wenige Onsets) wird 0 zurückgegeben, wenn beide k&lt;2 sind, sonst 1.
+    /// IOI-MAE (0 = perfekt, 1 = schlecht). Via LCM-Lift.
+    /// Wenn Onset-Anzahlen ungleich bleiben, wird 1.0 zurückgegeben.
     /// </summary>
     public static double IoiMae(this bool[] pattern, bool[] reference)
     {
         if (pattern is null || reference is null) throw new ArgumentNullException();
-        if (pattern.Length != reference.Length) throw new ArgumentException("Lengths must match.");
-        int n = pattern.Length;
-        var ioisA = pattern.GetIois();
-        var ioisB = reference.GetIois();
+        var (A, B) = LiftToCommonCycle(pattern, reference, out int L);
+        if (L == 0) return 0.0;
 
-        // Weniger als zwei Onsets => keine sinnvolle IOI-Sequenz
+        var ioisA = A.GetIois();
+        var ioisB = B.GetIois();
+
         bool trivialA = ioisA.Count == 0;
         bool trivialB = ioisB.Count == 0;
         if (trivialA && trivialB) return 0.0;
         if (trivialA ^ trivialB) return 1.0;
+        if (ioisA.Count != ioisB.Count) return 1.0;
 
-        if (ioisA.Count != ioisB.Count)
-        {
-            // Unterschiedliche Anzahl Onsets => IOI-Vergleich unfair -> maximaler Fehler
-            return 1.0;
-        }
-
-        // Rotationsinvarianz: beste zyklische Rotation der IOI-Sequenzen wählen
         double bestMae = double.PositiveInfinity;
         int k = ioisA.Count;
-        for (int shift = 0; shift < k; shift++)
+        for (int s = 0; s < k; s++)
         {
             double sum = 0;
             for (int i = 0; i < k; i++)
-            {
-                sum += Math.Abs(ioisA[i] - ioisB[(i + shift) % k]);
-            }
-            double mae = sum / k;
-            if (mae < bestMae) bestMae = mae;
+                sum += Math.Abs(ioisA[i] - ioisB[(i + s) % k]);
+            bestMae = Math.Min(bestMae, sum / k);
         }
-
-        // Normierung: IOIs summieren sich zu n; max. Abweichung pro Intervall <= n
-        // Sinnvoller ist Normierung durch (n/2): pro Intervall ist die „zirkulare“ Maxabweichung n/2.
-        double norm = n / 2.0;
+        double norm = L / 2.0; // zirkulare Maxabweichung
         return Math.Min(1.0, bestMae / norm);
     }
-
     /// <summary>
     /// IOI-MAE: Mittlerer absoluter Fehler der Inter-Onset-Intervalle (zirkular).
     /// Rotationsinvariant, auf [0..1] normalisiert (0 == perfekte Übereinstimmung).
@@ -123,48 +109,71 @@ public static class MetricsExtensions
     }
 
     /// <summary>
-    /// Zirkulare Wasserstein-1-Distanz (Earth Mover's Distance) zwischen Onsets, normalisiert auf [0..1].
-    /// 0 == identisch (bis auf Rotation). Erwartet gleiche Onset-Anzahl; sonst 1.0.
+    /// Cosine-Ähnlichkeit der zirkularen Autokorrelationen (0..1; 1 = sehr ähnlich).
+    /// Arbeitet via LCM-Lift; optional Lag 0 ausschließen.
+    /// </summary>
+    public static double AutocorrCosineSimilarity(this bool[] pattern, bool[] reference, bool excludeZeroLag = true)
+    {
+        if (pattern is null || reference is null) throw new ArgumentNullException();
+        var (A, B) = LiftToCommonCycle(pattern, reference, out int L);
+        if (L == 0) return 1.0;
+
+        var acA = A.Autocorr();
+        var acB = B.Autocorr();
+
+        int start = excludeZeroLag ? 1 : 0;
+        double dot = 0, na = 0, nb = 0;
+
+        for (int i = start; i < L; i++)
+        {
+            double a = acA[i], b = acB[i];
+            dot += a * b; na += a * a; nb += b * b;
+        }
+
+        if (na == 0 && nb == 0) return 1.0;
+        if (na == 0 || nb == 0) return 0.0;
+        return dot / (Math.Sqrt(na) * Math.Sqrt(nb));
+    }
+
+    /// <summary>
+    /// Zirkulare Wasserstein-1-Distanz (EMD) in [0..1]; 0 = identisch, 1 = schlecht.
+    /// Arbeitet auf der Einheitskreis-Phase; Längen und Onset-Zahlen dürfen abweichen.
     /// </summary>
     public static double WassersteinCircular(this bool[] pattern, bool[] reference)
     {
         if (pattern is null || reference is null) throw new ArgumentNullException();
-        if (pattern.Length != reference.Length) throw new ArgumentException("Lengths must match.");
-        int n = pattern.Length;
-        var A = pattern.GetOnsetPositions();
-        var B = reference.GetOnsetPositions();
 
-        int kA = A.Count, kB = B.Count;
-        if (kA == 0 && kB == 0) return 0.0;
-        if (kA == 0 ^ kB == 0) return 1.0;
-        if (kA != kB) return 1.0;
+        var PhA = ToPhases(pattern);   // sortierte Phasen in [0,1)
+        var PhB = ToPhases(reference);
 
-        A.Sort();
-        B.Sort();
-        int k = kA;
+        if (PhA.Count == 0 && PhB.Count == 0) return 0.0;
+        if (PhA.Count == 0 ^ PhB.Count == 0) return 1.0;
 
-        // Für alle zyklischen Alignments von B zu A die Summe der minimalen Kreisabstände berechnen
+        PhA.Sort(); PhB.Sort();
+        int kA = PhA.Count, kB = PhB.Count;
+        int k = Math.Min(kA, kB);
+
+        // Bestes zyklisches Matching der kleineren Menge über Rotation
         double best = double.PositiveInfinity;
         for (int shift = 0; shift < k; shift++)
         {
             double sum = 0;
             for (int i = 0; i < k; i++)
             {
-                int a = A[i];
-                int b = B[(i + shift) % k];
-                int d = Math.Abs(a - b);
-                int circ = Math.Min(d, n - d);
-                sum += circ;
+                double a = PhA[i];
+                double b = PhB[(i + shift) % k];
+                double d = Math.Abs(a - b);
+                sum += Math.Min(d, 1.0 - d);
             }
-            if (sum < best) best = sum;
+            // Surplus-Onsets bestrafen mit maximaler Kreisdistanz 0.5 je Überschuss
+            int surplus = Math.Abs(kA - kB);
+            sum += surplus * 0.5;
+            best = Math.Min(best, sum);
         }
 
-        // Durchschnitt pro Onset und Normierung: maximale Kreisdistanz pro Paar ist n/2
-        double avg = best / k;
-        double norm = n / 2.0;
-        return Math.Min(1.0, avg / norm);
+        double avg = best / Math.Max(k, 1);
+        return Math.Min(1.0, avg / 0.5); // 0.5 ist maximale Kreisdistanz
     }
-
     /// <summary>
     /// Zirkulare Wasserstein-1-Distanz (Earth Mover's Distance) zwischen Onsets, normalisiert auf [0..1].
     /// 0 == identisch (bis auf Rotation). Erwartet gleiche Onset-Anzahl; sonst 1.0.
@@ -174,37 +183,13 @@ public static class MetricsExtensions
         return pattern.Hits.WassersteinCircular(reference.Hits);
     }
 
-    /// <summary>
-    /// Cosine-Ähnlichkeit der zirkularen Autokorrelationsvektoren (optional ohne Lag 0).
-    /// Wertebereich [0..1]; 1 == sehr ähnliche Pulsstruktur.
-    /// </summary>
-    public static double AutocorrCosineSimilarity(this bool[] pattern, bool[] reference, bool excludeZeroLag = true)
+    private static List<double> ToPhases(bool[] pattern)
     {
-        if (pattern is null || reference is null) throw new ArgumentNullException();
-        if (pattern.Length != reference.Length) throw new ArgumentException("Lengths must match.");
         int n = pattern.Length;
-        if (n == 0) return 1.0;
-
-        var acA = pattern.Autocorr();
-        var acB = reference.Autocorr();
-
-        int start = excludeZeroLag ? 1 : 0;
-        int len = n - start;
-
-        double dot = 0, na = 0, nb = 0;
-        for (int i = start; i < n; i++)
-        {
-            double a = acA[i];
-            double b = acB[i];
-            dot += a * b;
-            na += a * a;
-            nb += b * b;
-        }
-
-        if (na == 0 && nb == 0) return 1.0; // beide völlig leer/gleichmäßig
-        if (na == 0 || nb == 0) return 0.0;
-
-        return dot / (Math.Sqrt(na) * Math.Sqrt(nb));
+        var phases = new List<double>();
+        for (int i = 0; i < n; i++)
+            if (pattern[i]) phases.Add((double)i / n); // in [0,1)
+        return phases;
     }
 
     /// <summary>
@@ -220,13 +205,60 @@ public static class MetricsExtensions
     // Hilfsfunktionen
     // ------------------------
 
-    /// <summary>Positionsliste der Onsets (Indices mit Wert true).</summary>
-    public static List<int> GetOnsetPositions(this bool[] pattern)
+    private static (bool[] A, bool[] B) LiftToCommonCycle(bool[] a, bool[] b, out int L)
     {
-        var pos = new List<int>(pattern.Length);
+        int n = a.Length, m = b.Length;
+        if (n == 0 && m == 0) { L = 0; return (Array.Empty<bool>(), Array.Empty<bool>()); }
+        if (n == 0) { L = m; return (new bool[m], b.ToArray()); }
+        if (m == 0) { L = n; return (a.ToArray(), new bool[n]); }
+
+        int lcm = LcmSafe(n, m);
+        if (lcm > MaxLift)
+        {
+            // Fallback: begrenzter Lift auf MaxLift per nächstem gemeinsamen Vielfachen
+            // (Approximation durch periodische Sample-Hold-Skalierung)
+            lcm = MaxLift;
+        }
+        L = lcm;
+
+        var A = ScaleRepeat(a, L);
+        var B = ScaleRepeat(b, L);
+        return (A, B);
+    }
+
+    private static int Gcd(int a, int b)
+    {
+        while (b != 0) { int t = a % b; a = b; b = t; }
+        return Math.Abs(a);
+    }
+
+    private static int LcmSafe(int a, int b)
+    {
+        if (a == 0 || b == 0) return 0;
+        long g = Gcd(a, b);
+        long l = (a / g) * (long)b;
+        return (int)Math.Min(int.MaxValue, Math.Abs(l));
+    }
+
+    private static List<int> GetOnsetPositions(this bool[] pattern)
+    {
+        var pos = new List<int>();
         for (int i = 0; i < pattern.Length; i++)
             if (pattern[i]) pos.Add(i);
         return pos;
+    }
+
+    private static bool[] ScaleRepeat(bool[] src, int L)
+    {
+        int n = src.Length;
+        var dst = new bool[L];
+        // Weist jedem Zielindex den Quell-Step via floor(i * n / L) zu (nearest-left)
+        for (int i = 0; i < L; i++)
+        {
+            int idx = (int)((long)i * n / L);
+            dst[i] = src[idx];
+        }
+        return dst;
     }
 
     /// <summary>Inter-Onset-Intervalle (zirkular, in Steps). Gibt leere Liste zurück, wenn weniger als 2 Onsets.</summary>
@@ -265,47 +297,5 @@ public static class MetricsExtensions
             ac[tau] = sum;
         }
         return ac;
-    }
-
-    /// <summary>
-    /// (Optional) Erzeugt das euklidische Pattern E(n,k) via Bjorklund (gleichmäßige Verteilung).
-    /// </summary>
-    public static bool[] EuclideanPattern(int n, int k)
-    {
-        if (n <= 0) return Array.Empty<bool>();
-        if (k <= 0) return new bool[n];
-        if (k >= n) return Enumerable.Repeat(true, n).ToArray();
-
-        // Bjorklund-Algorithmus (kompakt)
-        var counts = new List<int>();
-        var remainders = new List<int> { k };
-        int div = n - k;
-        int level = 0;
-        while (true)
-        {
-            counts.Add(div / remainders[level]);
-            remainders.Add(div % remainders[level]);
-            div = remainders[level];
-            level++;
-            if (remainders[level] <= 1) break;
-        }
-        counts.Add(div);
-
-        List<int> Build(int l)
-        {
-            if (l == -1) return new List<int> { 0 };          // Rest-Gruppe: 0 (Pause)
-            if (l == -2) return new List<int> { 1 };          // Primär-Gruppe: 1 (Onset)
-            var seq = new List<int>();
-            var a = Build(l - 1);
-            var b = Build(l - 2);
-            for (int i = 0; i < counts[l]; i++) seq.AddRange(a);
-            if (remainders[l] != 0) seq.AddRange(b);
-            return seq;
-        }
-
-        var pattern = Build(level).Select(x => x == 1).ToList();
-        // Auf Länge n trimmen (sicherheitshalber)
-        if (pattern.Count > n) pattern = pattern.Take(n).ToList();
-        return pattern.ToArray();
     }
 }

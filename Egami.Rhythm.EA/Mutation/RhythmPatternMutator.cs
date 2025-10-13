@@ -8,15 +8,32 @@ public class RhythmPatternMutator : IMutator<RhythmPattern>
     public void Mutate(RhythmPattern individual, EvolutionContext ctx)
     {
         var position = RandomProvider.Get(ctx.Seed).Next(0, individual.Hits.Length);
-        individual.Hits[position] = !individual.Hits[position];
-        if (individual.Hits[position])
+        var d = RandomProvider.Get(ctx.Seed).NextDouble();
+        if (d <= 0.3)
         {
-            individual.Velocities[position] = (byte)RandomProvider.Get(ctx.Seed).Next(0, 127);
-            individual.Pitches[position] = (byte)RandomProvider.Get(ctx.Seed).Next(21, 108);
+            individual.Hits[position] = !individual.Hits[position];
+        }
+        else if (d <= 0.6)
+        {
+            if (individual.Hits[position])
+            {
+                individual.Pitches[position] = RandomProvider.Get(ctx.Seed).Next(21, 108);
+            }
+        }
+        else if (d <= 0.9)
+        {
+            individual.Velocities[position] = (byte)RandomProvider.Get(ctx.Seed).Next(5, 127);
         }
         else
         {
-            individual.Pitches[position] = null;
+            if (RandomProvider.Get(ctx.Seed).NextDouble() <= 0.5)
+            {
+                individual.Lengths[position] = RandomProvider.Get(ctx.Seed).Next(individual.Lengths[position] + 1, 17);
+            }
+            else
+            {
+                individual.Lengths[position] = RandomProvider.Get(ctx.Seed).Next(1, individual.Lengths[position]);
+            }
         }
     }
 
@@ -58,6 +75,27 @@ public class RhythmPatternMutator : IMutator<RhythmPattern>
         individual.Lengths = lengths.ToArray();
         individual.Velocities = velocity.ToArray();
         individual.Pitches = pitches.ToArray();
+    }
+
+    public void Swap(RhythmPattern individual, EvolutionContext ctx)
+    {
+        var pos1 = RandomProvider.Get(ctx.Seed).Next(0, individual.Hits.Length);    
+        var pos2 = RandomProvider.Get(ctx.Seed).Next(0, individual.Hits.Length);
+        if (pos1 != pos2)
+        {
+            var hit = individual.Hits[pos1];
+            var pitch = individual.Pitches[pos1];
+            var length = individual.Lengths[pos1];
+            var velocity = individual.Velocities[pos1];
+            individual.Hits[pos1] = individual.Hits[pos2];
+            individual.Pitches[pos1] = individual.Pitches[pos2];
+            individual.Lengths[pos1] = individual.Lengths[pos2];
+            individual.Velocities[pos1] = individual.Velocities[pos2];
+            individual.Hits[pos2] = hit;
+            individual.Pitches[pos2] = pitch;
+            individual.Lengths[pos2] = length;
+            individual.Velocities[pos2] = velocity;
+        }
     }
 
     public RhythmPattern Crossover(RhythmPattern individual1, RhythmPattern individual2, EvolutionContext ctx)

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Egami.Pitch\Egami.Pitch.csproj" />
     <ProjectReference Include="..\Egami.Rhythm\Egami.Rhythm.csproj" />
   </ItemGroup>
 

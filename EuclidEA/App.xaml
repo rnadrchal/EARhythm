@@ -16,6 +16,8 @@
                 <ResourceDictionary Source="Resources/PolyrhythmTemplate.xaml" />
                 <ResourceDictionary Source="Resources/TrackChunkTemplate.xaml" />
                 <ResourceDictionary Source="Resources/ConstantPitchTemplate.xaml" />
+                <ResourceDictionary Source="Resources/RandomPitchTemplate.xaml" />
+                <ResourceDictionary Source="Resources/NormalDistributionPitchTemplate.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

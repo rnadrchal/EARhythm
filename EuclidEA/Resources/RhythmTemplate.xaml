@@ -43,7 +43,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
                     <StackPanel Orientation="Vertical" Margin="0,0,15,0">
                         <TextBlock Text="Rate" Style="{StaticResource LabelStyle}" />
-                        <syncfusion:SfRadialSlider Width="70" Height="70" Margin="-12,-10, -12, -12"
+                        <syncfusion:SfRadialSlider Width="120" Height="120" Margin="-12,-18, -12, -12"
                                                        Minimum="0" Maximum="{Binding Rates.Length, Converter={StaticResource Add}, ConverterParameter=-1}"
                                                        Value="{Binding RateIndex}"
                                                        OuterRimRadiusFactor="0.6"
@@ -63,6 +63,35 @@
                             </TextBlock>
                         </syncfusion:SfRadialSlider>
                     </StackPanel>
+                    <syncfusion:SfCircularGauge HeaderAlignment="Center" Width="50" Height="50" VerticalAlignment="Center" Margin="0,0,20,0">
+                        <syncfusion:SfCircularGauge.Scales>
+                            <syncfusion:CircularScale StartAngle="135" SweepAngle="270"
+                                                 StartValue="0" EndValue="1" MinorTicksPerInterval="1"
+                                                 LabelOffset="10" ShowLabels="False">
+                                <syncfusion:CircularScale.Ranges>
+                                    <syncfusion:CircularRange StartValue="0" EndValue="{Binding RhythmFitness}" Stroke="LightGreen" />
+                                    <syncfusion:CircularRange StartValue="0" EndValue="{Binding PitchFitness}" Stroke="OrangeRed"
+                                                              InnerStartOffset="0.8" InnerEndOffset="0.8" 
+                                                              OuterStartOffset="0.9" OuterEndOffset="0.9" />
+                                    <syncfusion:CircularRange StartValue="0" EndValue="{Binding LengthFitness}" Stroke="Yellow"
+                                                              InnerStartOffset="0.7" InnerEndOffset="0.7" 
+                                                              OuterStartOffset="0.8" OuterEndOffset="0.8"/>
+                                    <syncfusion:CircularRange StartValue="0" EndValue="{Binding VelocityFitness}" Stroke="Orange" 
+                                                              InnerStartOffset="0.6" InnerEndOffset="0.6" 
+                                                              OuterStartOffset="0.7" OuterEndOffset="0.7"/>
+                                </syncfusion:CircularScale.Ranges>
+                                <syncfusion:CircularScale.Pointers>
+                                    <syncfusion:CircularPointer Value="{Binding CurrentFitness}" PointerType="NeedlePointer" NeedlePointerStroke="Orange"  NeedlePointerStrokeThickness="1" />
+                                </syncfusion:CircularScale.Pointers>
+                                <syncfusion:CircularScale.MajorTickSettings>
+                                    <syncfusion:MajorTickSetting Stroke="#666" StrokeThickness="1" Length="5" />
+                                </syncfusion:CircularScale.MajorTickSettings>
+                                <syncfusion:CircularScale.MinorTickSettings>
+                                    <syncfusion:MinorTickSetting  StrokeThickness="0" />
+                                </syncfusion:CircularScale.MinorTickSettings>
+                            </syncfusion:CircularScale>
+                        </syncfusion:SfCircularGauge.Scales>
+                    </syncfusion:SfCircularGauge>
 
                 </StackPanel>
                 <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
