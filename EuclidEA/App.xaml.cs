@@ -1,8 +1,10 @@
 ﻿using System.Windows;
+using Egami.EA.Metrics;
 using Egami.Rhythm.EA;
 using Egami.Rhythm.EA.Mutation;
 using Egami.Rhythm.Midi.Generation;
 using Egami.Rhythm.Pattern;
+using EuclidEA.Models;
 using EuclidEA.Views;
 using Melanchall.DryWetMidi.Multimedia;
 using Microsoft.Extensions.Configuration;
@@ -54,6 +56,8 @@ namespace EuclidEA
             containerRegistry.RegisterInstance(_inputDevice);
             containerRegistry.RegisterInstance(_dawDevice);
             containerRegistry.RegisterSingleton<Services.MidiClock>();
+            containerRegistry.RegisterSingleton<IFitnessServiceOptions, FitnessServiceOptions>();
+            containerRegistry.RegisterSingleton<IFitnessService, FastBundleFitnessService>();
         }
     }
 }

@@ -9,10 +9,6 @@ public class EvolutionContext
     public required double InsertionRate { get; set; } = 0.01;
     public required double SwapRate { get; set; } = 0.1;
     public required double CrossoverRate { get; set; } = 0.7;
-    public required double RhythmWeight { get; set; } = 1.0;
-    public required double PitchWeight { get; set; } = 1.0;
-    public required double LenghtWeight { get; set; } = 1.0;
-    public required double VelocityWeight { get; set; } = 1.0;
     public int? Seed { get; init; } = null;
 
     public static EvolutionContext Create(double mutationRate = 0.1, double deletionRate = 0.01,
@@ -26,10 +22,6 @@ public class EvolutionContext
             InsertionRate = insertionRate,
             CrossoverRate = crossoverRate,
             SwapRate = swapRate,
-            RhythmWeight = rhythmWeight,
-            PitchWeight = pitchWeight,
-            LenghtWeight = lengthWeight,
-            VelocityWeight = velocityWeight
         };
     }
 }

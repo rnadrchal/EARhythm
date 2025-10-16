@@ -32,7 +32,14 @@ public class RhythmPatternMutator : IMutator<RhythmPattern>
             }
             else
             {
-                individual.Lengths[position] = RandomProvider.Get(ctx.Seed).Next(1, individual.Lengths[position]);
+                if (individual.Lengths[position] > 1)
+                {
+                    individual.Lengths[position] = RandomProvider.Get(ctx.Seed).Next(1, individual.Lengths[position]);
+                }
+                else
+                {
+                    individual.Lengths[position] = 1; // Assign a default value or handle appropriately
+                }
             }
         }
     }

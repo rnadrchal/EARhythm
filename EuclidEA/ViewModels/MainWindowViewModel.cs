@@ -2,10 +2,12 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using Egami.EA.Metrics;
 using Egami.Rhythm.EA;
 using Egami.Rhythm.EA.Mutation;
 using Egami.Rhythm.Pattern;
 using EuclidEA.Events;
+using EuclidEA.Models;
 using EuclidEA.Services;
 using Melanchall.DryWetMidi.Multimedia;
 using Prism.Events;
@@ -22,6 +24,8 @@ namespace EuclidEA.ViewModels
         private readonly Evolution<RhythmPattern> _evolution;
         private readonly EvolutionContext _evolutionContext;
         private readonly IMutator<RhythmPattern> _mutator;
+        private readonly IFitnessServiceOptions _fitnessOptions;
+        private readonly IFitnessService _fitnessService;
 
         private string _title = "Euclid EA";
         public string Title
@@ -53,6 +57,8 @@ namespace EuclidEA.ViewModels
 
             }
         }
+
+        public FitnessServiceOptions? FitnessOptions => _fitnessOptions as FitnessServiceOptions;
 
         public List<IRhythmGeneratorViewModel> Generators { get; private set; } = new()
         {
@@ -146,71 +152,20 @@ namespace EuclidEA.ViewModels
             }
         }
 
-        private double _rhythmWeight;
-        public double RhythmWeight
-        {
-            get => _rhythmWeight;
-            set
-            {
-                if (SetProperty(ref _rhythmWeight, value))
-                {
-                    _evolutionContext.RhythmWeight = value;
-                    _eventAggregator.GetEvent<EvolutionContextChangedEvent>().Publish(_evolutionContext);
-                }
-            }
-        }
-
-        private double _pitchWeight;
-        public double PitchWeight
-        {
-            get => _pitchWeight;
-            set
-            {
-                if (SetProperty(ref _pitchWeight, value))
-                {
-                    _evolutionContext.PitchWeight = value;
-                    _eventAggregator.GetEvent<EvolutionContextChangedEvent>().Publish(_evolutionContext);
-                }
-            }
-        }
-
-        private double _lengthWeight;
-        public double LengthWeight
-        {
-            get => _lengthWeight;
-            set
-            {
-                if (SetProperty(ref _lengthWeight, value))
-                {
-                    _evolutionContext.LenghtWeight = value;
-                    _eventAggregator.GetEvent<EvolutionContextChangedEvent>().Publish(_evolutionContext);
-                }
-            }
-        }
-
-        private double _velocityWeight;
-        public double VelocityWeight
-        {
-            get => _velocityWeight;
-            set
-            {
-                if (SetProperty(ref _velocityWeight, value))
-                {
-                    _evolutionContext.VelocityWeight = value;
-                    _eventAggregator.GetEvent<EvolutionContextChangedEvent>().Publish(_evolutionContext);
-                }
-            }
-        }
-
         public ICommand GenerateRhythmCommand { get; }
         public ICommand StartStopEvolutionCommand { get; }
 
-        public MainWindowViewModel(IEventAggregator eventAggregator, MidiClock midiClock, OutputDevice midiOut, IMutator<RhythmPattern> mutator, Evolution<RhythmPattern> evolution)
+        public MainWindowViewModel(IEventAggregator eventAggregator, MidiClock midiClock, OutputDevice midiOut, IMutator<RhythmPattern> mutator, Evolution<RhythmPattern> evolution, 
+            IFitnessServiceOptions fitnessOptions, IFitnessService fitnessService)
         {
             _eventAggregator = eventAggregator;
             _midiOut = midiOut;
             _mutator = mutator;
             _evolution = evolution;
+            _fitnessOptions = fitnessOptions;
+            _fitnessService = fitnessService;
+
+            ((FitnessServiceOptions)fitnessOptions).PropertyChanged += (_, _) => _fitnessService.ApplyOptions();
 
             _evolutionContext = EvolutionContext.Create();
 
@@ -219,10 +174,6 @@ namespace EuclidEA.ViewModels
             _insertionRate = _evolutionContext.InsertionRate * 100.0;
             _crossoverRate = _evolutionContext.CrossoverRate * 100.0;
             _swapRate = _evolutionContext.SwapRate * 100.0;
-            _rhythmWeight = _evolutionContext.RhythmWeight;
-            _pitchWeight = _evolutionContext.PitchWeight;
-            _lengthWeight = _evolutionContext.LenghtWeight;
-            _velocityWeight = _evolutionContext.VelocityWeight;
 
             _eventAggregator.GetEvent<BeatEvent>().Subscribe(() => LedOn = true);
             _eventAggregator.GetEvent<OffBeatEvent>().Subscribe(() => LedOn = false);
@@ -267,7 +218,7 @@ namespace EuclidEA.ViewModels
             {
                 var nextChannel = GetFreeChannel();
                 if (nextChannel == null) return;
-                Rhythms.Add(new RhythmViewModel(pattern, nextChannel.Value, _eventAggregator, _midiOut, _evolution, _mutator));
+                Rhythms.Add(new RhythmViewModel(pattern, nextChannel.Value, _eventAggregator, _midiOut, _evolution, _mutator, _fitnessService));
             }
         }
 

@@ -1,0 +1,147 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:model="clr-namespace:EuclidEA.Models"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
+    <DataTemplate DataType="{x:Type model:FitnessServiceOptions}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Grid.Row="0" Text="MCS" FontSize="10" HorizontalAlignment="Center" />
+            <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Width="80" Height="80"
+                                       Margin="0,-6"
+                                       Minimum="0" Maximum="3"
+                                       Value="{Binding MaxCircularShift}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                       LabelVisibility="Hidden"
+                                       FontFamily="Kristen ITC"
+                                       ToolTip="Maximum Circular Shift">
+                <TextBlock Text="{Binding MaxCircularShift}" FontSize="10"></TextBlock>
+            </syncfusion:SfRadialSlider>
+
+            <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="0" Width="80" Height="80"
+                                       Margin="0,-6"
+                                       Minimum="1" Maximum="64"
+                                       Value="{Binding LMax}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickVisibility="Visible"
+                                       TickFrequency="8"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                       LabelVisibility="Hidden"
+                                       FontFamily="Kristen ITC">
+                <TextBlock Text="{Binding LMax}" FontSize="10"></TextBlock>
+
+                <syncfusion:SfRadialSlider.ToolTip>
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock FontWeight="Bold" Text="Length Normalization (LMax)" />
+                        <TextBlock Text="Defines the maximum expected note length used for normalization in the length similarity metric.
+Higher values make length differences less significant; lower values increase their impact on fitness." FontSize="12"></TextBlock>
+                    </StackPanel>
+                </syncfusion:SfRadialSlider.ToolTip>
+            </syncfusion:SfRadialSlider>
+            <TextBlock Grid.Column="0" Grid.Row="3" Text="LMax" FontSize="10" HorizontalAlignment="Center" />
+
+            <TextBlock Grid.Column="1" Grid.Row="0" Text="W_Hits" FontSize="10" HorizontalAlignment="Center" Foreground="LightGreen" />
+            <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="1" Width="80" Height="80"
+                                       Margin="0,-6"
+                                       Minimum="0" Maximum="1"
+                                       Value="{Binding W_Hits}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                       LabelVisibility="Hidden"
+                                       FontFamily="Kristen ITC"
+                                       ToolTip="Fitness Weight for Similarity">
+                <TextBlock Text="{Binding W_Hits}" FontSize="10"></TextBlock>
+            </syncfusion:SfRadialSlider>
+            <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="1" Width="80" Height="80"
+                                       Margin="0,-6"
+                                       Minimum="0" Maximum="1"
+                                       Value="{Binding W_Pitch}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                       LabelVisibility="Hidden"
+                                       FontFamily="Kristen ITC"
+                                       ToolTip="Fitness Weight for Pitch Similarity">
+                <TextBlock Text="{Binding W_Pitch}" FontSize="10"></TextBlock>
+            </syncfusion:SfRadialSlider>
+            <TextBlock Grid.Column="1" Grid.Row="3" Text="W_Pitch" FontSize="10" HorizontalAlignment="Center" Foreground="OrangeRed" />
+
+            <TextBlock Grid.Column="2" Grid.Row="0" Text="W_Len" FontSize="10" HorizontalAlignment="Center" Foreground="Yellow" />
+            <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="2" Width="80" Height="80"
+                                       Margin="0,-6"
+                                       Minimum="0" Maximum="1"
+                                       Value="{Binding W_Len}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                       LabelVisibility="Hidden"
+                                       FontFamily="Kristen ITC"
+                                       ToolTip="Fitness Weight for Hit Length Similarity">
+                <TextBlock Text="{Binding W_Len}" FontSize="10"></TextBlock>
+            </syncfusion:SfRadialSlider>
+            <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="2" Width="80" Height="80"
+                                       Margin="0,-6"
+                                       Minimum="0" Maximum="1"
+                                       Value="{Binding W_Vel}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                       LabelVisibility="Hidden"
+                                       FontFamily="Kristen ITC"
+                                       ToolTip="Fitness Weight for Velocity Similarity">
+                <TextBlock Text="{Binding W_Vel}" FontSize="10"></TextBlock>
+            </syncfusion:SfRadialSlider>
+            <TextBlock Grid.Column="2" Grid.Row="3" Text="W_Vel" FontSize="10" HorizontalAlignment="Center" Foreground="Orange" />
+
+        </Grid>
+    </DataTemplate>
+</ResourceDictionary>
