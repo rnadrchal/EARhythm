@@ -33,7 +33,7 @@ public class EuclidGeneratorTests
 
         pattern.Lengths.Count(l => l > 0).Should().Be(pulses);
         pattern.Hits.Count(h => h).Should().Be(pulses);
-        pattern.Velocity.Count(v => v > 0).Should().Be(pulses);
+        pattern.Velocities.Count(v => v > 0).Should().Be(pulses);
 
         var events = pattern.ToEvents().ToList();
         events.ForEach(e => pattern.Hits[e.Step].Should().BeTrue());

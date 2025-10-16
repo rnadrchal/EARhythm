@@ -1,6 +1,11 @@
-﻿using Egami.Rhythm;
+﻿using System.Collections.Generic;
+using System.Windows.Documents;
+using Egami.Pitch;
+using Egami.Rhythm;
 using Egami.Rhythm.Core;
+using Egami.Rhythm.Extensions;
 using Egami.Rhythm.Generation;
+using Egami.Rhythm.Midi.Generation;
 using Egami.Rhythm.Pattern;
 using Prism.Mvvm;
 
@@ -11,6 +16,28 @@ public abstract class RhythmGeneratorViewModel : BindableBase, IRhythmGeneratorV
     protected abstract IRhythmGenerator Generator { get; }
 
     public abstract string Name { get; }
+
+    protected List<IPitchGeneratorViewModel> PitchGenerators { get; } = new()
+    {
+        new ConstantPitchGeneratorViewModel(new ConstantPitchGenerator()),
+        new RandomPitchGeneratorViewModel(new RandomPitchGenerator()),
+        new NormalDistributionPitchGeneratorViewModel(new NormalDistributionPitchGenerator())
+    };
+
+    private int? _pitchGeneratorIndex = 0;
+    public int? PitchGeneratorIndex
+    {
+        get => _pitchGeneratorIndex;
+        set
+        {
+            if (SetProperty(ref _pitchGeneratorIndex, value))
+            {
+                RaisePropertyChanged(nameof(PitchGenerator));
+            }
+        }
+    }
+
+    public virtual IPitchGeneratorViewModel PitchGenerator => _pitchGeneratorIndex.HasValue ? PitchGenerators[_pitchGeneratorIndex.Value] : null;
 
     protected int _steps = 16;
 
@@ -35,6 +62,11 @@ public abstract class RhythmGeneratorViewModel : BindableBase, IRhythmGeneratorV
 
     protected virtual RhythmPattern Generate(RhythmContext context)
     {
+        if (PitchGenerator != null)
+        {
+            var pitches = PitchGenerator.Generate(context.StepsTotal);
+            return Generator.GenerateWith(context, new PitchTransform(pitches));
+        }
         return Generator.Generate(context);
     }
 }

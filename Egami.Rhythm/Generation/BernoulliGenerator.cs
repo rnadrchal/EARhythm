@@ -15,8 +15,8 @@ public sealed class BernoulliGenerator(double probability01 = 0.5) : IRhythmGene
         {
             bool hit = rng.NextDouble() < _p;
             p.Hits[i] = hit;
-            p.Lengths[i] = hit ? 1 : 0;
-            p.Velocity[i] = (byte) (hit ? ctx.DefaultVelocity : 0);
+            p.Lengths[i] = 1;
+            p.Velocities[i] = (byte) (hit ? ctx.DefaultVelocity : 0);
         }
         return p;
     }

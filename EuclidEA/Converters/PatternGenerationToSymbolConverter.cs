@@ -21,6 +21,7 @@ public class PatternGenerationToSymbolConverter : IValueConverter
                 RhythmGenerationMethod.CellullarAutomaton => MaterialIconKind.DotsGrid,
                 RhythmGenerationMethod.LSystem => MaterialIconKind.FormatTextVariant,
                 RhythmGenerationMethod.Polyrhythm => MaterialIconKind.MusicNote,
+                RhythmGenerationMethod.TrackChunk => MaterialIconKind.File,
                 _ => MaterialIconKind.BlurLinear
             };
         }

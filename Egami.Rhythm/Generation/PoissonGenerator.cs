@@ -24,7 +24,7 @@ public sealed class PoissonGenerator(double lambdaPerBar) : IRhythmGenerator
             int step = (int)Math.Round(t * (ctx.StepsTotal - 1));
             p.Hits[step] = true;
             p.Lengths[step] = 1;
-            p.Velocity[step] = ctx.DefaultVelocity;
+            p.Velocities[step] = ctx.DefaultVelocity;
         }
         return p;
     }

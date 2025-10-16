@@ -7,5 +7,6 @@ public enum RhythmGenerationMethod
     Poisson,
     CellullarAutomaton,
     LSystem,
-    Polyrhythm
+    Polyrhythm,
+    TrackChunk
 }

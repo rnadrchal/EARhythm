@@ -8,9 +8,9 @@
     <converters:StringConverter x:Key="String" />
 
     <DataTemplate DataType="{x:Type vm:CellularAutomatonViewModel}">
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-            <TextBlock Text="Steps" Style="{StaticResource LabelStyle}" />
-            <syncfusion:SfRadialSlider Width="120" Height="120"
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                <TextBlock Text="Steps" Style="{StaticResource LabelStyle}" />
+                <syncfusion:SfRadialSlider Width="120" Height="120"
                                        Minimum="0" Maximum="64"
                                        Value="{Binding Steps}"
                                        OuterRimRadiusFactor="0.6"
@@ -24,22 +24,22 @@
                                        TickVisibility="Visible"
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
                                        FontFamily="Kristen ITC">
-                <TextBlock Text="{Binding Steps}" FontSize="16"></TextBlock>
-            </syncfusion:SfRadialSlider>
-            <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0"
+                    <TextBlock Text="{Binding Steps}" FontSize="16"></TextBlock>
+                </syncfusion:SfRadialSlider>
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0"
                            Text="Rule" Style="{StaticResource LabelStyle}" />
-                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Width="120" Height="120" Margin="-16,-16"
+                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Width="120" Height="120" Margin="-16,-16"
                                            Minimum="0" Maximum="{Binding Rules.Length, Converter={StaticResource Add}, ConverterParameter=-1}"
                                            Value="{Binding RuleIndex}"
                                            OuterRimRadiusFactor="0.6"
@@ -54,11 +54,11 @@
                                            TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                            LabelVisibility="Hidden"
                                            FontFamily="Kristen ITC">
-                    <TextBlock Text="{Binding Rule}" FontSize="16" />
-                </syncfusion:SfRadialSlider>
+                        <TextBlock Text="{Binding Rule}" FontSize="16" />
+                    </syncfusion:SfRadialSlider>
 
-                <TextBlock Grid.Row="0" Grid.Column="1" Text="Boundary" Style="{StaticResource LabelStyle}" />
-                <syncfusion:SfRadialSlider Grid.Column="1" Grid.Row="1" Width="120" Height="120" Margin="-16,-16"
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Boundary" Style="{StaticResource LabelStyle}" />
+                    <syncfusion:SfRadialSlider Grid.Column="1" Grid.Row="1" Width="120" Height="120" Margin="-16,-16"
                                            Minimum="0" Maximum="{Binding Boundaries.Length, Converter={StaticResource Add}, ConverterParameter=-1}"
                                            Value="{Binding BoundaryIndex}"
                                            OuterRimRadiusFactor="0.6"
@@ -73,12 +73,12 @@
                                            TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                            LabelVisibility="Hidden"
                                            FontFamily="Kristen ITC">
-                    <TextBlock Text="{Binding Boundary, Converter={StaticResource String}, Mode=OneWay}" FontSize="10" />
-                </syncfusion:SfRadialSlider>
+                        <TextBlock Text="{Binding Boundary, Converter={StaticResource String}, Mode=OneWay}" FontSize="10" />
+                    </syncfusion:SfRadialSlider>
 
-                <TextBlock Grid.Row="2" Grid.Column="0"
+                    <TextBlock Grid.Row="2" Grid.Column="0"
                            Text="Seed" Style="{StaticResource LabelStyle}" />
-                <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="0" Width="120" Height="120" Margin="-16,-16"
+                    <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="0" Width="120" Height="120" Margin="-16,-16"
                                            Minimum="0" Maximum="{Binding Seeds.Length, Converter={StaticResource Add}, ConverterParameter=-1}"
                                            Value="{Binding SeedIndex}"
                                            OuterRimRadiusFactor="0.6"
@@ -93,11 +93,11 @@
                                            TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                            LabelVisibility="Hidden"
                                            FontFamily="Kristen ITC">
-                    <TextBlock Text="{Binding Seed, Converter={StaticResource String}}" FontSize="10" />
-                </syncfusion:SfRadialSlider>
+                        <TextBlock Text="{Binding Seed, Converter={StaticResource String}}" FontSize="10" />
+                    </syncfusion:SfRadialSlider>
 
-                <TextBlock Grid.Row="2" Grid.Column="1" Text="Map Mode" Style="{StaticResource LabelStyle}" />
-                <syncfusion:SfRadialSlider Grid.Column="1" Grid.Row="3" Width="120" Height="120" Margin="-16,-16"
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="Map Mode" Style="{StaticResource LabelStyle}" />
+                    <syncfusion:SfRadialSlider Grid.Column="1" Grid.Row="3" Width="120" Height="120" Margin="-16,-16"
                                            Minimum="0" Maximum="{Binding MapModes.Length, Converter={StaticResource Add}, ConverterParameter=-1}"
                                            Value="{Binding MapModeIndex}"
                                            OuterRimRadiusFactor="0.6"
@@ -112,13 +112,14 @@
                                            TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                            LabelVisibility="Hidden"
                                            FontFamily="Kristen ITC">
-                    <TextBlock Text="{Binding MapMode, Converter={StaticResource String}, Mode=OneWay}" FontSize="10" />
-                </syncfusion:SfRadialSlider>
-            </Grid>
+                        <TextBlock Text="{Binding MapMode, Converter={StaticResource String}, Mode=OneWay}" FontSize="10" />
+                    </syncfusion:SfRadialSlider>
+
+                </Grid>
 
 
-            <TextBlock Text="N" Style="{StaticResource LabelStyle}" />
-            <syncfusion:SfRadialSlider Width="120" Height="120"
+                <TextBlock Text="N" Style="{StaticResource LabelStyle}" />
+                <syncfusion:SfRadialSlider Width="120" Height="120"
                                        Minimum="1" Maximum="16"
                                        Value="{Binding N}"
                                        OuterRimRadiusFactor="0.6"
@@ -132,11 +133,11 @@
                                        TickVisibility="Visible"
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
                                        FontFamily="Kristen ITC">
-                <TextBlock Text="{Binding N}" FontSize="16"></TextBlock>
-            </syncfusion:SfRadialSlider>
+                    <TextBlock Text="{Binding N}" FontSize="16"></TextBlock>
+                </syncfusion:SfRadialSlider>
 
-            <TextBlock Text="Generations" Style="{StaticResource LabelStyle}" />
-            <syncfusion:SfRadialSlider Width="120" Height="120"
+                <TextBlock Text="Generations" Style="{StaticResource LabelStyle}" />
+                <syncfusion:SfRadialSlider Width="120" Height="120"
                                        Minimum="1" Maximum="32"
                                        Value="{Binding Generations}"
                                        OuterRimRadiusFactor="0.6"
@@ -150,11 +151,8 @@
                                        TickVisibility="Visible"
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
                                        FontFamily="Kristen ITC">
-                <TextBlock Text="{Binding Generations}" FontSize="16"></TextBlock>
-            </syncfusion:SfRadialSlider>
-
-
-
-        </StackPanel>
+                    <TextBlock Text="{Binding Generations}" FontSize="16"></TextBlock>
+                </syncfusion:SfRadialSlider>
+            </StackPanel>
     </DataTemplate>
 </ResourceDictionary>

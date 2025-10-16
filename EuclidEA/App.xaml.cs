@@ -1,4 +1,8 @@
 ﻿using System.Windows;
+using Egami.Rhythm.EA;
+using Egami.Rhythm.EA.Mutation;
+using Egami.Rhythm.Midi.Generation;
+using Egami.Rhythm.Pattern;
 using EuclidEA.Views;
 using Melanchall.DryWetMidi.Multimedia;
 using Microsoft.Extensions.Configuration;
@@ -12,8 +16,10 @@ namespace EuclidEA
     public partial class App
     {
         private IConfigurationRoot _config;
-        private InputDevice _clockDevice;
+        private InputDevice _inputDevice;
         private OutputDevice _dawDevice;
+        private Evolution<RhythmPattern> _evolution;
+        private readonly IMutator<RhythmPattern> _mutator;
 
         public App()
         {
@@ -22,14 +28,18 @@ namespace EuclidEA
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
-            var clockName = _config.GetSection("LoopMidiPorts")["Clock"];
+            _evolution = new Evolution<RhythmPattern>();
+            _mutator = new RhythmPatternMutator();
             var dawName = _config.GetSection("LoopMidiPorts")["Daw"];
-            _clockDevice = InputDevice.GetByName(clockName);
+            _inputDevice = InputDevice.GetByName(dawName);
             _dawDevice = OutputDevice.GetByName(dawName);
-            if (_clockDevice != null)
+            if (_inputDevice != null)
             {
-                _clockDevice.StartEventsListening();
+                _inputDevice.StartEventsListening();
             }
+
+            var inputDevice = InputDevice.GetByName(dawName);
+
         }
         protected override Window CreateShell()
         {
@@ -38,8 +48,10 @@ namespace EuclidEA
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.RegisterInstance(_evolution);
+            containerRegistry.RegisterInstance(_mutator);
             containerRegistry.RegisterInstance(_config);
-            containerRegistry.RegisterInstance(_clockDevice);
+            containerRegistry.RegisterInstance(_inputDevice);
             containerRegistry.RegisterInstance(_dawDevice);
             containerRegistry.RegisterSingleton<Services.MidiClock>();
         }

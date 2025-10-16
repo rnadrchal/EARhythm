@@ -17,7 +17,7 @@ public sealed class RotateTransform(int offset) : IRhythmTransform
             Array.Copy(b, a, n);
         }
         Rot(outp.Hits);
-        Rot(outp.Velocity);
+        Rot(outp.Velocities);
         Rot(outp.Lengths);
         return outp;
     }

@@ -15,13 +15,19 @@
             <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
             <converters:AddConverter x:Key="Add" />
             <converters:PatternGenerationToSymbolConverter x:Key="PatternGenerationToSymbol" />
-            <converters:RhythmGeneratorToSymbolConverter x:Key="GeneratorSymbol" />
+            <converters:PitchGenerationToSymbolConverter x:Key="PitchGenerationToSymbol"></converters:PitchGenerationToSymbolConverter>
             <converters:RunningToIconConverter x:Key="RunningToIcon" />
 
             <DataTemplate x:Key="PatternGeneration">
                 <wpf:MaterialIcon Kind="{Binding Converter={StaticResource PatternGenerationToSymbol}}" 
-                                  Width="12" />
+                                  Width="14" />
             </DataTemplate>
+
+            <DataTemplate x:Key="PitchGeneration">
+                <wpf:MaterialIcon Kind="{Binding Converter={StaticResource PitchGenerationToSymbol}}" 
+                                  Width="14" />
+            </DataTemplate>
+
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -38,9 +44,10 @@
         </ScrollViewer>
         
     
+        <GroupBox Grid.Row="0" Grid.Column="1" Header="Evolution" Margin="5,5, 0, 5"></GroupBox>
         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="10">
-            <StackPanel Orientation="Vertical">
-                <Button Style="{StaticResource Round3DButton}" Background="OrangeRed"
+            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                <Button Style="{StaticResource Round3DButton}" Height="80" Width="80" Background="OrangeRed"
                         Command="{Binding StartStopEvolutionCommand}">
                     <wpf:MaterialIcon Kind="{Binding IsEvolutionInProgress, Converter={StaticResource RunningToIcon}}" 
                                       Height="32" Opacity="0.5"
@@ -49,6 +56,212 @@
                 <TextBlock Text="Start/Pause Evolution" Style="{StaticResource LabelStyle}" Margin="0,5,0,0" />
             </StackPanel>
 
+            <Grid Margin="15,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="10" />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition Height="14" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="Weight" FontSize="10" VerticalAlignment="Center" />
+                <Border Grid.Column="1" Grid.Row="1" Height="2" BorderBrush="#FFF" BorderThickness="1" VerticalAlignment="Center" Width="20" Margin="5,0" />
+                <TextBlock Grid.Column="0" Grid.Row="2" Text="Rate%" FontSize="10" VerticalAlignment="Center" />
+                <Border Grid.Column="1" Grid.Row="2" Height="2" BorderBrush="#FFF" BorderThickness="1" VerticalAlignment="Center" Width="20" Margin="5,0" />
+
+                <TextBlock Grid.Column="2" Grid.Row="0" Text="Rhythm" FontSize="10" HorizontalAlignment="Center" Foreground="LightGreen" />
+                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="2" Width="80" Height="80"
+                                           Margin="0,-6"
+                                           Minimum="0" Maximum="2"
+                                           Value="{Binding RhythmWeight}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden"
+                                           FontFamily="Kristen ITC">
+                    <TextBlock Text="{Binding RhythmWeight}" FontSize="10"></TextBlock>
+                </syncfusion:SfRadialSlider>
+
+                <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="2" Width="80" Height="80"
+                                           Margin="0,-12"
+                                           Minimum="0.0" Maximum="100"
+                                           Value="{Binding MutationRate}"
+                                           SmallChange="0.1"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden"
+                                           FontFamily="Kristen ITC">
+
+                    <TextBlock Text="{Binding MutationRate}" FontSize="10"></TextBlock>
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Column="2" Grid.Row="3" Text="Mutation" FontSize="10" HorizontalAlignment="Center" />
+
+                <TextBlock Grid.Column="3" Grid.Row="0" Text="Pitch" FontSize="10" HorizontalAlignment="Center" Foreground="OrangeRed" />
+                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="3" Width="80" Height="80"
+                                           Margin="0,-6"
+                                           Minimum="0" Maximum="2"
+                                           Value="{Binding PitchWeight}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden"
+                                           FontFamily="Kristen ITC">
+                    <TextBlock Text="{Binding PitchWeight}" FontSize="10"></TextBlock>
+                </syncfusion:SfRadialSlider>
+
+                <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="3" Width="80" Height="80"
+                                           Margin="0,-12"
+                                           Minimum="0" Maximum="100"
+                                           Value="{Binding DeletionRate}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden"
+                                           FontFamily="Kristen ITC">
+
+                    <TextBlock Text="{Binding DeletionRate}" FontSize="10"></TextBlock>
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Column="3" Grid.Row="3" Text="Deletion" FontSize="10" HorizontalAlignment="Center" />
+
+
+                <TextBlock Grid.Column="4" Grid.Row="0" Text="Length" FontSize="10" HorizontalAlignment="Center" Foreground="Yellow" />
+                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="4" Width="80" Height="80"
+                                           Margin="0,-6"
+                                           Minimum="0" Maximum="2"
+                                           Value="{Binding LengthWeight}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden"
+                                           FontFamily="Kristen ITC">
+                    <TextBlock Text="{Binding LengthWeight}" FontSize="10" />
+                </syncfusion:SfRadialSlider>
+
+                <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="4" Width="80" Height="80"
+                                           Margin="0,-12"
+                                           Minimum="0" Maximum="100"
+                                           Value="{Binding InsertionRate}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden"
+                                           FontFamily="Kristen ITC">
+
+                    <TextBlock Text="{Binding InsertionRate}" FontSize="10"></TextBlock>
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Column="4" Grid.Row="3" Text="Insertion" FontSize="10" HorizontalAlignment="Center" />
+
+
+                <TextBlock Grid.Column="5" Grid.Row="0" Text="Velocity" FontSize="10" HorizontalAlignment="Center" Foreground="Orange" />
+                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="5" Width="80" Height="80"
+                                           Margin="0,-6"
+                                           Minimum="0" Maximum="2"
+                                           Value="{Binding VelocityWeight}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden"
+                                           FontFamily="Kristen ITC">
+                    <TextBlock Text="{Binding VelocityWeight}" FontSize="10" />
+                </syncfusion:SfRadialSlider>
+
+                <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="5" Width="80" Height="80"
+                                           Margin="0,-12"
+                                           Minimum="0" Maximum="100"
+                                           Value="{Binding SwapRate}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden"
+                                           FontFamily="Kristen ITC">
+
+                    <TextBlock Text="{Binding SwapRate}" FontSize="10"></TextBlock>
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Column="5" Grid.Row="3" Text="Swap" FontSize="10" HorizontalAlignment="Center" />
+
+                <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="6" Width="80" Height="80"
+                                           Margin="0,-12"
+                                           Minimum="0" Maximum="100"
+                                           Value="{Binding CrossoverRate}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden"
+                                           FontFamily="Kristen ITC">
+
+                    <TextBlock Text="{Binding CrossoverRate}" FontSize="10"></TextBlock>
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Column="6" Grid.Row="3" Text="Crossover" FontSize="10" HorizontalAlignment="Center" />
+
+            </Grid>
         </StackPanel>
         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Right" Margin="10">
             <Ellipse Style="{StaticResource LedEllipseStyle}"
@@ -58,35 +271,74 @@
             <TextBlock Text="Clock" Style="{StaticResource LabelStyle}"/>
         </StackPanel>
 
-        <GroupBox Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Header="Generator">
+        <GroupBox Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Header="Generator" Margin="0,5">
             <StackPanel Orientation="Vertical">
                 <Button Style="{StaticResource Round3DButton}" 
+                        Width="80" Height="80"
                         Background="OrangeRed" BorderBrush="DarkRed"
-                        Width="100" Height="100"
                         Margin="0,10"
                         Command="{Binding GenerateRhythmCommand}">
-                    <wpf:MaterialIcon Kind="Electricity" Height="50" Opacity="0.5" />
+                    <wpf:MaterialIcon Kind="Add" Height="28" Opacity="0.5" />
                 </Button>
+                <TextBlock Text="Generate Pattern" Style="{StaticResource LabelStyle}"></TextBlock>
                 <Separator />
-                <TextBlock Text="{Binding SelectedGenerator.Name}" 
-                           HorizontalAlignment="Center" Margin="0,5"
-                           Foreground="Orange"/>
-                <syncfusion:SfRadialSlider Width="120" Height="120"
-                                           Minimum="0" Maximum="5"
-                                           Value="{Binding RhythmGeneration}"
-                                           OuterRimRadiusFactor="0.6"
-                                           OuterRimStroke="#444"
-                                           OuterRimStrokeThickness="3"
-                                           InnerRimFill="#666"
-                                           InnerRimStroke="#444"
-                                           InnerRimRadiusFactor="0.4"
-                                           StartAngle="135" EndAngle="405" 
-                                           TickFrequency="1"
-                                           TickVisibility="Visible" 
-                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
-                                           FontFamily="Kristen ITC"
-                                           LabelTemplate="{StaticResource PatternGeneration}"/>
-                <ContentControl Content="{Binding SelectedGenerator}" />
+                <syncfusion:TabControlExt TabItemSelectedBorderBrush="Orange" ShowTabItemContextMenu="False" CloseButtonType="Hide" DefaultContextMenuItemVisibility="Hidden"
+                                          TabListContextMenuItems="{x:Null}">
+                    <syncfusion:TabItemExt CanClose="False">
+                        <syncfusion:TabItemExt.Header>
+                            <wpf:MaterialIcon Kind="Pulse" />
+                        </syncfusion:TabItemExt.Header>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="{Binding SelectedGenerator.Name}" 
+                                       HorizontalAlignment="Center" Margin="0,5"
+                                       Foreground="Orange"/>
+                            <syncfusion:SfRadialSlider Width="120" Height="120"
+                                                       Minimum="0" Maximum="6"
+                                                       Value="{Binding RhythmGeneration}"
+                                                       OuterRimRadiusFactor="0.6"
+                                                       OuterRimStroke="#444"
+                                                       OuterRimStrokeThickness="3"
+                                                       InnerRimFill="#666"
+                                                       InnerRimStroke="#444"
+                                                       InnerRimRadiusFactor="0.4"
+                                                       StartAngle="135" EndAngle="405" 
+                                                       TickFrequency="1"
+                                                       TickVisibility="Visible" 
+                                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
+                                                       FontFamily="Kristen ITC"
+                                                       LabelTemplate="{StaticResource PatternGeneration}"/>
+                            <ContentControl Content="{Binding SelectedGenerator}" />
+                        </StackPanel>
+                    </syncfusion:TabItemExt>
+                    <syncfusion:TabItemExt CanClose="False">
+                        <syncfusion:TabItemExt.Header>
+                            <wpf:MaterialIcon Kind="MusicNoteQuarter" />
+                        </syncfusion:TabItemExt.Header>
+                        <StackPanel Orientation="Vertical" Visibility="{Binding SelectedGenerator.PitchGenerator, Converter={StaticResource NotNullToVisibility} }">
+                            <TextBlock Text="{Binding SelectedGenerator.PitchGenerator.Name}"
+                                       HorizontalAlignment="Center" Margin="0,5"
+                                       Foreground="Orange" />
+
+                            <syncfusion:SfRadialSlider Width="120" Height="120"
+                                                       Minimum="0" Maximum="2"
+                                                       Value="{Binding SelectedGenerator.PitchGeneratorIndex}"
+                                                       OuterRimRadiusFactor="0.6"
+                                                       OuterRimStroke="#444"
+                                                       OuterRimStrokeThickness="3"
+                                                       InnerRimFill="#666"
+                                                       InnerRimStroke="#444"
+                                                       InnerRimRadiusFactor="0.4"
+                                                       StartAngle="135" EndAngle="405" 
+                                                       TickFrequency="1"
+                                                       TickVisibility="Visible" 
+                                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
+                                                       FontFamily="Kristen ITC"
+                                                       LabelTemplate="{StaticResource PitchGeneration}"/>
+
+                            <ContentControl Content="{Binding SelectedGenerator.PitchGenerator}"></ContentControl>
+                        </StackPanel>
+                    </syncfusion:TabItemExt>
+                </syncfusion:TabControlExt>
 
             </StackPanel>
         </GroupBox>

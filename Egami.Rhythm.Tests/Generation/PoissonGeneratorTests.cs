@@ -35,7 +35,7 @@ public class PoissonGeneratorTests
         var hits = pattern.Hits.Count(h => h);
         hits.Should().BeGreaterThan(0);
         pattern.Lengths.Count(l => l > 0).Should().Be(hits);
-        pattern.Velocity.Count(v => v > 0).Should().Be(hits);
+        pattern.Velocities.Count(v => v > 0).Should().Be(hits);
 
         var events = pattern.ToEvents().ToList();
         events.ForEach(e => pattern.Hits[e.Step].Should().BeTrue());

@@ -14,8 +14,8 @@ public sealed class SwingVelocityTransform(double strong = 1.2, double weak = 0.
         {
             if (!outp.Hits[i]) continue;
             var factor = (i % 2 == 0) ? _strong : _weak;
-            var v = outp.Velocity[i] == 0 ? 100 : outp.Velocity[i];
-            outp.Velocity[i] = (byte)Math.Clamp((int)Math.Round(v * factor), 1, 127);
+            var v = outp.Velocities[i] == 0 ? 100 : outp.Velocities[i];
+            outp.Velocities[i] = (byte)Math.Clamp((int)Math.Round(v * factor), 1, 127);
         }
         return outp;
     }

@@ -37,6 +37,7 @@
                                        FontFamily="Kristen ITC">
                 <TextBlock Text="{Binding Probability01}" FontSize="16"></TextBlock>
             </syncfusion:SfRadialSlider>
+
         </StackPanel>
     </DataTemplate>
 </ResourceDictionary>

@@ -18,21 +18,32 @@
     </DataTemplate>
 
     <DataTemplate DataType="{x:Type vm:StepViewModel}">
-        <Border Width="{Binding Length, ConverterParameter=10, Converter={StaticResource Mult}}" Height="32" BorderThickness="1" BorderBrush="#AAA">
-            <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="{Binding Velocity}"
-                       Fill="{Binding IsHit, Converter={StaticResource HitToBrush}}" />
-        </Border>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Width="{Binding Length, ConverterParameter=30, Converter={StaticResource Mult}}" Height="32" BorderThickness="1" BorderBrush="#AAA">
+                <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="{Binding Velocity}"
+                           Fill="{Binding IsHit, Converter={StaticResource HitToBrush}}" />
+            </Border>
+            <TextBlock Grid.Row="1" Text="{Binding NoteName}" HorizontalAlignment="Center" FontSize="10" Margin="0,5,0,0" />
+        </Grid>
     </DataTemplate>
 
     <DataTemplate DataType="{x:Type vm:RhythmViewModel}">
-        <Border BorderBrush="#EEE" BorderThickness="1"
+        <Border BorderBrush="#444" BorderThickness="1"
                 Padding="10">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
-                <Grid>
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Orientation="Vertical" Margin="0,0,15,0">
-                            <TextBlock Text="Rate" Style="{StaticResource LabelStyle}" />
-                            <syncfusion:SfRadialSlider Width="70" Height="70" Margin="-12,-10, -12, -12"
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <StackPanel Orientation="Vertical" Margin="0,0,15,0">
+                        <TextBlock Text="Rate" Style="{StaticResource LabelStyle}" />
+                        <syncfusion:SfRadialSlider Width="120" Height="120" Margin="-12,-18, -12, -12"
                                                        Minimum="0" Maximum="{Binding Rates.Length, Converter={StaticResource Add}, ConverterParameter=-1}"
                                                        Value="{Binding RateIndex}"
                                                        OuterRimRadiusFactor="0.6"
@@ -47,12 +58,44 @@
                                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                                        LabelVisibility="Hidden"
                                                        FontFamily="Kristen ITC">
-                                <TextBlock  FontSize="10">
+                            <TextBlock  FontSize="10">
                                     <Run Text="1/" /><Run Text="{Binding Rate, Mode=OneWay}" />
-                                </TextBlock>
-                            </syncfusion:SfRadialSlider>
-                        </StackPanel>
+                            </TextBlock>
+                        </syncfusion:SfRadialSlider>
+                    </StackPanel>
+                    <syncfusion:SfCircularGauge HeaderAlignment="Center" Width="50" Height="50" VerticalAlignment="Center" Margin="0,0,20,0">
+                        <syncfusion:SfCircularGauge.Scales>
+                            <syncfusion:CircularScale StartAngle="135" SweepAngle="270"
+                                                 StartValue="0" EndValue="1" MinorTicksPerInterval="1"
+                                                 LabelOffset="10" ShowLabels="False">
+                                <syncfusion:CircularScale.Ranges>
+                                    <syncfusion:CircularRange StartValue="0" EndValue="{Binding RhythmFitness}" Stroke="LightGreen" />
+                                    <syncfusion:CircularRange StartValue="0" EndValue="{Binding PitchFitness}" Stroke="OrangeRed"
+                                                              InnerStartOffset="0.8" InnerEndOffset="0.8" 
+                                                              OuterStartOffset="0.9" OuterEndOffset="0.9" />
+                                    <syncfusion:CircularRange StartValue="0" EndValue="{Binding LengthFitness}" Stroke="Yellow"
+                                                              InnerStartOffset="0.7" InnerEndOffset="0.7" 
+                                                              OuterStartOffset="0.8" OuterEndOffset="0.8"/>
+                                    <syncfusion:CircularRange StartValue="0" EndValue="{Binding VelocityFitness}" Stroke="Orange" 
+                                                              InnerStartOffset="0.6" InnerEndOffset="0.6" 
+                                                              OuterStartOffset="0.7" OuterEndOffset="0.7"/>
+                                </syncfusion:CircularScale.Ranges>
+                                <syncfusion:CircularScale.Pointers>
+                                    <syncfusion:CircularPointer Value="{Binding CurrentFitness}" PointerType="NeedlePointer" NeedlePointerStroke="Orange"  NeedlePointerStrokeThickness="1" />
+                                </syncfusion:CircularScale.Pointers>
+                                <syncfusion:CircularScale.MajorTickSettings>
+                                    <syncfusion:MajorTickSetting Stroke="#666" StrokeThickness="1" Length="5" />
+                                </syncfusion:CircularScale.MajorTickSettings>
+                                <syncfusion:CircularScale.MinorTickSettings>
+                                    <syncfusion:MinorTickSetting  StrokeThickness="0" />
+                                </syncfusion:CircularScale.MinorTickSettings>
+                            </syncfusion:CircularScale>
+                        </syncfusion:SfCircularGauge.Scales>
+                    </syncfusion:SfCircularGauge>
 
+                </StackPanel>
+                <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
+                    <StackPanel Orientation=" Horizontal" VerticalAlignment="Center">
                         <ItemsControl ItemsSource="{Binding Steps}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -66,9 +109,9 @@
                                  Stroke="DarkRed"
                                  Width="12" Height="12"
                                  Visibility="{Binding WaitingForTarget, Converter={StaticResource BooleanToVisibility}}"
-                                 Margin="15,0"/>
+                                 Margin="15,0,0,24"/>
 
-                        <wpf:MaterialIcon Kind="ArrowRight" Margin="15,0"
+                        <wpf:MaterialIcon Kind="ArrowRight" Margin="15,0,15,24"
                                           Visibility="{Binding TargetSteps, Converter={StaticResource NotNullToVisibility}}"/>
 
                         <ItemsControl ItemsSource="{Binding TargetSteps}" 
@@ -80,13 +123,16 @@
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
                     </StackPanel>
+                </ScrollViewer>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="15,0,0,0">
                     <Button Style="{StaticResource Round3DButton}" HorizontalAlignment="Right" Height="32" Width="32"
-                             Background="Red" BorderBrush="DarkRed"
-                             Command="{Binding DeleteMeCommand}">
+                            Background="Red" BorderBrush="DarkRed"
+                            Command="{Binding DeleteMeCommand}">
                         <wpf:MaterialIcon Kind="Delete" Height="24" Opacity="0.5" />
                     </Button>
-                </Grid>
-            </ScrollViewer>
+
+                </StackPanel>
+            </Grid>
         </Border>
     </DataTemplate>
 </ResourceDictionary>

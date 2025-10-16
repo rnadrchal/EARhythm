@@ -34,7 +34,7 @@ public enum CaMapMode
 {
     Last,     // nur letzte Generation → Pattern
     Any,      // OR über alle Generationen
-    Sum,     // Summe der Hits pro Zelle, auf Velocity gemappt (clip 1..127)
+    Sum,     // Summe der Hits pro Zelle, auf Velocities gemappt (clip 1..127)
     N       // jede N-te Generation als Schritt (temporal flatten)
 }
 
@@ -88,8 +88,8 @@ public class CellularAutomatonGenerator(
                     {
                         bool hit = last[i % ctx.StepsTotal];
                         p.Hits[i] = hit;
-                        p.Velocity[i] = hit ? ctx.DefaultVelocity : (byte)0;
-                        p.Lengths[i] = hit ? 1 : 0;
+                        p.Velocities[i] = hit ? ctx.DefaultVelocity : (byte)0;
+                        p.Lengths[i] = 1;
                     }
                     break;
                 }
@@ -105,8 +105,8 @@ public class CellularAutomatonGenerator(
                             if (gen[x]) { hit = true; break; }
 
                         p.Hits[i] = hit;
-                        p.Velocity[i] = hit ? ctx.DefaultVelocity : (byte)0;
-                        p.Lengths[i] = hit ? 1 : 0;
+                        p.Velocities[i] = hit ? ctx.DefaultVelocity : (byte)0;
+                        p.Lengths[i] = 1;
                     }
                     break;
                 }
@@ -125,7 +125,7 @@ public class CellularAutomatonGenerator(
                             p.Hits[i] = true;
                             // Mappe Summe auf 1..127 (linear, capped)
                             int vel = 1 + (int)Math.Round(126.0 * sum / _generations);
-                            p.Velocity[i] = (byte)Math.Clamp(vel, 1, 127);
+                            p.Velocities[i] = (byte)Math.Clamp(vel, 1, 127);
                             p.Lengths[i] = 1;
                         }
                     }
@@ -147,7 +147,7 @@ public class CellularAutomatonGenerator(
                             if (hit)
                             {
                                 p.Hits[i] = true;
-                                p.Velocity[i] = ctx.DefaultVelocity;
+                                p.Velocities[i] = ctx.DefaultVelocity;
                                 p.Lengths[i] = 1;
                             }
                             stepIdx++;
