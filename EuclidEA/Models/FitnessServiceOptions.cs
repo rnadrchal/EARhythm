@@ -68,4 +68,17 @@ public sealed class FitnessServiceOptions : BindableBase, IFitnessServiceOptions
         get => _combineMode;
         set => SetProperty(ref _combineMode, value);
     }
+
+    private bool _isGeometric;
+    public bool IsGeometric
+    {
+        get => _isGeometric;
+        set
+        {
+            if (SetProperty(ref _isGeometric, value) && value)
+            {
+                CombineMode = value ? CombineMode.Geometric : CombineMode.Arithmetic;
+            }
+        }
+    }
 }

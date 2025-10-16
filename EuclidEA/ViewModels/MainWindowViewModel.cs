@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -21,10 +22,10 @@ namespace EuclidEA.ViewModels
     {
         private readonly IEventAggregator _eventAggregator;
         private readonly OutputDevice _midiOut;
+        private readonly EvolutionOptions _evolutionOptions;
         private readonly Evolution<RhythmPattern> _evolution;
-        private readonly EvolutionContext _evolutionContext;
         private readonly IMutator<RhythmPattern> _mutator;
-        private readonly IFitnessServiceOptions _fitnessOptions;
+        private readonly FitnessServiceOptions _fitnessOptions;
         private readonly IFitnessService _fitnessService;
 
         private string _title = "Euclid EA";
@@ -58,7 +59,9 @@ namespace EuclidEA.ViewModels
             }
         }
 
-        public FitnessServiceOptions? FitnessOptions => _fitnessOptions as FitnessServiceOptions;
+        public EvolutionOptions? EvolutionOptions => _evolutionOptions;
+
+        public FitnessServiceOptions? FitnessOptions => _fitnessOptions;
 
         public List<IRhythmGeneratorViewModel> Generators { get; private set; } = new()
         {
@@ -80,101 +83,22 @@ namespace EuclidEA.ViewModels
             set => SetProperty(ref _isEvolutionInProgress, value);
         }
 
-        private double _mutationRate;
-
-        public double MutationRate
-        {
-            get => _mutationRate;
-            set
-            {
-                if (SetProperty(ref _mutationRate, value))
-                {
-                    _evolutionContext.MutationRate = value / 100.0;
-                    _eventAggregator.GetEvent<EvolutionContextChangedEvent>().Publish(_evolutionContext);
-                }
-            }
-        }
-
-        private double _deletionRate;
-        public double DeletionRate
-        {
-            get => _deletionRate;
-            set
-            {
-                if (SetProperty(ref _deletionRate, value))
-                {
-                    _evolutionContext.DeletionRate = value / 100.0;
-                    _eventAggregator.GetEvent<EvolutionContextChangedEvent>().Publish(_evolutionContext);
-                }
-            }
-        }
-
-        private double _insertionRate;
-        public double InsertionRate
-        {
-            get => _insertionRate;
-            set
-            {
-                if (SetProperty(ref _insertionRate, value))
-                {
-                    _evolutionContext.InsertionRate = value / 100.0;
-                    _eventAggregator.GetEvent<EvolutionContextChangedEvent>().Publish(_evolutionContext);
-                }
-            }
-        }
-
-        private double _crossoverRate;
-        public double CrossoverRate
-        {
-            get => _crossoverRate;
-            set
-            {
-                if (SetProperty(ref _crossoverRate, value))
-                {
-                    _evolutionContext.CrossoverRate = value / 100.0;
-                    _eventAggregator.GetEvent<EvolutionContextChangedEvent>().Publish(_evolutionContext);
-                }
-            }
-        }
-
-        private double _swapRate;
-
-        public double SwapRate
-        {
-            get => _swapRate;
-            set
-            {
-                if (SetProperty(ref _swapRate, value))
-                {
-                    _evolutionContext.SwapRate = value / 100.0;
-                    _eventAggregator.GetEvent<EvolutionContextChangedEvent>().Publish(_evolutionContext);
-                }
-            }
-        }
-
         public ICommand GenerateRhythmCommand { get; }
         public ICommand StartStopEvolutionCommand { get; }
 
         public MainWindowViewModel(IEventAggregator eventAggregator, MidiClock midiClock, OutputDevice midiOut, IMutator<RhythmPattern> mutator, Evolution<RhythmPattern> evolution, 
-            IFitnessServiceOptions fitnessOptions, IFitnessService fitnessService)
+            IFitnessServiceOptions fitnessOptions, IFitnessService fitnessService, IEvolutionOptions evolutionOptions)
         {
             _eventAggregator = eventAggregator;
             _midiOut = midiOut;
             _mutator = mutator;
             _evolution = evolution;
-            _fitnessOptions = fitnessOptions;
+            _fitnessOptions = fitnessOptions as FitnessServiceOptions ?? throw new ArgumentException(nameof(fitnessOptions));
             _fitnessService = fitnessService;
+            _evolutionOptions = evolutionOptions as EvolutionOptions ?? throw new ArgumentException(nameof(evolutionOptions));
 
             ((FitnessServiceOptions)fitnessOptions).PropertyChanged += (_, _) => _fitnessService.ApplyOptions();
-
-            _evolutionContext = EvolutionContext.Create();
-
-            _mutationRate = _evolutionContext.MutationRate * 100.0;
-            _deletionRate = _evolutionContext.DeletionRate * 100.0;
-            _insertionRate = _evolutionContext.InsertionRate * 100.0;
-            _crossoverRate = _evolutionContext.CrossoverRate * 100.0;
-            _swapRate = _evolutionContext.SwapRate * 100.0;
-
+            _evolutionOptions.PropertyChanged += (_, _) => _evolution.ApplyOptions(evolutionOptions);
             _eventAggregator.GetEvent<BeatEvent>().Subscribe(() => LedOn = true);
             _eventAggregator.GetEvent<OffBeatEvent>().Subscribe(() => LedOn = false);
 
@@ -194,7 +118,7 @@ namespace EuclidEA.ViewModels
             {
                 foreach (var rhythm in Rhythms)
                 {
-                    rhythm.StartEvolution(_evolutionContext);
+                    rhythm.StartEvolution();
                 }
             }
             else
@@ -206,6 +130,8 @@ namespace EuclidEA.ViewModels
             }
         }
 
+        private RhythmViewModel _lastAddedRhythm;
+
         private void GenerateRhythm()
         {
             var last = Rhythms.LastOrDefault();
@@ -213,12 +139,14 @@ namespace EuclidEA.ViewModels
             if (last != null && last.WaitingForTarget)
             {
                 last.SetTarget(pattern);
+                if (_isEvolutionInProgress) _lastAddedRhythm.StartEvolution();
             }
             else
             {
                 var nextChannel = GetFreeChannel();
-                if (nextChannel == null) return;
-                Rhythms.Add(new RhythmViewModel(pattern, nextChannel.Value, _eventAggregator, _midiOut, _evolution, _mutator, _fitnessService));
+                _lastAddedRhythm = new RhythmViewModel(pattern, nextChannel.Value, _eventAggregator, _midiOut, _evolution,
+                    _mutator, _fitnessService);
+                Rhythms.Add(_lastAddedRhythm);
             }
         }
 

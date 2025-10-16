@@ -2,8 +2,8 @@
 
 public interface IMutator<TGenotype>
 {
-    void Mutate(TGenotype individual, EvolutionContext ctx);
-    void Delete(TGenotype individual, EvolutionContext ctx);
-    void Insert(TGenotype individual, EvolutionContext ctx);
-    TGenotype Crossover(TGenotype individual1, TGenotype individual2, EvolutionContext ctx);
+    void Mutate(TGenotype individual, IEvolutionOptions options);
+    void Delete(TGenotype individual, IEvolutionOptions options);
+    void Insert(TGenotype individual, IEvolutionOptions options);
+    TGenotype Crossover(TGenotype individual1, TGenotype individual2, IEvolutionOptions options);
 }

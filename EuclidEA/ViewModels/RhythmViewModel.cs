@@ -41,7 +41,6 @@ public class RhythmViewModel : BindableBase
     private ulong _generations = 0;
     private byte _channel;
     private bool _isEvolutionInProgress = false;
-    private EvolutionContext _evolutionContext;
     private Population<RhythmPattern>? _population = null;
     private readonly IMutator<RhythmPattern> _mutator;
 
@@ -106,17 +105,10 @@ public class RhythmViewModel : BindableBase
 
         DeleteMeCommand = new DelegateCommand(OnDeleteMe);
         _eventAggregator.GetEvent<ClockEvent>().Subscribe(OnTick);
-        _eventAggregator.GetEvent<EvolutionContextChangedEvent>().Subscribe(OnEvolutionContextChanged);
     }
 
-    private void OnEvolutionContextChanged(EvolutionContext ctx)
+    public void StartEvolution()
     {
-        _evolutionContext = ctx;
-    }
-
-    public void StartEvolution(EvolutionContext context)
-    {
-        _evolutionContext = context;
         _isEvolutionInProgress = true;
     }
 
@@ -165,15 +157,15 @@ public class RhythmViewModel : BindableBase
                     bool updateReqired = false;
                     if (_currentStep == 0)
                     {
-                        _population?.Evolve(_evolutionContext, _mutator, 1);
-                        _pattern = _population?.Individuals.FindFittest(pattern => Fitness(pattern, _evolutionContext)).Individual ?? _pattern;
+                        _population?.Evolve(_mutator, 1);
+                        _pattern = _population?.Individuals.FindFittest(pattern => Fitness(pattern)).Individual ?? _pattern;
                         _generations++;
                         updateReqired = true;
                     }
 
                     if (_generations % 4 == 0)
                     {
-                        _population?.Pairing(_evolutionContext, _mutator, pattern => Fitness(pattern, _evolutionContext));
+                        _population?.Pairing(_mutator, Fitness);
                         updateReqired = true;
                     }
                     if (updateReqired)
@@ -258,7 +250,7 @@ public class RhythmViewModel : BindableBase
     }
 
 
-    private double Fitness(RhythmPattern pattern, EvolutionContext ctx)
+    private double Fitness(RhythmPattern pattern)
     {
         var sequence = new Sequence(
             _pattern.Hits,

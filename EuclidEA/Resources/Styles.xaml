@@ -101,4 +101,42 @@
         </Setter>
     </Style>
 
+    <Style x:Key="BinarySwitchCheckBox" TargetType="CheckBox">
+        <Setter Property="Width" Value="40"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid>
+                        <!-- Hintergrund des Schalters -->
+                        <Border x:Name="SwitchBackground"
+                                CornerRadius="10"
+                                Background="#333"
+                                BorderBrush="#666"
+                                BorderThickness="1"/>
+                        <!-- Schalter-Knopf -->
+                        <Ellipse x:Name="SwitchThumb"
+                                 Width="18" Height="18"
+                                 Fill="#AAA"
+                                 Stroke="#666"
+                                 StrokeThickness="1"
+                                 Margin="1,1,0,1"
+                                 HorizontalAlignment="Left"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="SwitchBackground" Property="Background" Value="#555"/>
+                            <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Right"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="SwitchBackground" Property="Background" Value="#CCC"/>
+                            <Setter TargetName="SwitchThumb" Property="Fill" Value="#EEE"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
 </ResourceDictionary>
