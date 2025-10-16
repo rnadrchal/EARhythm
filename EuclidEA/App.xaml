@@ -18,6 +18,8 @@
                 <ResourceDictionary Source="Resources/ConstantPitchTemplate.xaml" />
                 <ResourceDictionary Source="Resources/RandomPitchTemplate.xaml" />
                 <ResourceDictionary Source="Resources/NormalDistributionPitchTemplate.xaml" />
+                <ResourceDictionary Source="Resources/EvolutionOptionsTemplate.xaml" />
+                <ResourceDictionary Source="Resources/FitnessServiceOptionsTemplate.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
