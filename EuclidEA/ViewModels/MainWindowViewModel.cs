@@ -1,16 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
-using System.Windows.Documents;
 using System.Windows.Input;
 using Egami.Rhythm.EA;
 using Egami.Rhythm.EA.Mutation;
-using Egami.Rhythm.Generation;
-using Egami.Rhythm.Midi.Generation;
 using Egami.Rhythm.Pattern;
 using EuclidEA.Events;
-using EuclidEA.Models;
 using EuclidEA.Services;
 using Melanchall.DryWetMidi.Multimedia;
 using Prism.Events;

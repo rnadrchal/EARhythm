@@ -16,7 +16,7 @@ namespace EuclidEA
     public partial class App
     {
         private IConfigurationRoot _config;
-        private InputDevice _clockDevice;
+        private InputDevice _inputDevice;
         private OutputDevice _dawDevice;
         private Evolution<RhythmPattern> _evolution;
         private readonly IMutator<RhythmPattern> _mutator;
@@ -30,13 +30,12 @@ namespace EuclidEA
 
             _evolution = new Evolution<RhythmPattern>();
             _mutator = new RhythmPatternMutator();
-            var clockName = _config.GetSection("LoopMidiPorts")["Clock"];
             var dawName = _config.GetSection("LoopMidiPorts")["Daw"];
-            _clockDevice = InputDevice.GetByName(clockName);
+            _inputDevice = InputDevice.GetByName(dawName);
             _dawDevice = OutputDevice.GetByName(dawName);
-            if (_clockDevice != null)
+            if (_inputDevice != null)
             {
-                _clockDevice.StartEventsListening();
+                _inputDevice.StartEventsListening();
             }
 
             var inputDevice = InputDevice.GetByName(dawName);
@@ -52,7 +51,7 @@ namespace EuclidEA
             containerRegistry.RegisterInstance(_evolution);
             containerRegistry.RegisterInstance(_mutator);
             containerRegistry.RegisterInstance(_config);
-            containerRegistry.RegisterInstance(_clockDevice);
+            containerRegistry.RegisterInstance(_inputDevice);
             containerRegistry.RegisterInstance(_dawDevice);
             containerRegistry.RegisterSingleton<Services.MidiClock>();
         }

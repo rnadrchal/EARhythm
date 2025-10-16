@@ -277,7 +277,8 @@ public class RhythmViewModel : BindableBase
 
     public static double GetVelocityFitness(byte[] velocities)
     {
-        var avgVelocity = velocities.Where(v => v > 0)?.Average(v => v) ?? 0;
+        if (!velocities.Any(v => v > 0)) return 0.0;
+        var avgVelocity = velocities.Where(v => v > 0).Average(v => v);
         // lethal extremes
         if (avgVelocity <= 0 || avgVelocity >= 127)
             return 0.0;
