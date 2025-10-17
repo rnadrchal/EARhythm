@@ -2,9 +2,11 @@
 using Egami.EA.Metrics;
 using Egami.Rhythm.EA;
 using Egami.Rhythm.EA.Mutation;
+using Egami.Rhythm.Midi;
 using Egami.Rhythm.Midi.Generation;
 using Egami.Rhythm.Pattern;
 using EuclidEA.Models;
+using EuclidEA.Services;
 using EuclidEA.Views;
 using Melanchall.DryWetMidi.Multimedia;
 using Microsoft.Extensions.Configuration;
@@ -18,7 +20,6 @@ namespace EuclidEA
     public partial class App
     {
         private IConfigurationRoot _config;
-        private InputDevice _inputDevice;
         private OutputDevice _dawDevice;
         private Evolution<RhythmPattern> _evolution;
         private readonly IMutator<RhythmPattern> _mutator;
@@ -32,14 +33,7 @@ namespace EuclidEA
 
             _mutator = new RhythmPatternMutator();
             var dawName = _config.GetSection("LoopMidiPorts")["Daw"];
-            _inputDevice = InputDevice.GetByName(dawName);
-            _dawDevice = OutputDevice.GetByName(dawName);
-            if (_inputDevice != null)
-            {
-                _inputDevice.StartEventsListening();
-            }
-
-            var inputDevice = InputDevice.GetByName(dawName);
+            MidiDevices.Initialize(dawName);
 
         }
         protected override Window CreateShell()
@@ -51,7 +45,6 @@ namespace EuclidEA
         {
             containerRegistry.RegisterInstance(_mutator);
             containerRegistry.RegisterInstance(_config);
-            containerRegistry.RegisterInstance(_inputDevice);
             containerRegistry.RegisterInstance(_dawDevice);
             containerRegistry.RegisterSingleton<Services.MidiClock>();
             containerRegistry.RegisterSingleton<IFitnessServiceOptions, FitnessServiceOptions>();

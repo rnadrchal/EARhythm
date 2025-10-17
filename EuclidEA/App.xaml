@@ -15,9 +15,10 @@
                 <ResourceDictionary Source="Resources/LSystemGeneratorTemplate.xaml" />
                 <ResourceDictionary Source="Resources/PolyrhythmTemplate.xaml" />
                 <ResourceDictionary Source="Resources/TrackChunkTemplate.xaml" />
-                <ResourceDictionary Source="Resources/ConstantPitchTemplate.xaml" />
-                <ResourceDictionary Source="Resources/RandomPitchTemplate.xaml" />
-                <ResourceDictionary Source="Resources/NormalDistributionPitchTemplate.xaml" />
+                <ResourceDictionary Source="/Resources/Pitch/ConstantPitchTemplate.xaml" />
+                <ResourceDictionary Source="/Resources/Pitch/RandomPitchTemplate.xaml" />
+                <ResourceDictionary Source="/Resources/Pitch/NormalDistributionPitchTemplate.xaml" />
+                <ResourceDictionary Source="/Resources/Pitch/RecordPitchViewModel.xaml" />
                 <ResourceDictionary Source="Resources/EvolutionOptionsTemplate.xaml" />
                 <ResourceDictionary Source="Resources/FitnessServiceOptionsTemplate.xaml" />
             </ResourceDictionary.MergedDictionaries>

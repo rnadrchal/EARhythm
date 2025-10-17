@@ -1,7 +1,7 @@
 ﻿using Egami.Pitch;
 using Prism.Mvvm;
 
-namespace EuclidEA.ViewModels;
+namespace EuclidEA.ViewModels.Pitch;
 
 public abstract class PitchGeneratorViewModel : BindableBase, IPitchGeneratorViewModel
 {
@@ -28,7 +28,7 @@ public abstract class PitchGeneratorViewModel : BindableBase, IPitchGeneratorVie
         set => SetProperty(ref _note, value);
     }
 
-    protected int NoteNumber => _note + ((_octave + 4) * 12);
+    protected int NoteNumber => _note + (_octave + 4) * 12;
 
     public virtual byte?[] Generate(int length)
     {

@@ -1,7 +1,7 @@
 ﻿using Egami.Pitch;
 using Egami.Rhythm.Pattern;
 
-namespace EuclidEA.ViewModels;
+namespace EuclidEA.ViewModels.Pitch;
 
 public interface IPitchGeneratorViewModel
 {

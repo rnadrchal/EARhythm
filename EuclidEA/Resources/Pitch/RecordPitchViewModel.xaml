@@ -1,0 +1,51 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:pitch="clr-namespace:EuclidEA.ViewModels.Pitch"
+                    xmlns:converters="clr-namespace:EuclidEA.Converters"
+                    xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+                    xmlns:Syncfusion="http://schemas.syncfusion.com/wpf">
+
+    <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
+
+    <DataTemplate DataType="{x:Type pitch:RecordPitchGeneratorViewModel}">
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Right">
+                        <Ellipse Style="{StaticResource LedEllipseStyle}" Width="16" Height="16"
+                                 Fill="{Binding IsRecording, ConverterParameter=Red, Converter={StaticResource BooleanToBrush}}"
+                                 Stroke="#400"/>
+                        <TextBlock Text="REC" FontSize="9" />
+                </StackPanel>
+                
+                <Syncfusion:SfDigitalGauge Value="{Binding NoteCount}" 
+                                           CharacterType="EightCrossEightDotMatrix"
+                                           Foreground="White"
+                                           Height="32"
+                                           Width="45" CharacterWidth="12" CharacterHeight="24"
+                                           CharacterStroke="Red" HorizontalAlignment="Center"
+                                           Background="#111" Margin="10,0,0,0"/>
+
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                    <Ellipse Style="{StaticResource LedEllipseStyle}" Width="16" Height="16"
+                             Fill="{Binding IsNoteOn, ConverterParameter=Red, Converter={StaticResource BooleanToBrush}}"
+                             Stroke="#400"/>
+                    <TextBlock Text="INP" FontSize="9" />
+                </StackPanel>
+            </StackPanel>
+            <Grid>
+                <Button Style="{StaticResource Round3DButton}" Width="60" Height="60"
+                        Background="OrangeRed" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Command="{Binding ToggleStartStopCommand}">
+                    <wpf:MaterialIcon Width="42" Kind="RecordCircleOutline" Opacity="0.5" />
+                </Button>
+                <Button Style="{StaticResource Round3DButton}" Width="30" Height="30"
+                        Background="Red" HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Margin="0,0,5,0"
+                        Command="{Binding ClearCommand}">
+                    <wpf:MaterialIcon Width="16" Kind="Clear" Opacity="0.5" />
+                </Button>
+
+            </Grid>
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

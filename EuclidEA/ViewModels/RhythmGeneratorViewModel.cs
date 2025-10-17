@@ -7,6 +7,7 @@ using Egami.Rhythm.Extensions;
 using Egami.Rhythm.Generation;
 using Egami.Rhythm.Midi.Generation;
 using Egami.Rhythm.Pattern;
+using EuclidEA.ViewModels.Pitch;
 using Prism.Mvvm;
 
 namespace EuclidEA.ViewModels;
@@ -21,7 +22,8 @@ public abstract class RhythmGeneratorViewModel : BindableBase, IRhythmGeneratorV
     {
         new ConstantPitchGeneratorViewModel(new ConstantPitchGenerator()),
         new RandomPitchGeneratorViewModel(new RandomPitchGenerator()),
-        new NormalDistributionPitchGeneratorViewModel(new NormalDistributionPitchGenerator())
+        new NormalDistributionPitchGeneratorViewModel(new NormalDistributionPitchGenerator()),
+        new RecordPitchGeneratorViewModel(new RecordPitchGenerator())
     };
 
     private int? _pitchGeneratorIndex = 0;

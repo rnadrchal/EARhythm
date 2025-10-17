@@ -1,4 +1,5 @@
-﻿using Melanchall.DryWetMidi.Core;
+﻿using Egami.Rhythm.Midi;
+using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Prism.Events;
 
@@ -24,7 +25,6 @@ public class StopEvent : PubSubEvent
 
 public class MidiClock
 {
-    private readonly InputDevice _clockDevice;
 
     private IEventAggregator _eventAggregator;
 
@@ -32,12 +32,11 @@ public class MidiClock
 
     private ulong _clockCount = 0;
 
-    public MidiClock(IEventAggregator eventAggregator, InputDevice clockDevice)
+    public MidiClock(IEventAggregator eventAggregator)
     {
         _eventAggregator = eventAggregator;
 
-        _clockDevice = clockDevice;
-        _clockDevice.EventReceived += OnEventReceived;
+        MidiDevices.Input.EventReceived += OnEventReceived;
     }
 
     private void OnEventReceived(object sender, MidiEventReceivedEventArgs e)
