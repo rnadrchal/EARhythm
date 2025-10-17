@@ -1,17 +1,43 @@
-﻿using System.CodeDom;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Documents;
 using Egami.Rhythm;
 using Egami.Rhythm.Generation;
 using Egami.Rhythm.Pattern;
 
-namespace EuclidEA.ViewModels;
+namespace EuclidEA.ViewModels.Rhythm;
 
 public class LSystemViewModel : RhythmGeneratorViewModel
 {
-    private string _axiom;
+    private static string[] RuleNames = new[]
+    {
+        "FIBO",
+        "COND",
+        "EXPA",
+        "CLST",
+        "SYMM",
+        "CHAO",
+        "FRAC",
+        "BINR",
+        "POLY"
+    };
+
+    public int MaximumRuleCharacter => RuleCharacters.Length - 1;
+    private int _axiomIndex;
+
+    public int AxiomIndex
+    {
+        get => _axiomIndex;
+        set
+        {
+            if (SetProperty(ref _axiomIndex, value))
+            {
+                RaisePropertyChanged(nameof(Axiom));
+            }
+        }
+    }
+
+    public string Axiom => RuleCharacters[_axiomIndex].ToString();
+
 
     private int _ruleIndex = 0;
 
@@ -26,9 +52,15 @@ public class LSystemViewModel : RhythmGeneratorViewModel
                 RaisePropertyChanged(nameof(RuleCharacters));
                 HitSymbolIndex = 0;
                 RaisePropertyChanged(nameof(HitSymbol));
+                RaisePropertyChanged(nameof(RuleName));
+                RaisePropertyChanged(nameof(RuleCharacters));
+                RaisePropertyChanged(nameof(RuleString));
+                RaisePropertyChanged(nameof(MaximumRuleCharacter));
             }
         }
     }
+
+    public string RuleName => RuleNames[_ruleIndex];
 
     public Dictionary<char, string> Rules => LSystemGenerator.Rules[_ruleIndex];
 
@@ -42,6 +74,8 @@ public class LSystemViewModel : RhythmGeneratorViewModel
     }
 
     public char[] RuleCharacters => GetRuleCharacters();
+
+    public string RuleString => string.Join("", RuleCharacters.Select(c => c.ToString()));
 
     private int _hitSymbolIndex = 0;
     public int HitSymbolIndex
@@ -58,14 +92,13 @@ public class LSystemViewModel : RhythmGeneratorViewModel
 
     public char HitSymbol => GetRuleCharacters().ElementAtOrDefault(_hitSymbolIndex);
 
-    protected override IRhythmGenerator Generator => new LSystemGenerator(_axiom, Rules, 10, 'A');
-    public override string Name => "L-System Genrator";
+    protected override IRhythmGenerator Generator => new LSystemGenerator(Axiom, Rules, Iterations, HitSymbol);
+    public override string Name => "L-System";
 
     protected override RhythmPattern Generate(RhythmContext context)
     {
-        _axiom = GetRuleCharacters().First().ToString();
-        return base.Generate(context);
+        return Generator.Generate(context);
     }
 
-    private char[] GetRuleCharacters() => Rules.Values.Select(v => v.ToCharArray()).SelectMany(c => c).Distinct().OrderBy(c => c).ToArray();
+    private char[] GetRuleCharacters() => Rules.Keys.ToArray();
 }

@@ -19,7 +19,7 @@ public class PatternGenerationToSymbolConverter : IValueConverter
                 RhythmGenerationMethod.Bernoulli => MaterialIconKind.ChartBellCurve,
                 RhythmGenerationMethod.Poisson => MaterialIconKind.ChartBellCurveCumulative,
                 RhythmGenerationMethod.CellullarAutomaton => MaterialIconKind.DotsGrid,
-                RhythmGenerationMethod.LSystem => MaterialIconKind.FormatTextVariant,
+                RhythmGenerationMethod.LSystem => MaterialIconKind.Abc,
                 RhythmGenerationMethod.Polyrhythm => MaterialIconKind.MusicNote,
                 RhythmGenerationMethod.TrackChunk => MaterialIconKind.File,
                 _ => MaterialIconKind.BlurLinear

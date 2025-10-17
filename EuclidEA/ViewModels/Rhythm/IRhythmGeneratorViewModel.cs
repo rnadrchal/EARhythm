@@ -1,7 +1,7 @@
 ﻿using System.Windows.Input;
 using Egami.Rhythm.Pattern;
 
-namespace EuclidEA.ViewModels;
+namespace EuclidEA.ViewModels.Rhythm;
 
 public interface IRhythmGeneratorViewModel
 {

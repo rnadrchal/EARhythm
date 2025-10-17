@@ -1,0 +1,136 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+                    xmlns:converters="clr-namespace:EuclidEA.Converters"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:rhythm="clr-namespace:EuclidEA.ViewModels.Rhythm"
+                    xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF">
+    <converters:AddConverter x:Key="Add" />
+    <converters:LSystemIterationsToBrushConverter x:Key="IterToBrush" />
+
+    <DataTemplate DataType="{x:Type sys:Int32}" x:Key="RuleIndexTemplate">
+        <TextBlock Text="{Binding Converter={StaticResource Add}, ConverterParameter=1}"></TextBlock>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type rhythm:LSystemViewModel}">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+            <TextBlock Text="Steps" Style="{StaticResource LabelStyle}" />
+            <syncfusion:SfRadialSlider Width="120" Height="120"
+                                       Minimum="0" Maximum="64"
+                                       Value="{Binding Steps}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickFrequency="8"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
+                                       FontFamily="Kristen ITC">
+                <TextBlock Text="{Binding Steps}" FontSize="16"></TextBlock>
+            </syncfusion:SfRadialSlider>
+            <syncfusion:SfDigitalGauge Value="{Binding RuleName}" 
+                                       CharacterType="EightCrossEightDotMatrix"
+                                       Foreground="White"
+                                       Height="24"
+                                       Width="66" 
+                                       CharacterWidth="8" 
+                                       CharacterHeight="16"
+                                       CharacterStroke="Red" 
+                                       HorizontalAlignment="Center" Padding="5"
+                                       Background="#311" Margin="0,10,0,0"/>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <syncfusion:SfRadialSlider Grid.Row="0" Grid.Column="0" Width="120" Height="120"
+                                           Minimum="0" Maximum="{Binding NumberOfRules, Converter={StaticResource Add}, ConverterParameter=-1}"
+                                           Value="{Binding RuleIndex}"
+                                           LabelVisibility="Collapsed"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
+                                           FontFamily="Kristen ITC"
+                                           Margin="-16,-16">
+                    <TextBlock Text="{Binding RuleString}" FontSize="12" />
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Column="0" Grid.Row="1" Style="{StaticResource LabelStyle}" Text="Rule" />
+                <syncfusion:SfRadialSlider Grid.Row="0" Grid.Column="1" Width="120" Height="120"
+                                           Minimum="0" Maximum="{Binding MaximumRuleCharacter}"
+                                           Value="{Binding AxiomIndex}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.4"
+                                           FontFamily="Kristen ITC"
+                                           LabelVisibility="Collapsed"
+                                           Margin="-16, -16">
+                    <TextBlock Text="{Binding Axiom}" FontSize="12" />
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Column="1" Grid.Row="1" Style="{StaticResource LabelStyle}" Text="Axiom" />
+                <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="0" Width="120" Height="120"
+                                           Minimum="0" Maximum="{Binding MaximumRuleCharacter}"
+                                           Value="{Binding HitSymbolIndex}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.4"
+                                           FontFamily="Kristen ITC"
+                                           LabelVisibility="Collapsed"
+                                           Margin="-16, -16">
+                    <TextBlock Text="{Binding HitSymbol}" FontSize="12" />
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Column="0" Grid.Row="3" Style="{StaticResource LabelStyle}" Text="Hit Symbol" />
+                <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="1" Width="120" Height="120"
+                                           Minimum="0" Maximum="10"
+                                           Value="{Binding Iterations}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="{Binding Iterations, Converter={StaticResource IterToBrush}}"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           LabelVisibility="Collapsed"
+                                           TickFrequency="5"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
+                                           FontFamily="Kristen ITC"
+                                           Margin="-16,-16">
+                    <TextBlock Text="{Binding Iterations}" FontSize="16" />
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Row="3" Grid.Column="1" Text="Iterations" Style="{StaticResource LabelStyle}" />
+            </Grid>
+
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

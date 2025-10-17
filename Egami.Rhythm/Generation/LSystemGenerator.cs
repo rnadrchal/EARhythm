@@ -16,17 +16,11 @@ public class LSystemGenerator(
 
     public static List<Dictionary<char, string>> Rules = new()
     {
-        // Periodisch
+        // Periodisch, Fibonacci
         new()
         {
             { 'A', "AB" },
             { 'B', "A" }
-        },
-        // Alternierend
-        new()
-        {
-            { 'X', "XY" },
-            {'Y', "X" }
         },
         // Verdichtend
         new()
@@ -39,7 +33,45 @@ public class LSystemGenerator(
         {
             { 'A', "AB" },
             { 'B', "BB" }
-        }
+        },
+        // Puls Cluster
+        new ()
+        {
+            { 'A', "ABB" },
+            { 'B', "A"}
+        },
+        // Symmetrisch
+        new ()
+        {
+            { 'A', "ABBA" },
+            { 'B', "BAAB"}
+        },
+        // Chaotisch/Organisch
+        new ()
+        {
+            { 'A', "AB" },
+            { 'B', "BA"}
+        },
+        // Fraktal reduziert
+        new ()
+        {
+            { 'A', "ABA" },
+            { 'B', "B"}
+        },
+        // Binär rhytmisch
+        new ()
+        {
+            { 'A', "ABAC" },
+            { 'B', "B"},
+            { 'C', "C" }
+        },
+        // Polymetrisch
+        new ()
+        {
+            { 'A', "AB" },
+            { 'B', "AC"},
+            { 'C', "A" }
+        },
     };
 
 

@@ -1,6 +1,6 @@
 ﻿using Egami.Rhythm.Generation;
 
-namespace EuclidEA.ViewModels;
+namespace EuclidEA.ViewModels.Rhythm;
 
 public sealed class PoissonGeneratorViewModel : RhythmGeneratorViewModel
 {
