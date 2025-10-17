@@ -2,6 +2,7 @@
 using Egami.EA.Metrics;
 using Egami.Rhythm.EA;
 using Egami.Rhythm.EA.Mutation;
+using Egami.Rhythm.Midi;
 using Egami.Rhythm.Midi.Generation;
 using Egami.Rhythm.Pattern;
 using EuclidEA.Models;

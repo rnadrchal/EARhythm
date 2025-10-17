@@ -144,7 +144,7 @@ namespace EuclidEA.ViewModels
             else
             {
                 var nextChannel = GetFreeChannel();
-                _lastAddedRhythm = new RhythmViewModel(pattern, nextChannel.Value, _eventAggregator, _midiOut, _evolution,
+                _lastAddedRhythm = new RhythmViewModel(pattern, nextChannel.Value, _eventAggregator, _evolution,
                     _mutator, _fitnessService);
                 Rhythms.Add(_lastAddedRhythm);
             }

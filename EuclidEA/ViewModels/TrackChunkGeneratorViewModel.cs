@@ -7,6 +7,7 @@ using Egami.Rhythm.Core;
 using Egami.Rhythm.Generation;
 using Egami.Rhythm.Midi.Generation;
 using Egami.Rhythm.Pattern;
+using EuclidEA.ViewModels.Pitch;
 using Microsoft.Win32;
 using Prism.Commands;
 

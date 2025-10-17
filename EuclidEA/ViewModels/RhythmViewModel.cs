@@ -22,6 +22,7 @@ using Syncfusion.Windows.Controls.Input;
 using Egami.Rhythm.Extensions;
 using Egami.Rhythm.EA.Extensions;
 using Egami.Pitch;
+using Egami.Rhythm.Midi;
 using Microsoft.Extensions.FileSystemGlobbing.Internal;
 
 namespace EuclidEA.ViewModels;
@@ -29,7 +30,6 @@ namespace EuclidEA.ViewModels;
 public class RhythmViewModel : BindableBase
 {
     private readonly Evolution<RhythmPattern> _evolution;
-    private readonly OutputDevice _midiOut;
     private readonly IFitnessService _fitnessService;
     private RhythmPattern _pattern;
     private readonly IEventAggregator _eventAggregator;
@@ -83,7 +83,7 @@ public class RhythmViewModel : BindableBase
 
     public ICommand DeleteMeCommand { get; }
 
-    public RhythmViewModel(RhythmPattern pattern, byte channel, IEventAggregator eventAggregator, OutputDevice midiOut,
+    public RhythmViewModel(RhythmPattern pattern, byte channel, IEventAggregator eventAggregator,
         Evolution<RhythmPattern> evolution,
         IMutator<RhythmPattern> mutator, 
         IFitnessService fitnessService)
@@ -91,7 +91,6 @@ public class RhythmViewModel : BindableBase
         this._pattern = pattern;
         _channel = channel;
         _eventAggregator = eventAggregator;
-        _midiOut = midiOut;
         _evolution = evolution;
         _mutator = mutator;
         _fitnessService = fitnessService;
@@ -121,7 +120,7 @@ public class RhythmViewModel : BindableBase
     {
         if (_lastNote.HasValue)
         {
-            _midiOut.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0)
+            MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0)
                 { Channel = (FourBitNumber)_channel });
         }
 
@@ -137,13 +136,13 @@ public class RhythmViewModel : BindableBase
                 if (_currentStep >= _pattern.StepsTotal) _currentStep = 0;
                 if (_lastNote.HasValue)
                 {
-                    _midiOut.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0)
+                    MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0)
                         { Channel = (FourBitNumber)_channel });
                 }
 
                 if (_pattern.Hits[_currentStep] && _pattern.Pitches[_currentStep].HasValue)
                 {
-                    _midiOut.SendEvent(new NoteOnEvent((SevenBitNumber)_pattern.Pitches[_currentStep],
+                    MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)_pattern.Pitches[_currentStep],
                         (SevenBitNumber)_pattern.Velocities[_currentStep]) { Channel = (FourBitNumber)_channel });
                     _lastNote = (byte)_pattern.Pitches[_currentStep];
                 }

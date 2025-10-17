@@ -1,4 +1,5 @@
-﻿using Melanchall.DryWetMidi.Core;
+﻿using Egami.Rhythm.Midi;
+using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Prism.Events;
 

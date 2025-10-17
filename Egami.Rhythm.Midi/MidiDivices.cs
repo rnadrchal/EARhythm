@@ -1,6 +1,6 @@
 ﻿using Melanchall.DryWetMidi.Multimedia;
 
-namespace EuclidEA.Services;
+namespace Egami.Rhythm.Midi;
 
 public static class MidiDevices
 {

@@ -16,7 +16,7 @@ public class PitchGenerationToSymbolConverter : IValueConverter
                 0 => MaterialIconKind.NumericOneCircle,
                 1 => MaterialIconKind.AlphaRCircle,
                 2 => MaterialIconKind.ChartBellCurve, // Normal Distribution
-                3 => MaterialIconKind.Learn,
+                3 => MaterialIconKind.School,
                 _ => MaterialIconKind.QuestionMark
             };
         }

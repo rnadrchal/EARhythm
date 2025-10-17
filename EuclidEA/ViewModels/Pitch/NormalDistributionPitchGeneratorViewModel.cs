@@ -1,6 +1,6 @@
 ﻿using Egami.Pitch;
 
-namespace EuclidEA.ViewModels;
+namespace EuclidEA.ViewModels.Pitch;
 
 public class NormalDistributionPitchGeneratorViewModel : PitchGeneratorViewModel
 {

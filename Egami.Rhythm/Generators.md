@@ -87,7 +87,7 @@ function GeneratePolyrhythm(a, b):
 
 ---
 
-🌿 LSystemGenerator
+# 🌿 LSystemGenerator
 
 Der LSystemGenerator erzeugt rhythmische Pattern mithilfe von Lindenmayer-Systemen (L-Systemen) –
 einem regelbasierten Verfahren aus der formalen Grammatik, das ursprünglich zur Modellierung pflanzlichen Wachstums entwickelt wurde.
