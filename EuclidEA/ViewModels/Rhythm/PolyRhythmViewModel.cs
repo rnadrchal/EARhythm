@@ -1,7 +1,7 @@
 ﻿using System;
 using Egami.Rhythm.Generation;
 
-namespace EuclidEA.ViewModels;
+namespace EuclidEA.ViewModels.Rhythm;
 
 public class PolyRhythmViewModel : RhythmGeneratorViewModel
 {

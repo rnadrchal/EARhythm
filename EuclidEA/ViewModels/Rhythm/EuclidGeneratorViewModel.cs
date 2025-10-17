@@ -3,7 +3,7 @@ using Egami.Rhythm.Generation;
 using Egami.Rhythm.Pattern;
 using Egami.Rhythm.Transformation;
 
-namespace EuclidEA.ViewModels;
+namespace EuclidEA.ViewModels.Rhythm;
 
 public sealed class EuclidGeneratorViewModel : RhythmGeneratorViewModel
 {

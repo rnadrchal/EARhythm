@@ -8,13 +8,13 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles.xaml"/>
                 <ResourceDictionary Source="Resources/RhythmTemplate.xaml" />
-                <ResourceDictionary Source="Resources/EuclidGeneratorTemplate.xaml" />
-                <ResourceDictionary Source="Resources/BernoulliGeneratorTemplate.xaml" />
-                <ResourceDictionary Source="Resources/PoissonGeneratorTemplate.xaml" />
-                <ResourceDictionary Source="Resources/CellularAutomatonTemplate.xaml" />
-                <ResourceDictionary Source="Resources/LSystemGeneratorTemplate.xaml" />
-                <ResourceDictionary Source="Resources/PolyrhythmTemplate.xaml" />
-                <ResourceDictionary Source="Resources/TrackChunkTemplate.xaml" />
+                <ResourceDictionary Source="/Resources/Rhythm/EuclidGeneratorTemplate.xaml" />
+                <ResourceDictionary Source="/Resources/Rhythm/BernoulliGeneratorTemplate.xaml" />
+                <ResourceDictionary Source="/Resources/Rhythm/PoissonGeneratorTemplate.xaml" />
+                <ResourceDictionary Source="/Resources/Rhythm/CellularAutomatonTemplate.xaml" />
+                <ResourceDictionary Source="/Resources/Rhythm/LSystemGeneratorTemplate.xaml" />
+                <ResourceDictionary Source="/Resources/Rhythm/PolyrhythmTemplate.xaml" />
+                <ResourceDictionary Source="/Resources/Rhythm/TrackChunkTemplate.xaml" />
                 <ResourceDictionary Source="/Resources/Pitch/ConstantPitchTemplate.xaml" />
                 <ResourceDictionary Source="/Resources/Pitch/RandomPitchTemplate.xaml" />
                 <ResourceDictionary Source="/Resources/Pitch/NormalDistributionPitchTemplate.xaml" />

@@ -11,7 +11,7 @@ using EuclidEA.ViewModels.Pitch;
 using Microsoft.Win32;
 using Prism.Commands;
 
-namespace EuclidEA.ViewModels;
+namespace EuclidEA.ViewModels.Rhythm;
 
 public class TrackChunkGeneratorViewModel : RhythmGeneratorViewModel
 {
@@ -80,7 +80,7 @@ public class TrackChunkGeneratorViewModel : RhythmGeneratorViewModel
 
     public TrackRhythmPattern SelectedPattern
     {
-        get => (_selectedPatternIndex >= 0 && _selectedPatternIndex < Patterns.Count) ? Patterns[_selectedPatternIndex] : null;
+        get => _selectedPatternIndex >= 0 && _selectedPatternIndex < Patterns.Count ? Patterns[_selectedPatternIndex] : null;
     }
 
     private void Load()

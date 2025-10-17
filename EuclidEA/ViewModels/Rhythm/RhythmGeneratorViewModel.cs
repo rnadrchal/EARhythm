@@ -10,7 +10,7 @@ using Egami.Rhythm.Pattern;
 using EuclidEA.ViewModels.Pitch;
 using Prism.Mvvm;
 
-namespace EuclidEA.ViewModels;
+namespace EuclidEA.ViewModels.Rhythm;
 
 public abstract class RhythmGeneratorViewModel : BindableBase, IRhythmGeneratorViewModel
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Egami.Rhythm.Generation;
 
-namespace EuclidEA.ViewModels;
+namespace EuclidEA.ViewModels.Rhythm;
 
 public class CellularAutomatonViewModel : RhythmGeneratorViewModel
 {
@@ -87,6 +87,6 @@ public class CellularAutomatonViewModel : RhythmGeneratorViewModel
         }
     }
 
-    protected override IRhythmGenerator Generator => new CellularAutomatonGenerator(_generations, (CaRule)Rule, (CaBoundary)Boundary, (CaSeed)Seed, (CaMapMode)MapMode);
+    protected override IRhythmGenerator Generator => new CellularAutomatonGenerator(_generations, (CaRule)Rule, Boundary, Seed, MapMode);
     public override string Name => "Cellular Automaton";
 }

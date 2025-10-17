@@ -10,6 +10,7 @@ using Egami.Rhythm.Pattern;
 using EuclidEA.Events;
 using EuclidEA.Models;
 using EuclidEA.Services;
+using EuclidEA.ViewModels.Rhythm;
 using Melanchall.DryWetMidi.Multimedia;
 using Prism.Events;
 using Prism.Mvvm;
