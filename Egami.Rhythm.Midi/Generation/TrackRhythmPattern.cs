@@ -5,7 +5,7 @@ namespace Egami.Rhythm.Midi.Generation;
 
 public class TrackRhythmPattern
 {
-    public TrackRhythmPattern(int number, RhythmPattern pattern, double drumLikeliyhood, int channel, byte[] programs)
+    public TrackRhythmPattern(int number, Sequence pattern, double drumLikeliyhood, int channel, byte[] programs)
     {
         RhythmPattern = pattern;
         DrumLikelihood = drumLikeliyhood;
@@ -15,7 +15,7 @@ public class TrackRhythmPattern
     public int TrackNumber { get; private set; }
     public int Channel { get; private set; }
     public double DrumLikelihood { get; private set; }
-    public RhythmPattern RhythmPattern { get; private set; }
+    public Sequence RhythmPattern { get; private set; }
     public byte[] Programs { get; private set; }
 
     public override string ToString()

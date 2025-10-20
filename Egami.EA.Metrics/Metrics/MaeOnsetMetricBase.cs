@@ -14,9 +14,9 @@ public abstract class MaeOnsetMetricBase : IFitnessMetric
     protected abstract int MaxValue { get; set; }
 
     /// <summary>Extrahiert den Wert des Features an Position i.</summary>
-    protected abstract int GetValue(Sequence s, int i);
+    protected abstract int GetValue(MetricsSequence s, int i);
 
-    public double Evaluate(Sequence start, Sequence target)
+    public double Evaluate(MetricsSequence start, MetricsSequence target)
     {
         int n = Math.Min(start.Length, target.Length);
         if (n == 0) return 1.0;
@@ -55,14 +55,14 @@ public sealed class PitchMaeMetric : MaeOnsetMetricBase
 {
     public override string Name => "Pitch.MAE";
     protected override int MaxValue { get; set; } = 127;
-    protected override int GetValue(Sequence s, int i) => s.Pitches[i];
+    protected override int GetValue(MetricsSequence s, int i) => s.Pitches[i];
 }
 
 public sealed class VelocityMaeMetric : MaeOnsetMetricBase
 {
     public override string Name => "Velocity.MAE";
     protected override int MaxValue { get; set; } = 127;
-    protected override int GetValue(Sequence s, int i) => s.Velocities[i];
+    protected override int GetValue(MetricsSequence s, int i) => s.Velocities[i];
 }
 
 public sealed class LengthMaeMetric : MaeOnsetMetricBase
@@ -76,5 +76,5 @@ public sealed class LengthMaeMetric : MaeOnsetMetricBase
     public int LMax { get; set; } = 32;
 
     protected override int MaxValue { get; set; } = 32;
-    protected override int GetValue(Sequence s, int i) => s.Lengths[i];
+    protected override int GetValue(MetricsSequence s, int i) => s.Lengths[i];
 }

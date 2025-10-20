@@ -6,7 +6,7 @@ public sealed class RotateTransform(int offset) : IRhythmTransform
 {
     private readonly int _offset = offset;
 
-    public RhythmPattern Apply(RhythmContext ctx, RhythmPattern input)
+    public Sequence Apply(RhythmContext ctx, Sequence input)
     {
         var n = input.StepsTotal;
         var outp = input.Clone();
@@ -16,9 +16,10 @@ public sealed class RotateTransform(int offset) : IRhythmTransform
             for (int i = 0; i < n; i++) b[(i + _offset % n + n) % n] = a[i];
             Array.Copy(b, a, n);
         }
-        Rot(outp.Hits);
-        Rot(outp.Velocities);
-        Rot(outp.Lengths);
+
+        var stepArray = input.Steps.ToArray();
+        Rot(stepArray);
+        input.Steps = stepArray.ToList();
         return outp;
     }
 }

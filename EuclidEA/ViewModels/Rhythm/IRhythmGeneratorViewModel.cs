@@ -6,5 +6,5 @@ namespace EuclidEA.ViewModels.Rhythm;
 public interface IRhythmGeneratorViewModel
 {
     string Name { get; }
-    RhythmPattern Generate();
+    Sequence Generate();
 }

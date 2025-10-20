@@ -25,10 +25,10 @@ public sealed class FastBundleFitnessService : IFitnessService
         _mode = _options.CombineMode;
     }
 
-    public double Evaluate(Sequence start, Sequence target)
+    public double Evaluate(MetricsSequence start, MetricsSequence target)
         => EvaluateDetailed(start, target).Total;
 
-    public FitnessBreakdown EvaluateDetailed(Sequence start, Sequence target)
+    public FitnessBreakdown EvaluateDetailed(MetricsSequence start, MetricsSequence target)
     {
         // Einzelmetriken berechnen
         double sHits = _hits.Evaluate(start, target);

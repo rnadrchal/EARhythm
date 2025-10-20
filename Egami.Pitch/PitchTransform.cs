@@ -6,18 +6,25 @@ namespace Egami.Pitch;
 
 public sealed class PitchTransform : IRhythmTransform
 {
-    private byte?[] _pitches;
-    public PitchTransform(IEnumerable<byte?> pitches)
+    private int[] _pitches;
+    private bool _hitOnly;
+    public PitchTransform(IEnumerable<int> pitches, bool hitOnly)
     {
         _pitches = pitches.ToArray();
+        _hitOnly = hitOnly;
     }
-    public RhythmPattern Apply(RhythmContext ctx, RhythmPattern input)
+    public Sequence Apply(RhythmContext ctx, Sequence input)
     {
-        input.Pitches = new int?[ctx.StepsTotal];
         int j = 0;
         for (int i = 0; i < ctx.StepsTotal; i++)
         {
-            input.Pitches[i] = input.Hits[i] ? _pitches[j++ % _pitches.Length] : null;
+            if (input.Steps[i].Hit)
+            {
+                input.Steps[i].Pitch = _pitches[j++];
+            }
+            else if (!_hitOnly) j++;
+
+            if (j >= _pitches.Length) j = 0;
         }
         return input;
     }

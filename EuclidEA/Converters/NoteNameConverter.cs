@@ -15,6 +15,7 @@ public class NoteNameConverter : IValueConverter
     {
         if (value is int intValue)
         {
+            if (intValue == 0) return string.Empty;
             int noteIndex = intValue % 12;
             return NoteNames[noteIndex];
         }

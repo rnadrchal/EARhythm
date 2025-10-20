@@ -7,7 +7,7 @@ namespace EuclidEA.ViewModels.Rhythm;
 
 public sealed class EuclidGeneratorViewModel : RhythmGeneratorViewModel
 {
-    public override string Name => "Euclid Generator";
+    public override string Name => "Euclid Pattern";
 
     public override int Steps
     {
@@ -42,7 +42,7 @@ public sealed class EuclidGeneratorViewModel : RhythmGeneratorViewModel
 
     protected override IRhythmGenerator Generator => new EuclidGenerator(_pulses, _rotation);
 
-    protected override RhythmPattern Generate(RhythmContext context)
+    protected override Sequence Generate(RhythmContext context)
     {
         var rotate = new RotateTransform(_rotation);
         return rotate.Apply(context, base.Generate(context));

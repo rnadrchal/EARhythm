@@ -6,4 +6,4 @@
 /// <param name="Step"></param>
 /// <param name="Velocity"></param>
 /// <param name="Length"></param>
-public readonly record struct RhythmEvent(int Step, byte Velocity = 100, int Length = 1, int? Pitch = null);
+public readonly record struct RhythmEvent(int Step, int Velocity = 100, int Length = 1, int Pitch = 0);

@@ -28,7 +28,7 @@ public sealed class FastBundleFitness : IFitnessMetric
     public bool UseLethalThreshold { get; init; } = true;
     public double HitsLethalThreshold { get; init; } = 0.15;
 
-    public double Evaluate(Sequence start, Sequence target)
+    public double Evaluate(MetricsSequence start, MetricsSequence target)
     {
         double sHits = Hits.Evaluate(start, target);
 

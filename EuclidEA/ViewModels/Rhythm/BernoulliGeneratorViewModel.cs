@@ -15,5 +15,5 @@ public sealed class BernoulliGeneratorViewModel : RhythmGeneratorViewModel
     
 
     protected override IRhythmGenerator Generator => new BernoulliGenerator(_probability01);
-    public override string Name => "Bernoulli Generator";
+    public override string Name => "Bernoulli";
 }

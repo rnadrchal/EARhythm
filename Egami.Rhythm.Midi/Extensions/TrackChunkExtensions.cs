@@ -11,7 +11,7 @@ namespace Egami.Rhythm.Midi.Extensions;
 public sealed class ChannelPatternSummary
 {
     public int Channel { get; init; }                 // 0..15
-    public RhythmPattern Pattern { get; init; } = new(0);
+    public Sequence Pattern { get; init; } = new(0);
     public double DrumProbability { get; init; }
 
     /// <summary>Distinct-ProgramNumbers (0..127) aller ProgramChange-Events dieses Kanals.</summary>
@@ -91,15 +91,9 @@ public static class TrackChunkExtensions
             long channelEndTicks = channelStartTicks + stepTicks * totalSteps;
 
             // --- RhythmPattern extrahieren (wie zuvor) ---
-            var basePattern = new RhythmPattern(totalSteps)
-            {
-                Hits = new bool[totalSteps],
-                Velocities = new byte[totalSteps],
-                Lengths = new int[totalSteps],
-                Pitches = new int?[totalSteps],
-            };
+            var baseSequence = new Sequence(totalSteps);
 
-            var onsets = new List<(int idx, byte vel, int len, byte pitch)>();
+            var onsets = new List<(int idx, int vel, int len, byte pitch)>();
 
             foreach (var n in notesOnChannel)
             {
@@ -125,43 +119,37 @@ public static class TrackChunkExtensions
                 byte pitch = (byte)n.NoteNumber;
                 byte vel = n.Velocity;
 
-                if (!basePattern.Hits[idx] || (basePattern.Pitches[idx] is int p && pitch > p))
+                if (!baseSequence.Hits[idx] || (baseSequence.Steps[idx].Pitch is var p && pitch > p))
                 {
-                    basePattern.Hits[idx] = true;
-                    basePattern.Pitches[idx] = pitch;
-                    basePattern.Velocities[idx] = vel;
-                    basePattern.Lengths[idx] = lengthSteps;
+                    baseSequence.Steps[idx].Hit = true;
+                    baseSequence.Steps[idx].Pitch = pitch;
+                    baseSequence.Steps[idx].Pitch = vel;
+                    baseSequence.Steps[idx].Pitch = lengthSteps;
                 }
             }
 
             for (int i = 0; i < totalSteps; i++)
             {
-                if (basePattern.Hits[i])
-                    onsets.Add((i, basePattern.Velocities[i], Math.Max(1, basePattern.Lengths[i]), (byte)(basePattern.Pitches[i] ?? 0)));
+                if (baseSequence.Hits[i])
+                    onsets.Add((i, baseSequence.Steps[i].Pitch, Math.Max(1, baseSequence.Steps[i].Pitch), (byte)(baseSequence.Steps[i].Pitch)));
             }
 
-            RhythmPattern finalPattern;
+            Sequence finalPattern;
             if (repeatEventsToFillSteps && onsets.Count > 0 && onsets.Count < totalSteps)
             {
-                finalPattern = new RhythmPattern(totalSteps)
-                {
-                    Hits = Enumerable.Repeat(true, totalSteps).ToArray(),
-                    Velocities = new byte[totalSteps],
-                    Lengths = new int[totalSteps],
-                    Pitches = new int?[totalSteps]
-                };
+                finalPattern = new Sequence(totalSteps);
 
                 for (int i = 0; i < totalSteps; i++)
                 {
                     var src = onsets[i % onsets.Count];
-                    finalPattern.Velocities[i] = src.vel;
-                    finalPattern.Lengths[i] = src.len;
-                    finalPattern.Pitches[i] = src.pitch;
+                    finalPattern.Steps[i].Pitch = src.vel;
+                    finalPattern.Steps[i].Pitch = src.len;
+                    finalPattern.Steps[i].Pitch = src.pitch;
                 }
             }
             else
             {
-                finalPattern = basePattern;
+                finalPattern = baseSequence;
             }
 
             // --- Drum-Score wie gehabt ---

@@ -24,8 +24,8 @@ namespace EuclidEA.ViewModels
         private readonly IEventAggregator _eventAggregator;
         private readonly OutputDevice _midiOut;
         private readonly EvolutionOptions _evolutionOptions;
-        private readonly Evolution<RhythmPattern> _evolution;
-        private readonly IMutator<RhythmPattern> _mutator;
+        private readonly Evolution<Egami.Rhythm.Pattern.Sequence> _evolution;
+        private readonly IMutator<Egami.Rhythm.Pattern.Sequence> _mutator;
         private readonly FitnessServiceOptions _fitnessOptions;
         private readonly IFitnessService _fitnessService;
 
@@ -87,7 +87,7 @@ namespace EuclidEA.ViewModels
         public ICommand GenerateRhythmCommand { get; }
         public ICommand StartStopEvolutionCommand { get; }
 
-        public MainWindowViewModel(IEventAggregator eventAggregator, MidiClock midiClock, OutputDevice midiOut, IMutator<RhythmPattern> mutator, Evolution<RhythmPattern> evolution, 
+        public MainWindowViewModel(IEventAggregator eventAggregator, MidiClock midiClock, OutputDevice midiOut, IMutator<Egami.Rhythm.Pattern.Sequence> mutator, Evolution<Egami.Rhythm.Pattern.Sequence> evolution, 
             IFitnessServiceOptions fitnessOptions, IFitnessService fitnessService, IEvolutionOptions evolutionOptions)
         {
             _eventAggregator = eventAggregator;
@@ -135,9 +135,9 @@ namespace EuclidEA.ViewModels
 
         private void GenerateRhythm()
         {
-            var last = Rhythms.LastOrDefault();
             var pattern = SelectedGenerator.Generate();
-            if (last != null && last.WaitingForTarget)
+            var last = Rhythms.FirstOrDefault(r => r.TargetSteps == null);
+            if (last is { WaitingForTarget: true })
             {
                 last.SetTarget(pattern);
                 if (_isEvolutionInProgress) _lastAddedRhythm.StartEvolution();

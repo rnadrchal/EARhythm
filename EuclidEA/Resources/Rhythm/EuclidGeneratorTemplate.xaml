@@ -40,7 +40,7 @@
                                        TickVisibility="Visible" 
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
                                        FontFamily="Kristen ITC">
-                <TextBlock Text="{Binding Pulses}" FontSize="16"></TextBlock>
+                <TextBlock Text="{Binding Pulses}" FontSize="16" />
             </syncfusion:SfRadialSlider>
             <TextBlock Text="Rotate" Style="{StaticResource LabelStyle}" />
             <syncfusion:SfRadialSlider Width="120" Height="120"
@@ -57,6 +57,7 @@
                                        TickVisibility="Visible" 
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
                                        FontFamily="Kristen ITC">
+                <TextBlock Text="{Binding Rotation}" FontSize="16" />
             </syncfusion:SfRadialSlider>
         </StackPanel>
 

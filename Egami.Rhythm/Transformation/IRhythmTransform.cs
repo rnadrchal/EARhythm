@@ -4,5 +4,5 @@ namespace Egami.Rhythm.Transformation;
 
 public interface IRhythmTransform
 {
-    RhythmPattern Apply(RhythmContext ctx, RhythmPattern input);
+    Sequence Apply(RhythmContext ctx, Sequence input);
 }

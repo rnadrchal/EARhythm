@@ -95,7 +95,7 @@ public class LSystemViewModel : RhythmGeneratorViewModel
     protected override IRhythmGenerator Generator => new LSystemGenerator(Axiom, Rules, Iterations, HitSymbol);
     public override string Name => "L-System";
 
-    protected override RhythmPattern Generate(RhythmContext context)
+    protected override Sequence Generate(RhythmContext context)
     {
         return Generator.Generate(context);
     }

@@ -76,7 +76,7 @@ public class LSystemGenerator(
 
 
 
-    public RhythmPattern Generate(RhythmContext ctx)
+    public Sequence Generate(RhythmContext ctx)
     {
         string current = _axiom;
         for (int i = 0; i < _it; i++)
@@ -88,14 +88,15 @@ public class LSystemGenerator(
         }
 
         var n = ctx.StepsTotal > 0 ? ctx.StepsTotal : current.Length;
-        var p = new RhythmPattern(n);
+        var p = new Sequence(n);
         for (int i = 0; i < n; i++)
         {
             var c = current[i % current.Length];
             bool hit = c == _hit;
-            p.Hits[i] = hit;
-            p.Lengths[i] = 1;
-            p.Velocities[i] = (byte)(hit ? ctx.DefaultVelocity : 0);
+            p.Steps[i].Hit = hit;
+            p.Steps[i].Length = 1;
+            p.Steps[i].Velocity = (byte)(hit ? ctx.DefaultVelocity : 0);
+
         }
         return p;
     }

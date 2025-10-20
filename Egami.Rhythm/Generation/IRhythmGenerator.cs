@@ -5,5 +5,5 @@ namespace Egami.Rhythm.Generation;
 // Minimales, gemeinsames Interface aller Generatoren
 public interface IRhythmGenerator
 {
-    RhythmPattern Generate(RhythmContext ctx);
+    Sequence Generate(RhythmContext ctx);
 }

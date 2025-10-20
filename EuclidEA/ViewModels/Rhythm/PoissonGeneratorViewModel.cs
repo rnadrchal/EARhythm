@@ -13,5 +13,5 @@ public sealed class PoissonGeneratorViewModel : RhythmGeneratorViewModel
     }
 
     protected override IRhythmGenerator Generator => new PoissonGenerator(_lambdaPerBar);
-    public override string Name => "Poisson Generator";
+    public override string Name => "Poisson";
 }
