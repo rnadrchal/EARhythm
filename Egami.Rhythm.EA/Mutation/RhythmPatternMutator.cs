@@ -32,6 +32,7 @@ public class RhythmPatternMutator : IMutator<Sequence>
     {
         var position = RandomProvider.Get(options.Seed).Next(0, individual.Hits.Length);
         individual.Steps.RemoveAt(position);
+        individual.StepsTotal--;
     }
 
     public void Insert(Sequence individual, IEvolutionOptions options)
@@ -44,6 +45,7 @@ public class RhythmPatternMutator : IMutator<Sequence>
             Velocity = RandomProvider.Get(options.Seed).Next(5, 127),
             Length = RandomProvider.Get(options.Seed).Next(1, options.MaxStepLength)
         });
+        individual.StepsTotal++;
     }
 
     public void Swap(Sequence individual, IEvolutionOptions options)

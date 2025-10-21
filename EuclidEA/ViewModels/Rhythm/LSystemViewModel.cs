@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Egami.Pitch;
 using Egami.Rhythm;
+using Egami.Rhythm.Extensions;
 using Egami.Rhythm.Generation;
 using Egami.Rhythm.Pattern;
 
@@ -97,7 +99,8 @@ public class LSystemViewModel : RhythmGeneratorViewModel
 
     protected override Sequence Generate(RhythmContext context)
     {
-        return Generator.Generate(context);
+        var pitches = PitchGenerator.Generate(context.StepsTotal);
+        return Generator.GenerateWith(context, new PitchTransform(pitches.Select(p => (int)p), PitchOnly));
     }
 
     private char[] GetRuleCharacters() => Rules.Keys.ToArray();

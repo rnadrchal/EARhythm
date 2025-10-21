@@ -31,6 +31,7 @@ namespace EuclidEA.ViewModels;
 public class RhythmViewModel : BindableBase
 {
     private readonly Evolution<Egami.Rhythm.Pattern.Sequence> _evolution;
+    private readonly IEvolutionOptions _evolutionOptions;
     private readonly IFitnessService _fitnessService;
     private Egami.Rhythm.Pattern.Sequence _sequence;
     private readonly IEventAggregator _eventAggregator;
@@ -87,7 +88,7 @@ public class RhythmViewModel : BindableBase
     public RhythmViewModel(Sequence sequence, byte channel, IEventAggregator eventAggregator,
         Evolution<Sequence> evolution,
         IMutator<Sequence> mutator, 
-        IFitnessService fitnessService)
+        IFitnessService fitnessService, IEvolutionOptions evolutionOptions)
     {
         _sequence = sequence;
         _channel = channel;
@@ -95,6 +96,7 @@ public class RhythmViewModel : BindableBase
         _evolution = evolution;
         _mutator = mutator;
         _fitnessService = fitnessService;
+        _evolutionOptions = evolutionOptions;
         Steps = sequence.Steps.Select(s => new StepViewModel
         {
             IsHit = s.Hit,
@@ -165,7 +167,7 @@ public class RhythmViewModel : BindableBase
                     _lastNote = (byte)_sequence.Steps[_currentStep].Pitch;
                 }
 
-                _nextTick = _currentTick + (ulong)_sequence.Steps[_currentStep].Pitch;
+                _nextTick = _currentTick + (ulong)_sequence.Steps[_currentStep].Length;
                 _currentStep++;
                 if (_currentStep == _sequence.StepsTotal) _currentStep = 0;
 
@@ -174,21 +176,27 @@ public class RhythmViewModel : BindableBase
                     bool updateReqired = false;
                     if (_currentStep == 0)
                     {
-                        _population?.Evolve(_mutator, 1);
-                        _sequence = _population?.Individuals.FindFittest(pattern => Fitness(pattern)).Individual ?? _sequence;
-                        _generations++;
-                        updateReqired = true;
-                    }
+                        var populationByFitness = _population.Individuals.OrderBy(Fitness).ToList();
+                        // Evolve least fittest half of population
+                        for (var i = 0; i < populationByFitness.Count / 2; ++i)
+                        {
+                            _population.Evolve(populationByFitness[i], _mutator);
+                        }
+                        _population?.Tournament(_mutator, Fitness, _evolutionOptions);
 
-                    if (_generations % 4 == 0)
-                    {
-                        _population?.Pairing(_mutator, Fitness);
-                        updateReqired = true;
-                    }
-                    if (updateReqired)
-                    {
+                        _sequence = _population?.Individuals.FindFittest(pattern => Fitness(pattern)).Individual ?? _sequence;
                         UpdateSteps(_sequence);
                     }
+
+                    //if (_generations % 4 == 0)
+                    //{
+                    //    _population?.Pairing(_mutator, Fitness);
+                    //    updateReqired = true;
+                    //}
+                    //if (updateReqired)
+                    //{
+                    //    UpdateSteps(_sequence);
+                    //}
                 }
             }
 
