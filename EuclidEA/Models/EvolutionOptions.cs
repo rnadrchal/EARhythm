@@ -11,6 +11,7 @@ public class EvolutionOptions : BindableBase, IEvolutionOptions
     private double _lengthRate = 0.02;
     private double _swapRate = 0.05;
     private double _crossoverRate = 0.7;
+    private int _maxStepLength = 4;
     private int? _seed;
 
     public double MutationRate
@@ -47,6 +48,12 @@ public class EvolutionOptions : BindableBase, IEvolutionOptions
     {
         get => _crossoverRate;
         set => SetProperty(ref _crossoverRate, value);
+    }
+
+    public int MaxStepLength
+    {
+        get => _maxStepLength;
+        set => SetProperty(ref _maxStepLength, value);
     }
 
     public int? Seed

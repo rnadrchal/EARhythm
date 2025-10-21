@@ -8,5 +8,6 @@ public interface IEvolutionOptions
     double LengthRate { get; set; }
     double SwapRate { get; set; }
     double CrossoverRate { get; set; }
+    int MaxStepLength { get; set; }
     int? Seed { get; set; }
 }

@@ -7,17 +7,17 @@ public sealed class BernoulliGenerator(double probability01 = 0.5) : IRhythmGene
 {
     private readonly double _p = Math.Clamp(probability01, 0.0, 1.0);
 
-    public RhythmPattern Generate(RhythmContext ctx)
+    public Sequence Generate(RhythmContext ctx)
     {
         var rng = RandomProvider.Get(ctx.Seed);
-        var p = new RhythmPattern(ctx.StepsTotal);
-        for (int i = 0; i < p.StepsTotal; i++)
+        var s = new Sequence(ctx.StepsTotal);
+        for (int i = 0; i < s.StepsTotal; i++)
         {
-            bool hit = rng.NextDouble() < _p;
-            p.Hits[i] = hit;
-            p.Lengths[i] = 1;
-            p.Velocities[i] = (byte) (hit ? ctx.DefaultVelocity : 0);
+            s.Steps[i].Hit = rng.NextDouble() < _p;
+            s.Steps[i].Velocity = s.Steps[i].Hit ? ctx.DefaultVelocity : 0;
+            s.Steps[i].Pitch = s.Steps[i].Hit ? 60 : 0;
+            s.Steps[i].Length = 1;
         }
-        return p;
+        return s;
     }
 }

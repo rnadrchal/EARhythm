@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Windows;
 using System.Windows.Documents;
@@ -29,11 +30,12 @@ namespace EuclidEA.ViewModels;
 
 public class RhythmViewModel : BindableBase
 {
-    private readonly Evolution<RhythmPattern> _evolution;
+    private readonly Evolution<Egami.Rhythm.Pattern.Sequence> _evolution;
+    private readonly IEvolutionOptions _evolutionOptions;
     private readonly IFitnessService _fitnessService;
-    private RhythmPattern _pattern;
+    private Egami.Rhythm.Pattern.Sequence _sequence;
     private readonly IEventAggregator _eventAggregator;
-    private RhythmPattern? _target = null;
+    private Egami.Rhythm.Pattern.Sequence? _target = null;
     private int _currentStep = 0;
     private ulong _currentTick = 0;
     private ulong _nextTick = 0;
@@ -41,8 +43,8 @@ public class RhythmViewModel : BindableBase
     private ulong _generations = 0;
     private byte _channel;
     private bool _isEvolutionInProgress = false;
-    private Population<RhythmPattern>? _population = null;
-    private readonly IMutator<RhythmPattern> _mutator;
+    private Population<Sequence>? _population = null;
+    private readonly IMutator<Sequence> _mutator;
 
     private List<StepViewModel> _steps = new();
     public List<StepViewModel> Steps
@@ -83,24 +85,32 @@ public class RhythmViewModel : BindableBase
 
     public ICommand DeleteMeCommand { get; }
 
-    public RhythmViewModel(RhythmPattern pattern, byte channel, IEventAggregator eventAggregator,
-        Evolution<RhythmPattern> evolution,
-        IMutator<RhythmPattern> mutator, 
-        IFitnessService fitnessService)
+    public RhythmViewModel(Sequence sequence, byte channel, IEventAggregator eventAggregator,
+        Evolution<Sequence> evolution,
+        IMutator<Sequence> mutator, 
+        IFitnessService fitnessService, IEvolutionOptions evolutionOptions)
     {
-        this._pattern = pattern;
+        _sequence = sequence;
         _channel = channel;
         _eventAggregator = eventAggregator;
         _evolution = evolution;
         _mutator = mutator;
         _fitnessService = fitnessService;
-        Steps = Enumerable.Range(0, pattern.Hits.Length).Select(i => new StepViewModel
+        _evolutionOptions = evolutionOptions;
+        Steps = sequence.Steps.Select(s => new StepViewModel
         {
-            IsHit = pattern.Hits[i],
-            Velocity = pattern.Velocities[i] / 4,
-            Length = Math.Max(1, pattern.Lengths[i]),
-            Pitch = pattern.Pitches[i]
+            IsHit = s.Hit,
+            Velocity = s.Velocity / 4,
+            Pitch = s.Pitch,
+            Length = Math.Max(1, s.Length)
         }).ToList();
+        //Steps = Enumerable.Range(0, sequence.Hits.Length).Select(i => new StepViewModel
+        //{
+        //    IsHit = sequence.Hits[i],
+        //    Velocity = sequence.Steps[i].Pitch / 4,
+        //    Length = Math.Max(1, sequence.Steps[i].Pitch),
+        //    Pitch = sequence.Steps[i].Pitch
+        //}).ToList();
 
         DeleteMeCommand = new DelegateCommand(OnDeleteMe);
         _eventAggregator.GetEvent<ClockEvent>().Subscribe(OnTick);
@@ -124,7 +134,17 @@ public class RhythmViewModel : BindableBase
                 { Channel = (FourBitNumber)_channel });
         }
 
-        _eventAggregator.GetEvent<Events.DeleteRhythmEvent>().Publish(this);
+        if (TargetSteps != null)
+        {
+            TargetSteps.Clear();
+            TargetSteps = null;
+            _target = null;
+            RaisePropertyChanged(nameof(WaitingForTarget));
+        }
+        else
+        {
+            _eventAggregator.GetEvent<Events.DeleteRhythmEvent>().Publish(this);
+        }
     }
 
     private void OnTick(ulong tick)
@@ -133,44 +153,50 @@ public class RhythmViewModel : BindableBase
         {
             if (_currentTick >= _nextTick)
             {
-                if (_currentStep >= _pattern.StepsTotal) _currentStep = 0;
+                if (_currentStep >= _sequence.StepsTotal) _currentStep = 0;
                 if (_lastNote.HasValue)
                 {
                     MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0)
                         { Channel = (FourBitNumber)_channel });
                 }
 
-                if (_pattern.Hits[_currentStep] && _pattern.Pitches[_currentStep].HasValue)
+                if (_sequence.Steps[_currentStep].Hit)
                 {
-                    MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)_pattern.Pitches[_currentStep],
-                        (SevenBitNumber)_pattern.Velocities[_currentStep]) { Channel = (FourBitNumber)_channel });
-                    _lastNote = (byte)_pattern.Pitches[_currentStep];
+                    MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)_sequence.Steps[_currentStep].Pitch,
+                        (SevenBitNumber)_sequence.Steps[_currentStep].Velocity) { Channel = (FourBitNumber)_channel });
+                    _lastNote = (byte)_sequence.Steps[_currentStep].Pitch;
                 }
 
-                _nextTick = _currentTick + (ulong)_pattern.Lengths[_currentStep];
+                _nextTick = _currentTick + (ulong)_sequence.Steps[_currentStep].Length;
                 _currentStep++;
-                if (_currentStep == _pattern.StepsTotal) _currentStep = 0;
+                if (_currentStep == _sequence.StepsTotal) _currentStep = 0;
 
                 if (_isEvolutionInProgress)
                 {
                     bool updateReqired = false;
                     if (_currentStep == 0)
                     {
-                        _population?.Evolve(_mutator, 1);
-                        _pattern = _population?.Individuals.FindFittest(pattern => Fitness(pattern)).Individual ?? _pattern;
-                        _generations++;
-                        updateReqired = true;
+                        var populationByFitness = _population.Individuals.OrderBy(Fitness).ToList();
+                        // Evolve least fittest half of population
+                        for (var i = 0; i < populationByFitness.Count / 2; ++i)
+                        {
+                            _population.Evolve(populationByFitness[i], _mutator);
+                        }
+                        _population?.Tournament(_mutator, Fitness, _evolutionOptions);
+
+                        _sequence = _population?.Individuals.FindFittest(pattern => Fitness(pattern)).Individual ?? _sequence;
+                        UpdateSteps(_sequence);
                     }
 
-                    if (_generations % 4 == 0)
-                    {
-                        _population?.Pairing(_mutator, Fitness);
-                        updateReqired = true;
-                    }
-                    if (updateReqired)
-                    {
-                        UpdateSteps(_pattern);
-                    }
+                    //if (_generations % 4 == 0)
+                    //{
+                    //    _population?.Pairing(_mutator, Fitness);
+                    //    updateReqired = true;
+                    //}
+                    //if (updateReqired)
+                    //{
+                    //    UpdateSteps(_sequence);
+                    //}
                 }
             }
 
@@ -178,39 +204,39 @@ public class RhythmViewModel : BindableBase
         }
     }
 
-    private void UpdateSteps(RhythmPattern pattern)
+    private void UpdateSteps(Sequence sequence)
     {
-        Steps = Enumerable.Range(0, pattern.Hits.Length).Select(i => new StepViewModel
+        Steps = sequence.Steps.Select(s => new StepViewModel
         {
-            IsHit = pattern.Hits[i],
-            Velocity = pattern.Velocities[i] / 4,
-            Length = Math.Max(1, pattern.Lengths[i]),
-            Pitch = pattern.Pitches[i]
+            IsHit = s.Hit,
+            Velocity = s.Velocity,
+            Length = s.Length,
+            Pitch = s.Pitch,
         }).ToList();
     }
 
-    private Sequence _targetSequence;
+    private MetricsSequence _targetMetricsSequence;
 
-    public void SetTarget(RhythmPattern target)
+    public void SetTarget(Sequence sequence)
     {
-        _target = target;
-        TargetSteps = Enumerable.Range(0, target.Hits.Length).Select(i => new StepViewModel
+        _target = sequence;
+        TargetSteps = sequence.Steps.Select(s => new StepViewModel
         {
-            IsHit = target.Hits[i],
-            Velocity = target.Velocities[i] / 4,
-            Length = Math.Max(1, target.Lengths[i]),
-            Pitch = target.Pitches[i]
+            IsHit = s.Hit,
+            Velocity = s.Velocity,
+            Length = s.Length,
+            Pitch = s.Pitch,
         }).ToList();
 
-        _population = _evolution.AddPopulation(_pattern);
+        _population = _evolution.AddPopulation(_sequence);
 
-        _targetSequence = new Sequence(
-            target.Hits,
-            target.Pitches.Select(p => p.HasValue ? p.Value : 0).ToArray(),
-            target.Velocities.Select(v => (int)v).ToArray(),
-            target.Lengths);
+        _targetMetricsSequence = new MetricsSequence(
+            sequence.Hits,
+            sequence.Steps.Select(p => p.Pitch).ToArray(),
+            sequence.Steps.Select(s => s.Velocity).ToArray(),
+            sequence.Steps.Select(s => s.Length).ToArray());
 
-        RaisePropertyChanged(nameof(WaitingForTarget));
+        RaisePropertyChanged(nameof(WaitingForTarget)); 
     }
 
     private double _currentFitness = 0;
@@ -249,14 +275,14 @@ public class RhythmViewModel : BindableBase
     }
 
 
-    private double Fitness(RhythmPattern pattern)
+    private double Fitness(Egami.Rhythm.Pattern.Sequence pattern)
     {
-        var sequence = new Sequence(
-            _pattern.Hits,
-            _pattern.Pitches.Select(p => p.HasValue ? p.Value : 0).ToArray(), 
-            _pattern.Velocities.Select(v => (int)v).ToArray(),
-            _pattern.Lengths);
-        var breakdown = _fitnessService.EvaluateDetailed(sequence, _targetSequence);
+        var sequence = new Egami.EA.Metrics.MetricsSequence(
+            _sequence.Hits,
+            _sequence.Steps.Select(s => s.Pitch).ToArray(),
+            _sequence.Steps.Select(s => s.Length).ToArray().Select(v => (int)v).ToArray(),
+            _sequence.Steps.Select(s => s.Length).ToArray());
+        var breakdown = _fitnessService.EvaluateDetailed(sequence, _targetMetricsSequence);
         RhythmFitness = breakdown.Hits;
         PitchFitness = breakdown.Pitch;
         LengthFitness = breakdown.Length;

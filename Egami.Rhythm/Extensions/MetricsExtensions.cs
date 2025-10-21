@@ -35,7 +35,7 @@ public static class MetricsExtensions
     /// Rotationsinvariante Hamming-Ähnlichkeit zwischen zwei binären Patterns.
     /// Gibt einen Wert in [0..1] zurück; 1 == identisch (bis auf Rotation).
     /// </summary>
-    public static double HammingSimilarityRot(this RhythmPattern pattern, RhythmPattern reference)
+    public static double HammingSimilarityRot(this Sequence pattern, Sequence reference)
     {
         return pattern.Hits.HammingSimilarityRot(reference.Hits);
     }
@@ -62,7 +62,7 @@ public static class MetricsExtensions
     /// Jaccard-Ähnlichkeit der Onset-Mengen (Positionsmengen der 1en).
     /// Wertebereich [0..1]; 1 == gleiche Onset-Positionen.
     /// </summary>
-    public static double JaccardSimilarity(this RhythmPattern pattern, RhythmPattern reference)
+    public static double JaccardSimilarity(this Sequence pattern, Sequence reference)
     {
         return pattern.Hits.JaccardSimilarity(reference.Hits);
     }
@@ -103,7 +103,7 @@ public static class MetricsExtensions
     /// Rotationsinvariant, auf [0..1] normalisiert (0 == perfekte Übereinstimmung).
     /// Bei k&lt;2 (zu wenige Onsets) wird 0 zurückgegeben, wenn beide k&lt;2 sind, sonst 1.
     /// </summary>
-    public static double IoiMae(this RhythmPattern pattern, RhythmPattern reference)
+    public static double IoiMae(this Sequence pattern, Sequence reference)
     {
         return pattern.Hits.IoiMae(reference.Hits);
     }
@@ -178,7 +178,7 @@ public static class MetricsExtensions
     /// Zirkulare Wasserstein-1-Distanz (Earth Mover's Distance) zwischen Onsets, normalisiert auf [0..1].
     /// 0 == identisch (bis auf Rotation). Erwartet gleiche Onset-Anzahl; sonst 1.0.
     /// </summary>
-    public static double WassersteinCircular(this RhythmPattern pattern, RhythmPattern reference)
+    public static double WassersteinCircular(this Sequence pattern, Sequence reference)
     {
         return pattern.Hits.WassersteinCircular(reference.Hits);
     }
@@ -196,7 +196,7 @@ public static class MetricsExtensions
     /// Cosine-Ähnlichkeit der zirkularen Autokorrelationsvektoren (optional ohne Lag 0).
     /// Wertebereich [0..1]; 1 == sehr ähnliche Pulsstruktur.
     /// </summary>
-    public static double AutocorrCosineSimilarity(this RhythmPattern pattern, RhythmPattern reference, bool excludeZeroLag = true)
+    public static double AutocorrCosineSimilarity(this Sequence pattern, Sequence reference, bool excludeZeroLag = true)
     {
         return pattern.Hits.AutocorrCosineSimilarity(reference.Hits, excludeZeroLag);
     }

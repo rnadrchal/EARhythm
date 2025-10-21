@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -45,16 +46,12 @@ public class TrackChunkGeneratorViewModel : RhythmGeneratorViewModel
         LoadCommand = new DelegateCommand(Load);
     }
 
-    protected override RhythmPattern Generate(RhythmContext context)
+    protected override Sequence Generate(RhythmContext context)
     {
-        var pattern = SelectedPattern?.RhythmPattern;
-        if (pattern == null) return null;
-        pattern.Hits = pattern.Hits.Take(context.StepsTotal).ToArray();
-        pattern.Lengths = pattern.Lengths.Take(context.StepsTotal).ToArray();
-        pattern.Pitches = pattern.Pitches.Take(context.StepsTotal).ToArray();
-        pattern.Velocities = pattern.Velocities.Take(context.StepsTotal).ToArray();
-        pattern.StepsTotal = context.StepsTotal;
-        return pattern;
+        var sequence = SelectedPattern.RhythmPattern;
+        sequence.Steps = sequence.Steps.Take(context.StepsTotal).ToList();
+        sequence.StepsTotal = context.StepsTotal;
+        return sequence;
     }
 
     private int _selectedPatternIndex = 0;

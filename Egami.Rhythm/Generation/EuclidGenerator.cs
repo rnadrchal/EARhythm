@@ -1,5 +1,4 @@
-﻿using System.Xml;
-using Egami.Rhythm.Pattern;
+﻿using Egami.Rhythm.Pattern;
 
 namespace Egami.Rhythm.Generation;
 
@@ -8,17 +7,17 @@ public sealed class EuclidGenerator(int pulses, int rotate = 0) : IRhythmGenerat
     private readonly int _pulses = pulses;
     private readonly int _rotate = rotate;
 
-    public RhythmPattern Generate(RhythmContext ctx)
+    public Sequence Generate(RhythmContext ctx)
     {
         int n = ctx.StepsTotal;
         int k = Math.Clamp(_pulses, 0, n);
 
-        var p = new RhythmPattern(n);
+        var p = new Sequence(n);
 
         if (k == 0) return p; // alles Off
         if (k == n)
         {
-            for (int i = 0; i < n; i++) { p.Hits[i] = true; p.Velocities[i] = ctx.DefaultVelocity; }
+            for (int i = 0; i < n; i++) { p.Hits[i] = true; p.Steps[i].Velocity = ctx.DefaultVelocity; }
             return ApplyRotate(p, _rotate);
         }
 
@@ -29,15 +28,15 @@ public sealed class EuclidGenerator(int pulses, int rotate = 0) : IRhythmGenerat
             int a = (i * k) / n;
             int b = ((i + 1) * k) / n;
             bool hit = a != b;
-            p.Hits[i] = hit;
-            p.Velocities[i] = hit ? ctx.DefaultVelocity : (byte)0;
-            p.Lengths[i] = 1;
+            p.Steps[i].Hit = hit;
+            p.Steps[i].Velocity = hit ? ctx.DefaultVelocity : (byte)0;
+            p.Steps[i].Length = 1;
         }
 
         return ApplyRotate(p, _rotate);
     }
 
-    private static RhythmPattern ApplyRotate(RhythmPattern input, int offset)
+    private static Sequence ApplyRotate(Sequence input, int offset)
     {
         if (offset == 0) return input;
         int n = input.StepsTotal;
@@ -49,10 +48,10 @@ public sealed class EuclidGenerator(int pulses, int rotate = 0) : IRhythmGenerat
             for (int i = 0; i < n; i++) tmp[(i + off) % n] = arr[i];
             Array.Copy(tmp, arr, n);
         }
-        Rot(outp.Hits);
-        Rot(outp.Velocities);
-        Rot(outp.Lengths);
-        Rot(outp.Pitches);
+
+        var stepArray = input.Steps.ToArray();
+        Rot(stepArray);
+        outp.Steps = stepArray.ToList();
         return outp;
     }
 }

@@ -21,8 +21,8 @@ namespace EuclidEA
     {
         private IConfigurationRoot _config;
         private OutputDevice _dawDevice;
-        private Evolution<RhythmPattern> _evolution;
-        private readonly IMutator<RhythmPattern> _mutator;
+        private Evolution<Egami.Rhythm.Pattern.Sequence> _evolution;
+        private readonly IMutator<Egami.Rhythm.Pattern.Sequence> _mutator;
 
         public App()
         {
@@ -50,7 +50,7 @@ namespace EuclidEA
             containerRegistry.RegisterSingleton<IFitnessServiceOptions, FitnessServiceOptions>();
             containerRegistry.RegisterSingleton<IFitnessService, FastBundleFitnessService>();
             containerRegistry.RegisterSingleton<IEvolutionOptions, EvolutionOptions>();
-            containerRegistry.RegisterSingleton<Evolution<RhythmPattern>>();
+            containerRegistry.RegisterSingleton<Evolution<Egami.Rhythm.Pattern.Sequence>>();
         }
     }
 }

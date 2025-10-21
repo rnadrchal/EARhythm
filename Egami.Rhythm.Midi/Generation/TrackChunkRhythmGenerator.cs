@@ -18,7 +18,7 @@ public class TrackChunkRhythmGenerator : IRhythmGenerator
 
     public int Index { get; set; }
 
-    public RhythmPattern Generate(RhythmContext ctx)
+    public Sequence Generate(RhythmContext ctx)
     {
         ReloadTrackChunks(ctx);
         return TrackPatterns[Index].RhythmPattern;

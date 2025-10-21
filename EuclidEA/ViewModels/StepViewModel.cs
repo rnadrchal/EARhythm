@@ -7,6 +7,6 @@ public class StepViewModel
     public int Length { get; set; }
     public int Velocity { get; set; }
     public int? Pitch { get; set; }
-    public string NoteName => Pitch.HasValue ? $"{_noteNames[Pitch.Value % 12]}{Pitch.Value / 12}" : string.Empty;
+    public string NoteName => Pitch is > 0 ? $"{_noteNames[Pitch.Value % 12]}{Pitch.Value / 12}" : string.Empty;
 
 }

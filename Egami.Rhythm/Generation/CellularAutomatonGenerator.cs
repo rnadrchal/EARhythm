@@ -59,7 +59,7 @@ public class CellularAutomatonGenerator(
     private readonly int _everyN = everyN;
     private readonly bool[]? _customSeed = customSeed;
 
-    public RhythmPattern Generate(RhythmContext ctx)
+    public Sequence Generate(RhythmContext ctx)
     {
         int n = ctx.StepsTotal;
 
@@ -77,7 +77,7 @@ public class CellularAutomatonGenerator(
         }
 
         // 3) Mapping → RhythmPattern
-        var p = new RhythmPattern(n);
+        var p = new Sequence(n);
 
         switch (_mapMode)
         {
@@ -87,9 +87,9 @@ public class CellularAutomatonGenerator(
                     for (int i = 0; i < n; i++)
                     {
                         bool hit = last[i % ctx.StepsTotal];
-                        p.Hits[i] = hit;
-                        p.Velocities[i] = hit ? ctx.DefaultVelocity : (byte)0;
-                        p.Lengths[i] = 1;
+                        p.Steps[i].Hit = hit;
+                        p.Steps[i].Velocity = hit ? ctx.DefaultVelocity : (byte)0;
+                        p.Steps[i].Length = 1;
                     }
                     break;
                 }
@@ -104,9 +104,9 @@ public class CellularAutomatonGenerator(
                         foreach (var gen in history)
                             if (gen[x]) { hit = true; break; }
 
-                        p.Hits[i] = hit;
-                        p.Velocities[i] = hit ? ctx.DefaultVelocity : (byte)0;
-                        p.Lengths[i] = 1;
+                        p.Steps[i].Hit = hit;
+                        p.Steps[i].Velocity = hit ? ctx.DefaultVelocity : (byte)0;
+                        p.Steps[i].Length = 1;
                     }
                     break;
                 }
@@ -122,11 +122,11 @@ public class CellularAutomatonGenerator(
 
                         if (sum > 0)
                         {
-                            p.Hits[i] = true;
+                            p.Steps[i].Hit = true;
                             // Mappe Summe auf 1..127 (linear, capped)
                             int vel = 1 + (int)Math.Round(126.0 * sum / _generations);
-                            p.Velocities[i] = (byte)Math.Clamp(vel, 1, 127);
-                            p.Lengths[i] = 1;
+                            p.Steps[i].Velocity = (byte)Math.Clamp(vel, 1, 127);
+                            p.Steps[i].Length = 1;
                         }
                     }
                     break;
@@ -146,9 +146,9 @@ public class CellularAutomatonGenerator(
                             int i = stepIdx % n;
                             if (hit)
                             {
-                                p.Hits[i] = true;
-                                p.Velocities[i] = ctx.DefaultVelocity;
-                                p.Lengths[i] = 1;
+                                p.Steps[i].Hit = true;
+                                p.Steps[i].Velocity = ctx.DefaultVelocity;
+                                p.Steps[i].Length = 1;
                             }
                             stepIdx++;
                         }

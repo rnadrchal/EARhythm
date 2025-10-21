@@ -7,10 +7,11 @@ public sealed class PoissonGenerator(double lambdaPerBar) : IRhythmGenerator
 {
     private readonly double _lambda = Math.Max(0.0001, lambdaPerBar);
 
-    public RhythmPattern Generate(RhythmContext ctx)
+    public Sequence Generate(RhythmContext ctx)
     {
         var rng = RandomProvider.Get(ctx.Seed);
-        var p = new RhythmPattern(ctx.StepsTotal);
+        var p = new Sequence(ctx.StepsTotal);
+        p.Steps.ForEach(s => s.Length = 1);
 
         // Erzeuge Ereignisse innerhalb [0, 1 Bar), verteile nach Exponentialabständen
         double t = 0.0;
@@ -22,9 +23,8 @@ public sealed class PoissonGenerator(double lambdaPerBar) : IRhythmGenerator
             t += dt;
             if (t >= 1.0) break;
             int step = (int)Math.Round(t * (ctx.StepsTotal - 1));
-            p.Hits[step] = true;
-            p.Lengths[step] = 1;
-            p.Velocities[step] = ctx.DefaultVelocity;
+            p.Steps[step].Hit = true;
+            p.Steps[step].Velocity = ctx.DefaultVelocity;
         }
         return p;
     }

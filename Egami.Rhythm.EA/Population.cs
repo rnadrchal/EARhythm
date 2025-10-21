@@ -19,28 +19,35 @@ public class Population<TGenotype>
         }
     }
 
+    public void Evolve(TGenotype individual, IMutator<TGenotype> mutator)
+    {
+        if (RandomProvider.Get(_options.Seed).NextDouble() <= 1.0 / Individuals.Count)
+        {
+            mutator.Mutate(individual, _options);
+        }
+        var r = RandomProvider.Get(_options.Seed).NextDouble();
+        if (r <= _options.DeletionRate)
+        {
+            mutator.Delete(individual, _options);
+        }
+        r = RandomProvider.Get(_options.Seed).NextDouble();
+        if (r <= _options.InsertionRate)
+        {
+            mutator.Insert(individual, _options);
+        }
+
+        r = RandomProvider.Get(_options.Seed).NextDouble();
+        if (r <= _options.SwapRate)
+        {
+            mutator.Swap(individual, _options);
+        }
+    }
+
     public void Evolve(IMutator<TGenotype> mutator, int generations = 1)
     {
-        for (int i = 0; i < generations; i++)
+        foreach (var individual in Individuals)
         {
-            foreach (var individual in Individuals)
-            {
-                double r = RandomProvider.Get(_options.Seed).NextDouble();
-                if (1.0 - r < _options.MutationRate)
-                {
-                    mutator.Mutate(individual, _options);
-                }
-                r = RandomProvider.Get(_options.Seed).NextDouble();
-                if (1.0 - r < _options.DeletionRate)
-                {
-                    mutator.Delete(individual, _options);
-                }
-                r = RandomProvider.Get(_options.Seed).NextDouble();
-                if (1.0 - r < _options.InsertionRate)
-                {
-                    mutator.Insert(individual, _options);
-                }
-            }
+            Evolve(individual, mutator);
         }
     }
 
@@ -53,6 +60,22 @@ public class Population<TGenotype>
             Individuals.RemoveAt(result.WorstIndex);
             Individuals.Add(offspring);
         }
+    }
+
+    public void Tournament(IMutator<TGenotype> mutator, Func<TGenotype, double> fitness, IEvolutionOptions options)
+    {
+        var participants = Individuals.TakeRandom(4, RandomProvider.Get(_options.Seed))
+            .OrderByDescending(fitness).Take(2);
+        var offspring = mutator.Crossover(participants.First(), participants.Last(), _options);
+        Evolve(offspring, mutator);
+        var remove = Individuals.FirstOrDefault(i => Math.Abs(fitness(i) - fitness(offspring)) <= 0.1);
+        if (remove == null)
+        {
+            remove = Individuals.OrderBy(fitness).Last();
+        }
+
+        Individuals.Remove(remove);
+        Individuals.Add(offspring);
     }
 
     public void ApplyOptions(IEvolutionOptions options)

@@ -11,20 +11,21 @@ public sealed class PolyrhythmGenerator(int a, int b, byte velA = 110, byte velB
     private readonly int _la = lengthA;
     private readonly int _lb = lengthB;
 
-    public RhythmPattern Generate(RhythmContext ctx)
+    public Sequence Generate(RhythmContext ctx)
     {
         int lcm = Lcm(_a, _b);
         int n = ctx.StepsTotal > 0 ? ctx.StepsTotal : lcm;
-        var p = new RhythmPattern(n);
+        var p = new Sequence(n);
+        p.Steps.ForEach(s => s.Length = 1);
         for (int i = 0; i < n; i++)
         {
             bool hitA = i % (n / _a) == 0;
             bool hitB = i % (n / _b) == 0;
             if (hitA || hitB)
             {
-                p.Hits[i] = true;
-                p.Lengths[i] = hitA && hitB ? Math.Max(_la, _lb) : (hitA ? _la : hitB ? _lb : 1);
-                p.Velocities[i] = (byte)Math.Clamp((hitA ? _va : 0) + (hitB ? _vb : 0), 1, 127);
+                p.Steps[i].Hit = true;
+                p.Steps[i].Length = hitA && hitB ? Math.Max(_la, _lb) : (hitA ? _la : hitB ? _lb : 1);
+                p.Steps[i].Velocity = (byte)Math.Clamp((hitA ? _va : 0) + (hitB ? _vb : 0), 1, 127);
             }
         }
         return p;

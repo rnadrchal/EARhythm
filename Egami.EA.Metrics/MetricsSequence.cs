@@ -1,6 +1,6 @@
 ﻿namespace Egami.EA.Metrics;
 
-public sealed class Sequence
+public sealed class MetricsSequence
 {
     // Grid-basiert: Alle Arrays haben die gleiche Länge N.
     public bool[] Hits { get; }
@@ -10,7 +10,7 @@ public sealed class Sequence
 
     public int Length => Hits.Length;
 
-    public Sequence(bool[] hits, int[] pitches, int[] velocities, int[] lengths)
+    public MetricsSequence(bool[] hits, int[] pitches, int[] velocities, int[] lengths)
     {
         ArgumentNullException.ThrowIfNull(hits);
         ArgumentNullException.ThrowIfNull(pitches);

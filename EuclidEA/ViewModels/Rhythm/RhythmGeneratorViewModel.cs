@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Documents;
 using Egami.Pitch;
 using Egami.Rhythm;
@@ -39,6 +40,14 @@ public abstract class RhythmGeneratorViewModel : BindableBase, IRhythmGeneratorV
         }
     }
 
+    private bool _pitchOnly = true;
+
+    public bool PitchOnly
+    {
+        get => _pitchOnly;
+        set => SetProperty(ref _pitchOnly, value);
+    }
+
     public virtual IPitchGeneratorViewModel PitchGenerator => _pitchGeneratorIndex.HasValue ? PitchGenerators[_pitchGeneratorIndex.Value] : null;
 
     protected int _steps = 16;
@@ -49,7 +58,7 @@ public abstract class RhythmGeneratorViewModel : BindableBase, IRhythmGeneratorV
         set => SetProperty(ref _steps, value);
     }
 
-    public RhythmPattern Generate()
+    public Sequence Generate()
     {
         var context = new RhythmContext
         {
@@ -62,13 +71,9 @@ public abstract class RhythmGeneratorViewModel : BindableBase, IRhythmGeneratorV
         return Generate(context);
     }
 
-    protected virtual RhythmPattern Generate(RhythmContext context)
+    protected virtual Sequence Generate(RhythmContext context)
     {
-        if (PitchGenerator != null)
-        {
-            var pitches = PitchGenerator.Generate(context.StepsTotal);
-            return Generator.GenerateWith(context, new PitchTransform(pitches));
-        }
-        return Generator.Generate(context);
+        var pitches = PitchGenerator.Generate(context.StepsTotal);
+        return Generator.GenerateWith(context, new PitchTransform(pitches.Select(p => (int)p), _pitchOnly));
     }
 }

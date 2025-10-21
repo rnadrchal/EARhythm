@@ -12,7 +12,7 @@ public sealed class HitsF1Metric : IFitnessMetric
     /// <param name="maxCircularShift">Max. zirkulärer Shift (±K). 0 = kein Shift.</param>
     public int MaxCircularShift { get; set; } = 0;
 
-    public double Evaluate(Sequence start, Sequence target)
+    public double Evaluate(MetricsSequence start, MetricsSequence target)
     {
         int n = Math.Min(start.Length, target.Length);
         if (n == 0) return 1.0; // zwei leere Sequenzen gelten als identisch
