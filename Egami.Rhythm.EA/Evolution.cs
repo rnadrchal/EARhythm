@@ -1,6 +1,4 @@
-﻿using Egami.Rhythm.Pattern;
-
-namespace Egami.Rhythm.EA;
+﻿namespace Egami.Rhythm.EA;
 
 public sealed class Evolution<TGenotype>
 {
@@ -14,7 +12,7 @@ public sealed class Evolution<TGenotype>
     public List<Population<TGenotype>> Populations { get; } = new();
     public Population<TGenotype> AddPopulation(TGenotype genotype, int size = 10)
     {
-        var population = new Population<TGenotype>(genotype, _options, size);
+        var population = new Population<TGenotype>(genotype, _options);
         Populations.Add(population);
         return population;
     }

@@ -18,26 +18,8 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
                 <ColumnDefinition />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Grid.Row="0" Text="R_Mut" FontSize="10" HorizontalAlignment="Center" />
-            <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Width="80" Height="80"
-                                       Margin="0,-6"
-                                       Minimum="0" Maximum="100"
-                                       Value="{Binding MutationRate, ConverterParameter=100, Converter={StaticResource Mult}}"
-                                       OuterRimRadiusFactor="0.6"
-                                       OuterRimStroke="#444"
-                                       OuterRimStrokeThickness="3"
-                                       InnerRimFill="#666"
-                                       InnerRimStroke="#444"
-                                       InnerRimRadiusFactor="0.4"
-                                       StartAngle="135" EndAngle="405"
-                                       TickVisibility="Visible"
-                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
-                                       LabelVisibility="Hidden"
-                                       FontFamily="Kristen ITC"
-                                       ToolTip="Maximum Circular Shift">
-                <TextBlock Text="{Binding MutationRate, ConverterParameter=100, Converter={StaticResource Mult}, StringFormat=F1}" FontSize="10" />
-            </syncfusion:SfRadialSlider>
             <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="0" Width="80" Height="80"
                                        Margin="0,-6"
                                        Minimum="0" Maximum="100"
@@ -97,11 +79,11 @@
             </syncfusion:SfRadialSlider>
             <TextBlock Grid.Column="1" Grid.Row="3" Text="R_Ins" FontSize="10" HorizontalAlignment="Center" />
 
-            <TextBlock Grid.Column="2" Grid.Row="0" Text="R_Len" FontSize="10" HorizontalAlignment="Center" />
+            <TextBlock Grid.Column="2" Grid.Row="0" Text="Max Len" FontSize="10" HorizontalAlignment="Center" />
             <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="2" Width="80" Height="80"
                                        Margin="0,-6"
-                                       Minimum="0" Maximum="100"
-                                       Value="{Binding LengthRate, ConverterParameter=100, Converter={StaticResource Mult}}"
+                                       Minimum="1" Maximum="8"
+                                       Value="{Binding MaxStepLength}"
                                        OuterRimRadiusFactor="0.6"
                                        OuterRimStroke="#444"
                                        OuterRimStrokeThickness="3"
@@ -109,12 +91,13 @@
                                        InnerRimStroke="#444"
                                        InnerRimRadiusFactor="0.4"
                                        StartAngle="135" EndAngle="405"
+                                       TickFrequency="1"
                                        TickVisibility="Visible"
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                        LabelVisibility="Hidden"
                                        FontFamily="Kristen ITC"
                                        ToolTip="Maximum Circular Shift">
-                <TextBlock Text="{Binding LengthRate, ConverterParameter=100, Converter={StaticResource Mult}, StringFormat=F1}" FontSize="10" />
+                <TextBlock Text="{Binding MaxStepLength}" FontSize="10" />
             </syncfusion:SfRadialSlider>
             <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="2" Width="80" Height="80"
                                        Margin="0,-6"

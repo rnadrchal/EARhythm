@@ -5,19 +5,18 @@ namespace EuclidEA.Models;
 
 public class EvolutionOptions : BindableBase, IEvolutionOptions
 {
-    private double _mutationRate = 0.1;
+    private int _populationSize = 8;
     private double _deletionRate = 0.01;
     private double _insertionRate = 0.01;
-    private double _lengthRate = 0.02;
     private double _swapRate = 0.05;
     private double _crossoverRate = 0.7;
     private int _maxStepLength = 4;
     private int? _seed;
 
-    public double MutationRate
+    public int PopulationSize
     {
-        get => _mutationRate;
-        set => SetProperty(ref _mutationRate, value);
+        get => _populationSize;
+        set => SetProperty(ref _populationSize, value);
     }
 
     public double DeletionRate
@@ -30,12 +29,6 @@ public class EvolutionOptions : BindableBase, IEvolutionOptions
     {
         get => _insertionRate;
         set => SetProperty(ref _insertionRate, value);
-    }
-
-    public double LengthRate
-    {
-        get => _lengthRate;
-        set => SetProperty(ref _lengthRate, value);
     }
 
     public double SwapRate
