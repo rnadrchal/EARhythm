@@ -95,7 +95,7 @@ public class LSystemGenerator(
             bool hit = c == _hit;
             p.Steps[i].Hit = hit;
             p.Steps[i].Length = 1;
-            p.Steps[i].Velocity = (byte)(hit ? ctx.DefaultVelocity : 0);
+            p.Steps[i].Velocity = (byte)(hit ? ctx.GetDefaultVelocity() : 0);
 
         }
         return p;

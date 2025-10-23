@@ -21,10 +21,8 @@ public class Population<TGenotype>
 
     public void Evolve(TGenotype individual, IMutator<TGenotype> mutator)
     {
-        if (RandomProvider.Get(_options.Seed).NextDouble() <= 1.0 / Individuals.Count)
-        {
-            mutator.Mutate(individual, _options);
-        }
+        mutator.Mutate(individual, _options);
+
         var r = RandomProvider.Get(_options.Seed).NextDouble();
         if (r <= _options.DeletionRate)
         {

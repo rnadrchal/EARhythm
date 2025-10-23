@@ -17,7 +17,7 @@ public sealed class EuclidGenerator(int pulses, int rotate = 0) : IRhythmGenerat
         if (k == 0) return p; // alles Off
         if (k == n)
         {
-            for (int i = 0; i < n; i++) { p.Hits[i] = true; p.Steps[i].Velocity = ctx.DefaultVelocity; }
+            for (int i = 0; i < n; i++) { p.Hits[i] = true; p.Steps[i].Velocity = ctx.GetDefaultVelocity(); }
             return ApplyRotate(p, _rotate);
         }
 
@@ -29,7 +29,7 @@ public sealed class EuclidGenerator(int pulses, int rotate = 0) : IRhythmGenerat
             int b = ((i + 1) * k) / n;
             bool hit = a != b;
             p.Steps[i].Hit = hit;
-            p.Steps[i].Velocity = hit ? ctx.DefaultVelocity : (byte)0;
+            p.Steps[i].Velocity = hit ? ctx.GetDefaultVelocity() : (byte)0;
             p.Steps[i].Length = 1;
         }
 

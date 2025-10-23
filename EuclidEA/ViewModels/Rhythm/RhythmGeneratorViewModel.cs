@@ -63,7 +63,6 @@ public abstract class RhythmGeneratorViewModel : BindableBase, IRhythmGeneratorV
         var context = new RhythmContext
         {
             StepsTotal = _steps,
-            DefaultVelocity = 100,
             Meter = new Meter(4, 4),
             Timebase = new Timebase(4),
             TempoBpm = 120.0
