@@ -45,7 +45,6 @@ namespace EuclidEA
         {
             containerRegistry.RegisterInstance(_mutator);
             containerRegistry.RegisterInstance(_config);
-            containerRegistry.RegisterInstance(_dawDevice);
             containerRegistry.RegisterSingleton<Services.MidiClock>();
             containerRegistry.RegisterSingleton<IFitnessServiceOptions, FitnessServiceOptions>();
             containerRegistry.RegisterSingleton<IFitnessService, FastBundleFitnessService>();
