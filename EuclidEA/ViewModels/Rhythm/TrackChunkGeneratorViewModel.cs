@@ -96,7 +96,6 @@ public class TrackChunkGeneratorViewModel : RhythmGeneratorViewModel
             generator.Load(FilePath, new RhythmContext
             {
                 StepsTotal = 64,
-                DefaultVelocity = 100,
                 Meter = new Meter(4, 4),
                 Timebase = new Timebase(4),
                 TempoBpm = 120.0

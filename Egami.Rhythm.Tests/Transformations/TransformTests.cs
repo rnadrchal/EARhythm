@@ -17,7 +17,6 @@ public class TransformTests
         _ctx = new RhythmContext
         {
             StepsTotal = 16,
-            DefaultVelocity = 100,
             Meter = new Meter(4, 4),
             Timebase = new Timebase(4), // 16tel Raster
             TempoBpm = 120,
@@ -59,8 +58,8 @@ public class TransformTests
         var transformed = new SwingVelocityTransform(strong, weak).Apply(_ctx, pattern).ToEvents().ToList();
 
         original.Count.Should().Be(transformed.Count);
-        original.All(o => o.Velocity == _ctx.DefaultVelocity).Should().BeTrue();
-        transformed.All(t => t.Velocity == (byte)(_ctx.DefaultVelocity * strong) || t.Velocity == (byte)(_ctx.DefaultVelocity * weak))
+        original.All(o => o.Velocity == _ctx.GetDefaultVelocity()).Should().BeTrue();
+        transformed.All(t => t.Velocity == (byte)(_ctx.GetDefaultVelocity() * strong) || t.Velocity == (byte)(_ctx.GetDefaultVelocity() * weak))
             .Should().BeTrue();
     }
 
@@ -98,7 +97,7 @@ public class TransformTests
         }
 
         var events = combined.ToEvents();
-        events.Select(e => e.Velocity).All(v => v == (byte)(strong * _ctx.DefaultVelocity) || v == (byte)(weak * _ctx.DefaultVelocity))
+        events.Select(e => e.Velocity).All(v => v == (byte)(strong * _ctx.GetDefaultVelocity()) || v == (byte)(weak * _ctx.GetDefaultVelocity()))
             .Should().BeTrue();
     }
 

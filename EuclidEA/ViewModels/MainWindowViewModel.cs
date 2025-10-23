@@ -133,17 +133,17 @@ namespace EuclidEA.ViewModels
 
         private void GenerateRhythm()
         {
-            var pattern = SelectedGenerator.Generate();
+            var sequence = SelectedGenerator.Generate();
             var last = Rhythms.FirstOrDefault(r => r.TargetSteps == null);
             if (last is { WaitingForTarget: true })
             {
-                last.SetTarget(pattern);
+                last.SetTarget(sequence);
                 if (_isEvolutionInProgress) _lastAddedRhythm.StartEvolution();
             }
             else
             {
                 var nextChannel = GetFreeChannel();
-                _lastAddedRhythm = new RhythmViewModel(pattern, nextChannel.Value, _eventAggregator, _evolution,
+                _lastAddedRhythm = new RhythmViewModel(sequence, nextChannel.Value, _eventAggregator, _evolution,
                     _mutator, _fitnessService, _evolutionOptions);
                 Rhythms.Add(_lastAddedRhythm);
             }

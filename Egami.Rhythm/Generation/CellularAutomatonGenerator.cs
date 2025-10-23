@@ -88,7 +88,7 @@ public class CellularAutomatonGenerator(
                     {
                         bool hit = last[i % ctx.StepsTotal];
                         p.Steps[i].Hit = hit;
-                        p.Steps[i].Velocity = hit ? ctx.DefaultVelocity : (byte)0;
+                        p.Steps[i].Velocity = hit ? ctx.GetDefaultVelocity() : (byte)0;
                         p.Steps[i].Length = 1;
                     }
                     break;
@@ -105,7 +105,7 @@ public class CellularAutomatonGenerator(
                             if (gen[x]) { hit = true; break; }
 
                         p.Steps[i].Hit = hit;
-                        p.Steps[i].Velocity = hit ? ctx.DefaultVelocity : (byte)0;
+                        p.Steps[i].Velocity = hit ? ctx.GetDefaultVelocity() : (byte)0;
                         p.Steps[i].Length = 1;
                     }
                     break;
@@ -147,7 +147,7 @@ public class CellularAutomatonGenerator(
                             if (hit)
                             {
                                 p.Steps[i].Hit = true;
-                                p.Steps[i].Velocity = ctx.DefaultVelocity;
+                                p.Steps[i].Velocity = ctx.GetDefaultVelocity();
                                 p.Steps[i].Length = 1;
                             }
                             stepIdx++;

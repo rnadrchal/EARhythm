@@ -14,7 +14,7 @@ public sealed class BernoulliGenerator(double probability01 = 0.5) : IRhythmGene
         for (int i = 0; i < s.StepsTotal; i++)
         {
             s.Steps[i].Hit = rng.NextDouble() < _p;
-            s.Steps[i].Velocity = s.Steps[i].Hit ? ctx.DefaultVelocity : 0;
+            s.Steps[i].Velocity = s.Steps[i].Hit ? ctx.GetDefaultVelocity() : 0;
             s.Steps[i].Pitch = s.Steps[i].Hit ? 60 : 0;
             s.Steps[i].Length = 1;
         }

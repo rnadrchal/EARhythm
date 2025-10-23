@@ -1,49 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Linq;
-using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Input;
 using Egami.EA.Metrics;
 using Egami.Rhythm.EA;
+using Egami.Rhythm.EA.Extensions;
 using Egami.Rhythm.EA.Mutation;
-using Egami.Rhythm.Extensions;
+using Egami.Rhythm.Midi;
 using Egami.Rhythm.Pattern;
 using EuclidEA.Events;
 using EuclidEA.Services;
 using Melanchall.DryWetMidi.Common;
-using Melanchall.DryWetMidi.Composing;
 using Melanchall.DryWetMidi.Core;
-using Melanchall.DryWetMidi.Multimedia;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
-using Syncfusion.Windows.Controls.Input;
-using Egami.Rhythm.Extensions;
-using Egami.Rhythm.EA.Extensions;
-using Egami.Pitch;
-using Egami.Rhythm.Midi;
-using Microsoft.Extensions.FileSystemGlobbing.Internal;
 
 namespace EuclidEA.ViewModels;
 
 public class RhythmViewModel : BindableBase
 {
-    private readonly Evolution<Egami.Rhythm.Pattern.Sequence> _evolution;
+    private readonly Evolution<Sequence> _evolution;
     private readonly IEvolutionOptions _evolutionOptions;
     private readonly IFitnessService _fitnessService;
-    private Egami.Rhythm.Pattern.Sequence _sequence;
+    private Sequence _sequence;
     private readonly IEventAggregator _eventAggregator;
-    private Egami.Rhythm.Pattern.Sequence? _target = null;
-    private int _currentStep = 0;
-    private ulong _currentTick = 0;
-    private ulong _nextTick = 0;
-    private byte? _lastNote = null;
-    private ulong _generations = 0;
+    private Sequence? _target;
+    private int _currentStep;
+    private ulong _currentTick;
+    private ulong _nextTick;
+    private byte? _lastNote;
     private byte _channel;
-    private bool _isEvolutionInProgress = false;
-    private Population<Sequence>? _population = null;
+    private bool _isEvolutionInProgress;
+    private Population<Sequence>? _population;
     private readonly IMutator<Sequence> _mutator;
 
     private List<StepViewModel> _steps = new();
@@ -53,7 +42,7 @@ public class RhythmViewModel : BindableBase
         set => SetProperty(ref _steps, value);
     }
 
-    private List<StepViewModel>? _targetSteps = null;
+    private List<StepViewModel>? _targetSteps;
 
     public List<StepViewModel>? TargetSteps
     {
@@ -104,13 +93,6 @@ public class RhythmViewModel : BindableBase
             Pitch = s.Pitch,
             Length = Math.Max(1, s.Length)
         }).ToList();
-        //Steps = Enumerable.Range(0, sequence.Hits.Length).Select(i => new StepViewModel
-        //{
-        //    IsHit = sequence.Hits[i],
-        //    Velocity = sequence.Steps[i].Pitch / 4,
-        //    Length = Math.Max(1, sequence.Steps[i].Pitch),
-        //    Pitch = sequence.Steps[i].Pitch
-        //}).ToList();
 
         DeleteMeCommand = new DelegateCommand(OnDeleteMe);
         _eventAggregator.GetEvent<ClockEvent>().Subscribe(OnTick);
@@ -143,7 +125,7 @@ public class RhythmViewModel : BindableBase
         }
         else
         {
-            _eventAggregator.GetEvent<Events.DeleteRhythmEvent>().Publish(this);
+            _eventAggregator.GetEvent<DeleteRhythmEvent>().Publish(this);
         }
     }
 
@@ -188,15 +170,6 @@ public class RhythmViewModel : BindableBase
                         UpdateSteps(_sequence);
                     }
 
-                    //if (_generations % 4 == 0)
-                    //{
-                    //    _population?.Pairing(_mutator, Fitness);
-                    //    updateReqired = true;
-                    //}
-                    //if (updateReqired)
-                    //{
-                    //    UpdateSteps(_sequence);
-                    //}
                 }
             }
 
@@ -209,7 +182,7 @@ public class RhythmViewModel : BindableBase
         Steps = sequence.Steps.Select(s => new StepViewModel
         {
             IsHit = s.Hit,
-            Velocity = s.Velocity,
+            Velocity = s.Velocity / 4,
             Length = s.Length,
             Pitch = s.Pitch,
         }).ToList();
@@ -223,7 +196,7 @@ public class RhythmViewModel : BindableBase
         TargetSteps = sequence.Steps.Select(s => new StepViewModel
         {
             IsHit = s.Hit,
-            Velocity = s.Velocity,
+            Velocity = s.Velocity / 4,
             Length = s.Length,
             Pitch = s.Pitch,
         }).ToList();
@@ -239,35 +212,35 @@ public class RhythmViewModel : BindableBase
         RaisePropertyChanged(nameof(WaitingForTarget)); 
     }
 
-    private double _currentFitness = 0;
+    private double _currentFitness;
     public double CurrentFitness
     {
         get => _currentFitness;
         set => SetProperty(ref _currentFitness, value);
     }
 
-    private double _rhyhtmFitness = 0.0;
+    private double _rhyhtmFitness;
     public double RhythmFitness
     {
         get => _rhyhtmFitness;
         set => SetProperty(ref _rhyhtmFitness, value);
     }
 
-    private double _pitchFitness = 0.0;
+    private double _pitchFitness;
     public double PitchFitness
     {
         get => _pitchFitness;
         set => SetProperty(ref _pitchFitness, value);
     }
 
-    private double _lengthFitness = 0.0;
+    private double _lengthFitness;
     public double LengthFitness
     {
         get => _lengthFitness;
         set => SetProperty(ref _lengthFitness, value);
     }
 
-    private double _velocityFitness = 0.0;
+    private double _velocityFitness;
     public double VelocityFitness
     {
         get => _velocityFitness;
@@ -275,12 +248,12 @@ public class RhythmViewModel : BindableBase
     }
 
 
-    private double Fitness(Egami.Rhythm.Pattern.Sequence pattern)
+    private double Fitness(Sequence pattern)
     {
-        var sequence = new Egami.EA.Metrics.MetricsSequence(
+        var sequence = new MetricsSequence(
             _sequence.Hits,
             _sequence.Steps.Select(s => s.Pitch).ToArray(),
-            _sequence.Steps.Select(s => s.Length).ToArray().Select(v => (int)v).ToArray(),
+            _sequence.Steps.Select(s => s.Velocity).ToArray().Select(v => v).ToArray(),
             _sequence.Steps.Select(s => s.Length).ToArray());
         var breakdown = _fitnessService.EvaluateDetailed(sequence, _targetMetricsSequence);
         RhythmFitness = breakdown.Hits;
