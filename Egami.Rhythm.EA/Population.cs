@@ -10,10 +10,10 @@ public class Population<TGenotype>
 
     public List<TGenotype> Individuals { get; } = new();
 
-    public Population(TGenotype genotype, IEvolutionOptions options, int size = 8)
+    public Population(TGenotype genotype, IEvolutionOptions options)
     {
         _options = options;
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < options.PopulationSize; i++)
         {
             Individuals.Add(genotype);
         }

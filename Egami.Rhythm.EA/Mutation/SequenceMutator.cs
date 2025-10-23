@@ -1,27 +1,28 @@
 ﻿using Egami.Rhythm.Common;
 using Egami.Rhythm.Pattern;
+using Microsoft.VisualBasic;
 
 namespace Egami.Rhythm.EA.Mutation;
 
-public class RhythmPatternMutator : IMutator<Sequence>
+public class SequenceMutator : IMutator<Sequence>
 {
     public void Mutate(Sequence individual, IEvolutionOptions options)
     {
         var position = RandomProvider.Get(options.Seed).Next(0, individual.Hits.Length);
-        var d = RandomProvider.Get(options.Seed).NextDouble();
-        if (d <= 0.25)
+        var d = RandomProvider.Get(options.Seed).Next(0, 19 * options.PopulationSize);
+        if (d < 1)
         {
             individual.Hits[position] = !individual.Hits[position];
         }
-        else if (d <= 0.5)
+        else if (d < 8)
         {
             individual.Steps[position].Pitch = RandomProvider.Get(options.Seed).Next(21, 108);
         }
-        else if (d <= 0.75)
+        else if (d < 15)
         {
-            individual.Steps[position].Pitch = (byte)RandomProvider.Get(options.Seed).Next(5, 127);
+            individual.Steps[position].Velocity = (byte)RandomProvider.Get(options.Seed).Next(5, 127);
         }
-        else
+        else if (d < 19 && options.MaxStepLength > 1)
         {
             var stepLength = RandomProvider.Get(options.Seed).Next(1, options.MaxStepLength);
             individual.Steps[position].Length = stepLength;

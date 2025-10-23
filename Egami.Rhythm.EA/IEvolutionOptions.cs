@@ -2,10 +2,9 @@
 
 public interface IEvolutionOptions
 {
-    double MutationRate { get; set; }
+    int PopulationSize { get; set; }
     double DeletionRate { get; set; }
     double InsertionRate { get; set; }
-    double LengthRate { get; set; }
     double SwapRate { get; set; }
     double CrossoverRate { get; set; }
     int MaxStepLength { get; set; }

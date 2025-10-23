@@ -31,7 +31,7 @@ namespace EuclidEA
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
-            _mutator = new RhythmPatternMutator();
+            _mutator = new SequenceMutator();
             var dawName = _config.GetSection("LoopMidiPorts")["Daw"];
             MidiDevices.Initialize(dawName);
 
