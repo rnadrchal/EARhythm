@@ -15,6 +15,8 @@ using Melanchall.DryWetMidi.Core;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using ResetEvent = EuclidEA.Services.ResetEvent;
+using StopEvent = EuclidEA.Services.StopEvent;
 
 namespace EuclidEA.ViewModels;
 
@@ -96,6 +98,20 @@ public class RhythmViewModel : BindableBase
 
         DeleteMeCommand = new DelegateCommand(OnDeleteMe);
         _eventAggregator.GetEvent<ClockEvent>().Subscribe(OnTick);
+        _eventAggregator.GetEvent<ResetEvent>().Subscribe(() =>
+        {
+            _currentStep = 0;
+            _currentTick = 0;
+            _nextTick = 0;
+        });
+        _eventAggregator.GetEvent<StopEvent>().Subscribe(() =>
+        {
+            if (_lastNote != null)
+            {
+                MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0)
+                { Channel = (FourBitNumber)_channel });
+            }
+        });
     }
 
     public void StartEvolution()

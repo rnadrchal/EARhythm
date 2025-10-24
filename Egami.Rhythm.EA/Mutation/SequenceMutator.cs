@@ -49,6 +49,55 @@ public class SequenceMutator : IMutator<Sequence>
         individual.StepsTotal++;
     }
 
+    public void Inversion(Sequence individual, IEvolutionOptions options)
+    {
+        var p1 = RandomProvider.Get(options.Seed).Next(0, individual.StepsTotal);
+
+        var p2 = p1 > individual.StepsTotal / 2
+            ? RandomProvider.Get(options.Seed).Next(0, p1)
+            : RandomProvider.Get(options.Seed).Next(p1, individual.StepsTotal);
+        var start = Math.Min(p1, p2);
+        var end = Math.Max(p1, p2);
+        var segment = individual.Steps.GetRange(start, end - start + 1);
+        segment.Reverse();
+        for (var i = start; i <= end; i++)
+        {
+            individual.Steps[i] = segment[i - start];
+        }
+    }
+
+    public void Transposition(Sequence individual, IEvolutionOptions options)
+    {
+        var p1 = RandomProvider.Get(options.Seed).Next(0, individual.StepsTotal);
+        var p2 = p1 > individual.StepsTotal / 2
+            ? RandomProvider.Get(options.Seed).Next(0, p1)
+            : RandomProvider.Get(options.Seed).Next(p1, individual.StepsTotal);
+        var start = Math.Min(p1, p2);
+        var end = Math.Max(p1, p2);
+        var segment = individual.Steps.GetRange(start, end - start + 1);
+        individual.Steps.RemoveRange(start, end - start + 1);
+        var insertPos = RandomProvider.Get(options.Seed).Next(0, individual.Steps.Count + 1);
+        individual.Steps.InsertRange(insertPos, segment);
+    }
+
+    public void Retrograde(Sequence individual, IEvolutionOptions options)
+    {
+        individual.Steps.Reverse();
+    }
+
+    public void MelodicInversion(Sequence individual, IEvolutionOptions options)
+    {
+        if (individual.Steps.Count == 0) return;
+        var firstPitch = individual.Steps[0].Pitch;
+        for (var i = 1; i < individual.Steps.Count; i++)
+        {
+            var interval = individual.Steps[i].Pitch - individual.Steps[i - 1].Pitch;
+            individual.Steps[i].Pitch = individual.Steps[i - 1].Pitch - interval;
+            if (individual.Steps[i].Pitch < 21) individual.Steps[i].Pitch = 21;
+            if (individual.Steps[i].Pitch > 108) individual.Steps[i].Pitch = 108;
+        }
+    }
+
     public void Swap(Sequence individual, IEvolutionOptions options)
     {
         var pos1 = RandomProvider.Get(options.Seed).Next(0, individual.Hits.Length);    

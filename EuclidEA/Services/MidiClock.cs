@@ -23,6 +23,10 @@ public class StopEvent : PubSubEvent
 {
 }
 
+public class ResetEvent : PubSubEvent
+{
+}
+
 public class MidiClock
 {
 
@@ -45,6 +49,7 @@ public class MidiClock
         if (e.Event is StartEvent)
         {
             _clockCount = 0;
+            _eventAggregator.GetEvent<ResetEvent>().Publish();
         }
 
         if (e.Event is StopEvent)

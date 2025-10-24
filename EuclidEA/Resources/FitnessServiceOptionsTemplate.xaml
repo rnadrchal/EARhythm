@@ -5,6 +5,7 @@
                     xmlns:converters="clr-namespace:EuclidEA.Converters"
                     xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF">
     <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
+    <converters:BooleanToOpacityConverter x:Key="BooleanToOpacity" />
 
     <DataTemplate DataType="{x:Type model:FitnessServiceOptions}">
         <Grid>
@@ -43,7 +44,7 @@
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                        LabelVisibility="Hidden"
                                        FontFamily="Kristen ITC"
-                                       ToolTip="Fitness Weight for Similarity">
+                                       ToolTip="Hit Gene Fitness Weight">
                 <TextBlock Text="{Binding W_Hits}" FontSize="10"></TextBlock>
             </syncfusion:SfRadialSlider>
             <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="0" Width="80" Height="80"
@@ -61,7 +62,7 @@
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                        LabelVisibility="Hidden"
                                        FontFamily="Kristen ITC"
-                                       ToolTip="Fitness Weight for Pitch Similarity">
+                                       ToolTip="Pitch Gene Fitness Weight">
                 <TextBlock Text="{Binding W_Pitch}" FontSize="10"></TextBlock>
             </syncfusion:SfRadialSlider>
             <TextBlock Grid.Column="0" Grid.Row="3" Text="W_Pitch" FontSize="10" HorizontalAlignment="Center" Foreground="OrangeRed" />
@@ -82,7 +83,7 @@
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                        LabelVisibility="Hidden"
                                        FontFamily="Kristen ITC"
-                                       ToolTip="Fitness Weight for Hit Length Similarity">
+                                       ToolTip="Step Length Gene Fitness Weight">
                 <TextBlock Text="{Binding W_Len}" FontSize="10"></TextBlock>
             </syncfusion:SfRadialSlider>
             <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="1" Width="80" Height="80"
@@ -100,14 +101,14 @@
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                        LabelVisibility="Hidden"
                                        FontFamily="Kristen ITC"
-                                       ToolTip="Fitness Weight for Velocity Similarity">
+                                       ToolTip="Velocity Gene Fitness Weight">
                 <TextBlock Text="{Binding W_Vel}" FontSize="10"></TextBlock>
             </syncfusion:SfRadialSlider>
             <TextBlock Grid.Column="1" Grid.Row="3" Text="W_Vel" FontSize="10" HorizontalAlignment="Center" Foreground="Orange" />
 
             <Separator Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" Margin="0,10,0,0"></Separator>
 
-            <TextBlock Grid.Column="3" Grid.Row="0" Text="MCS" FontSize="10" HorizontalAlignment="Center" />
+            <TextBlock Grid.Column="3" Grid.Row="0" Text="MCS" FontSize="10" HorizontalAlignment="Center" Foreground="LightGreen" />
             <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="3" Width="80" Height="80"
                                        Margin="0,-6"
                                        Minimum="0" Maximum="3"
@@ -123,7 +124,7 @@
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                        LabelVisibility="Hidden"
                                        FontFamily="Kristen ITC"
-                                       ToolTip="Maximum Circular Shift">
+                                       ToolTip="Hit Metrics ±K: maximum circular shift; 0 means no shift.">
                 <TextBlock Text="{Binding MaxCircularShift}" FontSize="10"></TextBlock>
             </syncfusion:SfRadialSlider>
 
@@ -143,17 +144,20 @@
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                        LabelVisibility="Hidden"
                                        FontFamily="Kristen ITC">
-                <TextBlock Text="{Binding LMax}" FontSize="10"></TextBlock>
+                <TextBlock Text="{Binding LMax}" FontSize="10" />
 
                 <syncfusion:SfRadialSlider.ToolTip>
                     <StackPanel Orientation="Vertical">
                         <TextBlock FontWeight="Bold" Text="Length Normalization (LMax)" />
-                        <TextBlock Text="Defines the maximum expected note length used for normalization in the length similarity metric.
-Higher values make length differences less significant; lower values increase their impact on fitness." FontSize="12"></TextBlock>
+                        <TextBlock>
+                            <Run Text="Defines the maximum expected note length used for normalization in the length similarity metric." />
+                            <LineBreak />
+                            <Run Text="Higher values make length differences less significant; lower values increase their impact on fitness." />
+                        </TextBlock>
                     </StackPanel>
                 </syncfusion:SfRadialSlider.ToolTip>
             </syncfusion:SfRadialSlider>
-            <TextBlock Grid.Column="3" Grid.Row="3" Text="LMax" FontSize="10" HorizontalAlignment="Center" />
+            <TextBlock Grid.Column="3" Grid.Row="3" Text="LMax" FontSize="10" HorizontalAlignment="Center" Foreground="Yellow" />
 
 
             <TextBlock Grid.Column="5" Grid.Row="0" Text="Threshold" FontSize="10" HorizontalAlignment="Center"  />
@@ -172,18 +176,20 @@ Higher values make length differences less significant; lower values increase th
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                        LabelVisibility="Hidden"
                                        FontFamily="Kristen ITC"
-                                       ToolTip="Fitness Weight for Velocity Similarity">
+                                       ToolTip="Lethality Threshold">
                 <TextBlock Text="{Binding HitsLethalThreshold}" FontSize="10"></TextBlock>
             </syncfusion:SfRadialSlider>
 
 
             <StackPanel Grid.Column="5" Grid.Row="2" Orientation="Vertical" VerticalAlignment="Center">
 
-                <Ellipse Style="{StaticResource LedEllipseStyle}" Width="16" Height="16" Margin="0,0,0,12"
-                        Fill="{Binding UseLethalThreshold, ConverterParameter=Green, Converter={StaticResource BooleanToBrush}}" />
+                <Ellipse Style="{StaticResource LedEllipseStyle}" Width="12" Height="12" Margin="0,0,0,12"
+                        Fill="Red" Stroke="DarkRed" 
+                        Opacity="{Binding UseLethalThreshold, Converter={StaticResource BooleanToOpacity}}"/>
                 <CheckBox Style="{StaticResource BinarySwitchCheckBox}" VerticalAlignment="Bottom" 
                           Margin="0,0,0,10" HorizontalAlignment="Center"
-                          IsChecked="{Binding UseLethalThreshold}" />
+                          IsChecked="{Binding UseLethalThreshold}"
+                          ToolTip="Turn Lethality Selection On/Off"/>
             </StackPanel>
             <TextBlock Grid.Column="5" Grid.Row="3" Text="Lethality" FontSize="10" HorizontalAlignment="Center"  />
 
@@ -192,11 +198,13 @@ Higher values make length differences less significant; lower values increase th
                               Kind="VectorCombine" Foreground="#AAA"/>
             <StackPanel Grid.Column="6" Grid.Row="2" Orientation="Vertical" VerticalAlignment="Center">
 
-                <Ellipse Style="{StaticResource LedEllipseStyle}" Width="16" Height="16" Margin="0,0,0,12"
-                         Fill="{Binding IsGeometric, ConverterParameter=Green, Converter={StaticResource BooleanToBrush}}" />
+                <Ellipse Style="{StaticResource LedEllipseStyle}" 
+                         Opacity="{Binding IsGeometric, Converter={StaticResource BooleanToOpacity}}"
+                         Width="12" Height="12" Margin="0,0,0,12" />
                 <CheckBox Style="{StaticResource BinarySwitchCheckBox}" VerticalAlignment="Bottom" 
                           Margin="0,0,0,10" HorizontalAlignment="Center"
-                          IsChecked="{Binding IsGeometric}" />
+                          IsChecked="{Binding IsGeometric}"
+                          ToolTip="Combine weighted Fitness Values by geometric mean (instead of arithmetic)."/>
             </StackPanel>
 
             <TextBlock Grid.Column="6" Grid.Row="3" Text="Geometric" FontSize="10" HorizontalAlignment="Center"  />
