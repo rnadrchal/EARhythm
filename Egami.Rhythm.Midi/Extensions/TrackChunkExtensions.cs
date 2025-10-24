@@ -2,6 +2,7 @@
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
+using System.Runtime.CompilerServices;
 
 namespace Egami.Rhythm.Midi.Extensions;
 
@@ -236,4 +237,50 @@ public static class TrackChunkExtensions
 
         return Math.Max(0.0, Math.Min(1.0, score));
     }
+
+    public static Sequence? ExtractSequence(this TrackChunk trackChunk, TimeSignatureEvent timeSignature, 
+        int ticksPerQuarter, int divider)
+    {
+        // 1. Noten extrahieren
+        var notes = trackChunk.GetNotes().ToList();
+        if (!notes.Any()) return null;
+
+        // 2. Zeitbereich bestimmen
+        long firstStart = notes.Min(n => n.Time);
+        long lastEnd = notes.Max(n => n.Time + n.Length);
+
+        // 3. Step-Länge in Ticks berechnen
+        long ticksPerStep = ticksPerQuarter * 4 / divider;
+
+        // 4. Anzahl der Steps berechnen
+        int stepsTotal = (int)Math.Ceiling((lastEnd - firstStart) / (double)ticksPerStep);
+
+        // 5. Steps initialisieren
+        var steps = new List<Step>(Enumerable.Range(0, stepsTotal).Select(_ => new Step()));
+
+        // 6. Noten auf Steps mappen (monophon)
+        // Sortiere Noten nach Startzeit, dann Pitch absteigend
+        var sortedNotes = notes.OrderBy(n => n.Time).ThenByDescending(n => n.NoteNumber).ToList();
+        var stepOccupied = new bool[stepsTotal];
+
+        foreach (var note in sortedNotes)
+        {
+            int stepIndex = (int)((note.Time - firstStart) / ticksPerStep);
+            if (stepIndex < 0 || stepIndex >= stepsTotal) continue;
+            if (stepOccupied[stepIndex]) continue; // Nur eine Note pro Step
+
+            steps[stepIndex].Hit = true;
+            steps[stepIndex].Pitch = note.NoteNumber;
+            steps[stepIndex].Velocity = note.Velocity;
+            int lengthInSteps = (int)Math.Ceiling(note.Length / (double)ticksPerStep);
+            steps[stepIndex].Length = Math.Max(1, lengthInSteps);
+
+            stepOccupied[stepIndex] = true;
+        }
+        return new Sequence(stepsTotal)
+        {
+            Steps = steps
+        };
+    }
 }
+
