@@ -39,6 +39,24 @@ public class Population<TGenotype>
         {
             mutator.Swap(individual, _options);
         }
+
+        r = RandomProvider.Get(_options.Seed).NextDouble();
+        if (r <= _options.InversionRate)
+        {
+            mutator.Inversion(individual, _options);
+        }
+
+        r = RandomProvider.Get(_options.Seed).NextDouble();
+        if (r <= _options.TranspositionRate)
+        {
+            mutator.Transposition(individual, _options);
+        }
+
+        r = RandomProvider.Get(_options.Seed).NextDouble();
+        if (r <= _options.RetrogradeRate)
+        {
+            mutator.Retrograde(individual, _options);
+        }
     }
 
     public void Evolve(IMutator<TGenotype> mutator, int generations = 1)
