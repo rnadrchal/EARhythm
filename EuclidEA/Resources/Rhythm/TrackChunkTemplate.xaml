@@ -8,14 +8,18 @@
     <converters:AddConverter x:Key="Add" />
     <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibility" />
 
-    <DataTemplate DataType="{x:Type midi:TrackRhythmPattern}">
+    <DataTemplate DataType="{x:Type rhythm:NamedTrackViewModel}">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="30" />
-                <ColumnDefinition />
+                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="{Binding Channel}" />
-            <TextBlock Grid.Column="1" Text="{Binding DrumLikelihood}"></TextBlock>
+            <TextBlock Grid.Column="0" Text="{Binding Name}" TextWrapping="Wrap" Margin="0,0,10,0"
+                       FontSize="12"/>
+            <TextBlock Grid.Column="1" FontSize="12" Foreground="Orange">
+                <Run  Text="{Binding SequenceLength, Mode=OneWay}" />
+                <Run Text="Steps" />
+            </TextBlock>
         </Grid>
     </DataTemplate>
     <DataTemplate DataType="{x:Type rhythm:TrackChunkGeneratorViewModel}">
@@ -45,12 +49,10 @@
                     <wpf:MaterialIcon Kind="Folder" Height="16" Opacity="0.5" />
                 </Button>
             </Grid>
-            <TextBlock Text="{Binding SelectedPattern}" TextWrapping="Wrap"
-                       Visibility="{Binding SelectedPattern, Converter={StaticResource NotNullToVisibility}}"
-                       Foreground="Orange" HorizontalAlignment="Center" FontSize="12"/>
+            <TextBlock Text="Track" Style="{StaticResource LabelStyle}"></TextBlock>
             <syncfusion:SfRadialSlider Width="120" Height="120" Margin="0,-16"
-                                       Minimum="0" Maximum="{Binding Patterns.Count, ConverterParameter=-1, Converter={StaticResource Add}}"
-                                       Value="{Binding SelectedPatternIndex}"
+                                       Minimum="0" Maximum="{Binding Tracks.Count, ConverterParameter=-1, Converter={StaticResource Add}}"
+                                       Value="{Binding SelectedTrackIndex}"
                                        OuterRimRadiusFactor="0.6"
                                        OuterRimStroke="#444"
                                        OuterRimStrokeThickness="3"
@@ -63,12 +65,10 @@
                                        LabelVisibility="Hidden"
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" LabelRadiusFactor="0.8"
                                        FontFamily="Kristen ITC"
-                                       Visibility="{Binding  PatternSelectorVisibility}">
-                <TextBlock FontSize="10">
-                    <Run Text="CH" />
-                    <Run Text="{Binding SelectedPattern.Channel, ConverterParameter=1, Converter={StaticResource Add}, Mode=OneWay}" />
-                </TextBlock>
+                                       Visibility="{Binding  TrackSelectorVisibility}">
+                <TextBlock FontSize="10" Text="{Binding SelectedTrackIndex, ConverterParameter=1, Converter={StaticResource Add}}" />
             </syncfusion:SfRadialSlider>
+            <ContentControl Content="{Binding SelectedTrack}" HorizontalAlignment="Stretch" Margin="0,0,-20,0" />
 
         </StackPanel>
     </DataTemplate>

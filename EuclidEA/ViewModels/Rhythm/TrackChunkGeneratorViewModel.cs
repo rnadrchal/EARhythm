@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -17,6 +18,8 @@ namespace EuclidEA.ViewModels.Rhythm;
 public class TrackChunkGeneratorViewModel : RhythmGeneratorViewModel
 {
     protected override IRhythmGenerator Generator => new TrackChunkRhythmGenerator();
+
+    private TrackChunkRhythmGenerator TrackChunkGenerator => (TrackChunkRhythmGenerator)Generator;
     public override string Name => "Track Chunk";
 
     private string _filePath;
@@ -34,7 +37,7 @@ public class TrackChunkGeneratorViewModel : RhythmGeneratorViewModel
 
     public string FileName => System.IO.Path.GetFileName(_filePath);
 
-    public ObservableCollection<TrackRhythmPattern> Patterns { get;  } = new();
+    public ObservableCollection<NamedTrackViewModel> Tracks { get;  } = new();
 
     // No Pitch Generator needed for this Rhythm Generator
     public override IPitchGeneratorViewModel PitchGenerator => null;
@@ -44,40 +47,51 @@ public class TrackChunkGeneratorViewModel : RhythmGeneratorViewModel
     public TrackChunkGeneratorViewModel()
     {
         LoadCommand = new DelegateCommand(Load);
+        TrackChunkGenerator.Loaded += OnTracksLoaded;
+    }
+
+    private void OnTracksLoaded(object? sender, Dictionary<string, Sequence> tracks)
+    {
     }
 
     protected override Sequence Generate(RhythmContext context)
     {
-        var sequence = SelectedPattern.RhythmPattern;
+        var sequence = SelectedTrack?.Sequence;
+        if (sequence == null)
+        {
+            MessageBox.Show("No track selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return new Sequence(0);
+        }
+
         sequence.Steps = sequence.Steps.Take(context.StepsTotal).ToList();
         sequence.StepsTotal = context.StepsTotal;
         return sequence;
     }
 
-    private int _selectedPatternIndex = 0;
-    public int SelectedPatternIndex
+    private int _selectedTrackIndex = 0;
+    public int SelectedTrackIndex
     {
-        get => _selectedPatternIndex;
+        get => _selectedTrackIndex;
         set
         {
-            if (SetProperty(ref _selectedPatternIndex, value))
+            if (SetProperty(ref _selectedTrackIndex, value))
             {
-                RaisePropertyChanged(nameof(SelectedPattern));
+                RaisePropertyChanged(nameof(SelectedTrack));
             }
         }
     }
 
-    private Visibility _patternSelectorVisibility = Visibility.Collapsed;
+    private Visibility _trackSelectorVisibility = Visibility.Collapsed;
 
-    public Visibility PatternSelectorVisibility
+    public Visibility TrackSelectorVisibility
     {
-        get => _patternSelectorVisibility;
-        private set => SetProperty(ref _patternSelectorVisibility, value);
+        get => _trackSelectorVisibility;
+        private set => SetProperty(ref _trackSelectorVisibility, value);
     }
 
-    public TrackRhythmPattern SelectedPattern
+    public NamedTrackViewModel? SelectedTrack
     {
-        get => _selectedPatternIndex >= 0 && _selectedPatternIndex < Patterns.Count ? Patterns[_selectedPatternIndex] : null;
+        get => _selectedTrackIndex >= 0 && _selectedTrackIndex < Tracks.Count ? Tracks[_selectedTrackIndex] : null;
     }
 
     private void Load()
@@ -101,11 +115,16 @@ public class TrackChunkGeneratorViewModel : RhythmGeneratorViewModel
                 TempoBpm = 120.0
             });
 
-            Patterns.Clear();
-            Patterns.AddRange(generator.TrackPatterns);
-            SelectedPatternIndex = 0;
-            RaisePropertyChanged(nameof(SelectedPattern));
-            PatternSelectorVisibility = Patterns.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+            Tracks.Clear();
+            Tracks.AddRange(generator.Tracks.Select(t => new NamedTrackViewModel(t.Value, t.Key)));
+            if (Tracks.Count > 0)
+            {
+                SelectedTrackIndex = 0;
+                RaisePropertyChanged(nameof(SelectedTrack));
+            }
+            TrackSelectorVisibility = Tracks.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+
+
         }
     }
 }

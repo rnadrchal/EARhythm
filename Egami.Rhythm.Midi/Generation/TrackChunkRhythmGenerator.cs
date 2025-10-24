@@ -18,6 +18,11 @@ public class TrackChunkRhythmGenerator : IRhythmGenerator
 
     public int Index { get; set; }
 
+    private Dictionary<string, Sequence> _tracks = new();
+    public Dictionary<string, Sequence> Tracks => _tracks;
+
+    public EventHandler<Dictionary<string, Sequence>> Loaded;
+
     public Sequence Generate(RhythmContext ctx)
     {
         ReloadTrackChunks(ctx);
@@ -26,12 +31,31 @@ public class TrackChunkRhythmGenerator : IRhythmGenerator
 
     public void Load(string filePath, RhythmContext ctx)
     {
+        int trackNumber = 1;
         _midi = MidiFile.Read(filePath);
-        ReloadTrackChunks(ctx);
+        int ticksPerQuarter = ((TicksPerQuarterNoteTimeDivision)_midi.TimeDivision).TicksPerQuarterNote;
+        TimeSignatureEvent? timeSignature = null;
+        _tracks.Clear();
+        foreach (var chunk in _midi.Chunks.OfType<TrackChunk>())
+        {
+            var trackName = chunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text ?? $"Track {trackNumber}";
+            timeSignature ??= chunk.Events.OfType<TimeSignatureEvent>().FirstOrDefault();
+            var sequence = chunk.ExtractSequence(timeSignature ?? new TimeSignatureEvent(4, 4), 
+                ticksPerQuarter, 16);
+            if (sequence != null)
+            {
+                _tracks[trackName] = sequence;
+            }
+
+            trackNumber++;
+        }
+
+        Loaded?.Invoke(this, _tracks);
     }
 
     public void ReloadTrackChunks(RhythmContext ctx)
     {
+
         _tempoMap = _midi.GetTempoMap();
         var track = _midi.GetTrackChunks().First();
         var patternStep = new MusicalTimeSpan(1, Rate);
