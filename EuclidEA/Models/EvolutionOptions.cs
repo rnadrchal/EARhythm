@@ -5,7 +5,9 @@ namespace EuclidEA.Models;
 
 public class EvolutionOptions : BindableBase, IEvolutionOptions
 {
-    private int _populationSize = 8;
+    private int _populationSize = 10;
+    private int _tournamentSize = 4;
+    private int _generation = 10;
     private double _deletionRate = 0.01;
     private double _insertionRate = 0.01;
     private double _inversionRate = 0.01;
@@ -14,13 +16,25 @@ public class EvolutionOptions : BindableBase, IEvolutionOptions
     private double _melodicInversionRate = 0.01;
     private double _swapRate = 0.05;
     private double _crossoverRate = 0.7;
-    private int _maxStepLength = 4;
+    private int _maxStepLength = 1;
     private int? _seed;
 
     public int PopulationSize
     {
         get => _populationSize;
         set => SetProperty(ref _populationSize, value);
+    }
+
+    public int TournamentSize
+    {
+        get => _tournamentSize;
+        set => SetProperty(ref _tournamentSize, value);
+    }
+
+    public int Generation
+    {
+        get => _generation;
+        set => SetProperty(ref _generation, value);
     }
 
     public double DeletionRate

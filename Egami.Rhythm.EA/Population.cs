@@ -78,10 +78,31 @@ public class Population<TGenotype>
         }
     }
 
-    public void Tournament(IMutator<TGenotype> mutator, Func<TGenotype, double> fitness, IEvolutionOptions options)
+    public int Extinct(double threshold, Func<TGenotype, double> fitness, IEvolutionOptions options)
     {
-        var participants = Individuals.TakeRandom(4, RandomProvider.Get(_options.Seed))
+        var toGoExtinct = Individuals
+            .Where(iI => fitness(i) < threshold).ToList();
+        var count = Math.Min(Individuals.Count - options.TournamentSize, toGoExtinct.Count);
+        for (var i = 0; i < count; ++i)
+        {
+           Individuals.Remove(toGoExtinct[i]);
+        }
+
+        return count;
+    }
+
+    public void Tournament(IMutator<TGenotype> mutator, Func<TGenotype, double> fitness, IEvolutionOptions options, int replacementNeeded)
+    {
+        var participants = Individuals.TakeRandom(_options.TournamentSize, RandomProvider.Get(_options.Seed))
             .OrderByDescending(fitness).Take(2);
+        var i = 0;
+        while (i < replacementNeeded)
+        {
+            var replacement = mutator.Crossover(participants.First(), participants.Last(), _options);
+            Evolve(replacement, mutator);
+            Individuals.Add(replacement);
+            ++i;
+        }
         var offspring = mutator.Crossover(participants.First(), participants.Last(), _options);
         Evolve(offspring, mutator);
         var remove = Individuals.FirstOrDefault(i => Math.Abs(fitness(i) - fitness(offspring)) <= 0.1);

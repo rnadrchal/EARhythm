@@ -3,6 +3,8 @@
 public interface IEvolutionOptions
 {
     int PopulationSize { get; set; }
+    int TournamentSize { get; set; }
+    int Generation { get; set; }
     double DeletionRate { get; set; }
     double InsertionRate { get; set; }
     double SwapRate { get; set; }

@@ -23,7 +23,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Border Grid.Row="0" Width="{Binding Length, ConverterParameter=30, Converter={StaticResource Mult}}" Height="32" BorderThickness="1" BorderBrush="#AAA">
+            <Border Grid.Row="0" Width="{Binding Length, ConverterParameter=20, Converter={StaticResource Mult}}" Height="32" BorderThickness="1" BorderBrush="#AAA">
                 <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="{Binding Velocity}"
                            Fill="{Binding IsHit, Converter={StaticResource HitToBrush}}" />
             </Border>
@@ -124,13 +124,20 @@
                         </ItemsControl>
                     </StackPanel>
                 </ScrollViewer>
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="15,0,0,0">
+                <StackPanel Grid.Column="2" Orientation="Vertical" Margin="15,0,0,0">
                     <Button Style="{StaticResource Round3DButton}" HorizontalAlignment="Right" Height="32" Width="32"
                             Background="Red" BorderBrush="DarkRed"
-                            Command="{Binding DeleteMeCommand}">
+                            Command="{Binding DeleteMeCommand}"
+                            ToolTip="Delete last Sequence from this Population">
                         <wpf:MaterialIcon Kind="Delete" Height="24" Opacity="0.5" />
                     </Button>
-
+                    <Button Style="{StaticResource Round3DButton}" HorizontalAlignment="Right" Height="32" Width="32"
+                            Margin="0,5,0,0"
+                            Background="Green" 
+                            Command="{Binding ResetCommand}"
+                            ToolTip="Reset Population">
+                        <wpf:MaterialIcon Kind="Origin" Height="24" Opacity="0.5"></wpf:MaterialIcon>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>

@@ -7,6 +7,7 @@ public sealed class FastBundleFitnessService : IFitnessService
 {
     private readonly IFitnessServiceOptions _options;
     private readonly HitsF1Metric _hits = new();
+    //private readonly HitCountMetric _hits = new();
     private readonly PitchMaeMetric _pitch = new();
     private readonly VelocityMaeMetric _vel = new();
     private readonly LengthMaeMetric _len = new();

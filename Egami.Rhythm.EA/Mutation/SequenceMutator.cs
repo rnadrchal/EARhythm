@@ -8,24 +8,30 @@ public class SequenceMutator : IMutator<Sequence>
 {
     public void Mutate(Sequence individual, IEvolutionOptions options)
     {
-        var position = RandomProvider.Get(options.Seed).Next(0, individual.Hits.Length);
-        var d = RandomProvider.Get(options.Seed).Next(0, 19 * options.PopulationSize);
-        if (d < 1)
+        if (RandomProvider.Get(options.Seed).Next(0, options.PopulationSize * 19) == 0)
         {
-            individual.Hits[position] = !individual.Hits[position];
-        }
-        else if (d < 8)
-        {
-            individual.Steps[position].Pitch = RandomProvider.Get(options.Seed).Next(21, 108);
-        }
-        else if (d < 15)
-        {
-            individual.Steps[position].Velocity = (byte)RandomProvider.Get(options.Seed).Next(5, 127);
-        }
-        else if (d < 19 && options.MaxStepLength > 1)
-        {
-            var stepLength = RandomProvider.Get(options.Seed).Next(1, options.MaxStepLength);
-            individual.Steps[position].Length = stepLength;
+            var position = RandomProvider.Get(options.Seed).Next(0, individual.Hits.Length);
+            individual.Steps[position].Pitch = 0;
+            individual.Steps[position].Velocity = 0;
+            individual.Steps[position].Length = 1;
+            individual.Steps[position].Hit = !individual.Steps[position].Hit;
+            if (individual.Steps[position].Hit)
+            {
+                var d = RandomProvider.Get(options.Seed).Next(0, 18);
+                if (individual.Steps[position].Pitch == 0 || d < 8)
+                {
+                    individual.Steps[position].Pitch = RandomProvider.Get(options.Seed).Next(21, 108);
+                }
+                if (individual.Steps[position].Velocity == 0 || (d >= 8 && d < 15))
+                {
+                    individual.Steps[position].Velocity = (byte)RandomProvider.Get(options.Seed).Next(5, 127);
+                }
+                if (d >= 15)
+                {
+                    var stepLength = RandomProvider.Get(options.Seed).Next(1, options.MaxStepLength);
+                    individual.Steps[position].Length = stepLength;
+                }
+            }
         }
     }
 
@@ -88,9 +94,15 @@ public class SequenceMutator : IMutator<Sequence>
     public void MelodicInversion(Sequence individual, IEvolutionOptions options)
     {
         if (individual.Steps.Count == 0) return;
-        var firstPitch = individual.Steps[0].Pitch;
-        for (var i = 1; i < individual.Steps.Count; i++)
+        var firstPitch = -1;
+        for (var i = 0; i < individual.Steps.Count; i++)
         {
+            if (!individual.Steps[i].Hit) continue;
+            if (firstPitch == -1)
+            {
+                firstPitch = individual.Steps[i].Pitch;
+                continue;
+            }
             var interval = individual.Steps[i].Pitch - individual.Steps[i - 1].Pitch;
             individual.Steps[i].Pitch = individual.Steps[i - 1].Pitch - interval;
             if (individual.Steps[i].Pitch < 21) individual.Steps[i].Pitch = 21;

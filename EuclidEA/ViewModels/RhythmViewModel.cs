@@ -25,7 +25,9 @@ public class RhythmViewModel : BindableBase
     private readonly Evolution<Sequence> _evolution;
     private readonly IEvolutionOptions _evolutionOptions;
     private readonly IFitnessService _fitnessService;
+    private readonly IFitnessServiceOptions _fitnessOptions;
     private Sequence _sequence;
+    private readonly Sequence _original;
     private readonly IEventAggregator _eventAggregator;
     private Sequence? _target;
     private int _currentStep;
@@ -75,19 +77,22 @@ public class RhythmViewModel : BindableBase
     public byte Channel => _channel;
 
     public ICommand DeleteMeCommand { get; }
+    public ICommand ResetCommand { get; }
 
     public RhythmViewModel(Sequence sequence, byte channel, IEventAggregator eventAggregator,
         Evolution<Sequence> evolution,
         IMutator<Sequence> mutator, 
-        IFitnessService fitnessService, IEvolutionOptions evolutionOptions)
+        IFitnessService fitnessService, IEvolutionOptions evolutionOptions, IFitnessServiceOptions fitnessOptions)
     {
         _sequence = sequence;
+        _original = sequence.Clone();
         _channel = channel;
         _eventAggregator = eventAggregator;
         _evolution = evolution;
         _mutator = mutator;
         _fitnessService = fitnessService;
         _evolutionOptions = evolutionOptions;
+        _fitnessOptions = fitnessOptions;
         Steps = sequence.Steps.Select(s => new StepViewModel
         {
             IsHit = s.Hit,
@@ -97,6 +102,11 @@ public class RhythmViewModel : BindableBase
         }).ToList();
 
         DeleteMeCommand = new DelegateCommand(OnDeleteMe);
+        ResetCommand = new DelegateCommand(() =>
+        {
+            _sequence = _original.Clone();
+            UpdateSteps(_sequence);
+        });
         _eventAggregator.GetEvent<ClockEvent>().Subscribe(OnTick);
         _eventAggregator.GetEvent<ResetEvent>().Subscribe(() =>
         {
@@ -158,7 +168,7 @@ public class RhythmViewModel : BindableBase
                         { Channel = (FourBitNumber)_channel });
                 }
 
-                if (_sequence.Steps[_currentStep].Hit)
+                if (_sequence.Steps[_currentStep].Hit && _sequence.Steps[_currentStep].Pitch > 0)
                 {
                     MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)_sequence.Steps[_currentStep].Pitch,
                         (SevenBitNumber)_sequence.Steps[_currentStep].Velocity) { Channel = (FourBitNumber)_channel });
@@ -169,10 +179,9 @@ public class RhythmViewModel : BindableBase
                 _currentStep++;
                 if (_currentStep == _sequence.StepsTotal) _currentStep = 0;
 
-                if (_isEvolutionInProgress)
+                if (_isEvolutionInProgress && _population != null)
                 {
-                    bool updateReqired = false;
-                    if (_currentStep == 0)
+                    if (_currentStep % _evolutionOptions.Generation == 0)
                     {
                         var populationByFitness = _population.Individuals.OrderBy(Fitness).ToList();
                         // Evolve least fittest half of population
@@ -180,7 +189,15 @@ public class RhythmViewModel : BindableBase
                         {
                             _population.Evolve(populationByFitness[i], _mutator);
                         }
-                        _population?.Tournament(_mutator, Fitness, _evolutionOptions);
+
+                        int offspringsNeeded = 0;
+
+                        if (_fitnessOptions.UseLethalThreshold)
+                        {
+                            offspringsNeeded += _population.Extinct(_fitnessOptions.HitsLethalThreshold, Fitness,
+                                _evolutionOptions);
+                        }
+                        _population?.Tournament(_mutator, Fitness, _evolutionOptions, offspringsNeeded);
 
                         _sequence = _population?.Individuals.FindFittest(pattern => Fitness(pattern)).Individual ?? _sequence;
                         UpdateSteps(_sequence);
