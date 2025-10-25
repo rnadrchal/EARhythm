@@ -81,7 +81,7 @@ public class Population<TGenotype>
     public int Extinct(double threshold, Func<TGenotype, double> fitness, IEvolutionOptions options)
     {
         var toGoExtinct = Individuals
-            .Where(iI => fitness(i) < threshold).ToList();
+            .Where(i => fitness(i) < threshold).ToList();
         var count = Math.Min(Individuals.Count - options.TournamentSize, toGoExtinct.Count);
         for (var i = 0; i < count; ++i)
         {

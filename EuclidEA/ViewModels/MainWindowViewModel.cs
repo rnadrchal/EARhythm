@@ -6,11 +6,14 @@ using System.Windows.Input;
 using Egami.EA.Metrics;
 using Egami.Rhythm.EA;
 using Egami.Rhythm.EA.Mutation;
+using Egami.Rhythm.Midi;
 using Egami.Rhythm.Pattern;
 using EuclidEA.Events;
 using EuclidEA.Models;
 using EuclidEA.Services;
 using EuclidEA.ViewModels.Rhythm;
+using Melanchall.DryWetMidi.Common;
+using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Prism.Events;
 using Prism.Mvvm;
@@ -86,6 +89,8 @@ namespace EuclidEA.ViewModels
         public ICommand GenerateRhythmCommand { get; }
         public ICommand StartStopEvolutionCommand { get; }
 
+        public ICommand PanicCommand { get; }
+
         public MainWindowViewModel(IEventAggregator eventAggregator, MidiClock midiClock, IMutator<Sequence> mutator, Evolution<Sequence> evolution, 
             IFitnessServiceOptions fitnessOptions, IFitnessService fitnessService, IEvolutionOptions evolutionOptions)
         {
@@ -103,10 +108,22 @@ namespace EuclidEA.ViewModels
 
             GenerateRhythmCommand = new DelegateCommand(_ => GenerateRhythm());
             StartStopEvolutionCommand = new DelegateCommand(OnEvolutionStartStop);
-
+            PanicCommand = new DelegateCommand(_ =>
+            {
+                for (var c = 0; c < 16; ++c)
+                {
+                    var allNotesOff = new ControlChangeEvent((SevenBitNumber)123, (SevenBitNumber)c)
+                    {
+                        Channel = (FourBitNumber)0 // Kanal 0, ggf. anpassen
+                    };
+                    MidiDevices.Output.SendEvent(allNotesOff);
+                }
+                // Senden über ein OutputDevice:
+            });
             _eventAggregator.GetEvent<DeleteRhythmEvent>().Subscribe(rhythm =>
             {
                 Rhythms.Remove(rhythm);
+                rhythm.Dispose();
             });
         }
 

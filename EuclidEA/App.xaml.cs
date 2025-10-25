@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using Egami.EA.Metrics;
+using Egami.EA.Metrics.Metrics;
 using Egami.Rhythm.EA;
 using Egami.Rhythm.EA.Mutation;
 using Egami.Rhythm.Midi;
@@ -21,8 +22,10 @@ namespace EuclidEA
     {
         private IConfigurationRoot _config;
         private OutputDevice _dawDevice;
-        private Evolution<Egami.Rhythm.Pattern.Sequence> _evolution;
-        private readonly IMutator<Egami.Rhythm.Pattern.Sequence> _mutator;
+        private Evolution<Sequence> _evolution;
+        private readonly IMutator<Sequence> _mutator;
+        private readonly IFitnessService _fitnessService;
+        private readonly IFitnessServiceOptions _fitnessOptions;
 
         public App()
         {
@@ -35,6 +38,9 @@ namespace EuclidEA
             var dawName = _config.GetSection("LoopMidiPorts")["Daw"];
             MidiDevices.Initialize(dawName);
 
+            _fitnessOptions = new FitnessServiceOptions();
+            _fitnessService = new FastBundleFitnessService(_fitnessOptions,
+                new CombinedBinarySimilarity());
         }
         protected override Window CreateShell()
         {
@@ -46,10 +52,10 @@ namespace EuclidEA
             containerRegistry.RegisterInstance(_mutator);
             containerRegistry.RegisterInstance(_config);
             containerRegistry.RegisterSingleton<Services.MidiClock>();
-            containerRegistry.RegisterSingleton<IFitnessServiceOptions, FitnessServiceOptions>();
-            containerRegistry.RegisterSingleton<IFitnessService, FastBundleFitnessService>();
             containerRegistry.RegisterSingleton<IEvolutionOptions, EvolutionOptions>();
-            containerRegistry.RegisterSingleton<Evolution<Egami.Rhythm.Pattern.Sequence>>();
+            containerRegistry.RegisterSingleton<Evolution<Sequence>>();
+            containerRegistry.RegisterInstance(_fitnessOptions);
+            containerRegistry.RegisterInstance(_fitnessService);
         }
     }
 }

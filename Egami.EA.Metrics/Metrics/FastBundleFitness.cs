@@ -10,8 +10,15 @@ public sealed class FastBundleFitness : IFitnessMetric
 {
     public string Name => "Bundle.Fast";
 
+    private readonly IFitnessMetric _hits;
+    public IFitnessMetric Hits => _hits;
+
+    public FastBundleFitness(IFitnessMetric hits)
+    {
+        _hits = hits;
+    }
+
     // Teilmetriken (können extern ausgetauscht / parametrisiert werden)
-    public HitsF1Metric Hits { get; init; } = new() { MaxCircularShift = 2 };
     public PitchMaeMetric Pitch { get; init; } = new();
     public VelocityMaeMetric Velocity { get; init; } = new();
     public LengthMaeMetric Length { get; init; } = new() { LMax = 32 };

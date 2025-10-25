@@ -20,7 +20,7 @@ using StopEvent = EuclidEA.Services.StopEvent;
 
 namespace EuclidEA.ViewModels;
 
-public class RhythmViewModel : BindableBase
+public class RhythmViewModel : BindableBase, IDisposable
 {
     private readonly Evolution<Sequence> _evolution;
     private readonly IEvolutionOptions _evolutionOptions;
@@ -295,5 +295,17 @@ public class RhythmViewModel : BindableBase
         VelocityFitness = breakdown.Velocity;
         CurrentFitness = breakdown.Total;
         return _currentFitness;
+    }
+
+    public void Dispose()
+    {
+        if (_lastNote != null)
+        {
+            MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0)
+                { Channel = (FourBitNumber)_channel });
+            _lastNote = null;
+        }
+
+        _eventAggregator.GetEvent<ClockEvent>().Unsubscribe(OnTick);
     }
 }

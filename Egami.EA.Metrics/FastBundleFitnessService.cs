@@ -6,22 +6,22 @@ namespace Egami.EA.Metrics;
 public sealed class FastBundleFitnessService : IFitnessService
 {
     private readonly IFitnessServiceOptions _options;
-    private readonly HitsF1Metric _hits = new();
+    private readonly IFitnessMetric _hits;
     //private readonly HitCountMetric _hits = new();
     private readonly PitchMaeMetric _pitch = new();
     private readonly VelocityMaeMetric _vel = new();
     private readonly LengthMaeMetric _len = new();
     private CombineMode _mode;
 
-    public FastBundleFitnessService(IFitnessServiceOptions options)
+    public FastBundleFitnessService(IFitnessServiceOptions options, IFitnessMetric hits)
     {
         _options = options;
+        _hits = hits;
         ApplyOptions();
     }
 
     public void ApplyOptions()
     {
-        _hits.MaxCircularShift = _options.MaxCircularShift;
         _len.LMax = _options.LMax;
         _mode = _options.CombineMode;
     }

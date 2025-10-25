@@ -69,6 +69,16 @@
                      Stroke="{Binding LedOn, Converter={StaticResource BooleanToBrush}, ConverterParameter=DarkRed}"
                      Width="12" Height="12" />
             <TextBlock Text="Clock" Style="{StaticResource LabelStyle}"/>
+            <Button Style="{StaticResource Round3DButton}"
+                    Height="24" Width="24"
+                    Background="OrangeRed"
+                    Margin="0,12,0,0"
+                    HorizontalAlignment="Center"
+                    Command="{Binding PanicCommand}"
+                    ToolTip="Panic Button">
+                <wpf:MaterialIcon Kind="ExclamationThick" Height="12" Opacity="0.5" />
+            </Button>
+
         </StackPanel>
 
         <GroupBox Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Header="Generator" Margin="0,5">
