@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Egami.Rhythm.Midi;
+using Microsoft.Extensions.Configuration;
 using Prism.Ioc;
 using StepMutator.Views;
 using System.Windows;
@@ -17,6 +18,8 @@ namespace StepMutator
             _config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
+            var dawName = _config.GetSection("LoopMidiPorts")["Daw"];
+            MidiDevices.Initialize(dawName);
         }
 
         protected override Window CreateShell()

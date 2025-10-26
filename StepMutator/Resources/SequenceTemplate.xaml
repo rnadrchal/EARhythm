@@ -12,26 +12,6 @@
     <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
     <converters:BarHeightConverter x:Key="BarHeight" />
     <converters:BarOffsetConverter x:Key="BarOffset" />
-    <!--<DataTemplate DataType="{x:Type model:Step}">
-        <Border>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="10" />
-                    <RowDefinition Height="32" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <wpf:MaterialIcon Kind="ArrowRight" 
-                                  Visibility="{Binding Tie, Converter={StaticResource BooleanToVisibility}}"  />
-                <Rectangle Grid.Row="1" Fill="{Binding On, ConverterParameter=Orange, Converter={StaticResource BooleanToBrush}}"
-                           Width="24" Height="{Binding Velocity, ConverterParameter=0.25, Converter={StaticResource Multiply}}"
-                           Opacity="{Binding On, Converter={StaticResource BooleanToOpacity}}"
-                           VerticalAlignment="Bottom"/>
-                <TextBlock Grid.Row="2" Text="{Binding Pitch, Converter={StaticResource NoteName}}"
-                           HorizontalAlignment="Center" FontSize="10"
-                           Visibility="{Binding On, Converter={StaticResource BooleanToVisibility}}"/>
-            </Grid>
-        </Border>
-    </DataTemplate>-->
 
     <DataTemplate DataType="{x:Type model:ExtendedNote}">
         <Border Width="{Binding Length, ConverterParameter=26, Converter={StaticResource Multiply}}"
