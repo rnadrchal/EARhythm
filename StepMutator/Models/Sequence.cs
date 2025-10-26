@@ -3,30 +3,49 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using Egami.Rhythm.Common;
+using Prism.Events;
 using Prism.Mvvm;
+using StepMutator.Events;
 using Syncfusion.Windows.Shared;
 
 namespace StepMutator.Models;
 
 public class Sequence : BindableBase, ISequence
 {
+    private readonly IEventAggregator _eventAggregator;
+    private bool _isRunning;
     private ulong[] _steps;
 
     public ObservableCollection<ExtendedNote> Notes { get; } = new();
 
     public ICommand DyeCommand { get; }
 
-    public Sequence(int length = 16)
+    public Sequence(IEventAggregator eventAggregator, int length = 16)
     {
+        _eventAggregator = eventAggregator;
         Dye(length);
         DyeCommand = new DelegateCommand(_ => Dye(Length));
+
+        _eventAggregator.GetEvent<StartStopEvent>().Subscribe(started =>
+        {
+            IsRunning = started;
+        });
     }
+
+    public bool IsRunning
+    {
+        get => _isRunning;
+        set => SetProperty(ref _isRunning, value);
+    }
+
+    public bool IsPaused => !IsRunning;
 
     public int Length
     {
         get => _steps.Length;
         set
         {
+            if (_isRunning) return;
             if (value > _steps.Length)
             {
                 var steps = _steps.ToList();

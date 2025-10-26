@@ -1,15 +1,19 @@
 ﻿using System.Threading.Channels;
+using System.Windows.Input;
 using Egami.Rhythm.Midi;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
+using Prism.Events;
 using Prism.Mvvm;
+using StepMutator.Events;
 using StepMutator.Models;
 
 namespace StepMutator.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
+        private readonly IEventAggregator _eventAggregator;
         private ulong _tick = 0;
         private string _title = "Step Mutator";
         private int _currentStep = 0;
@@ -38,7 +42,7 @@ namespace StepMutator.ViewModels
             set => SetProperty(ref _channel, value);
         }
 
-        private Sequence _sequence = new Sequence(16);
+        private Sequence _sequence;
 
         public Sequence Sequence
         {
@@ -53,9 +57,26 @@ namespace StepMutator.ViewModels
             set => SetProperty(ref _ledOn, value);
         }
 
-        public MainWindowViewModel()
+        private bool _startStopPending;
+
+        private bool _isPlaying = false;
+        public bool IsPlaying
         {
+            get => _isPlaying;
+            set => SetProperty(ref _isPlaying, value);
+        }
+
+        public ICommand ToggleStartStopCommand { get; }
+
+        public MainWindowViewModel(IEventAggregator eventAggregator)
+        {
+            _eventAggregator = eventAggregator;
+            _sequence = new Sequence(_eventAggregator, 16);
             MidiDevices.Input.EventReceived += OnMidiEventReceived;
+            ToggleStartStopCommand = new Prism.Commands.DelegateCommand(() =>
+            {
+                _startStopPending = true;
+            });
         }
 
         private void OnMidiEventReceived(object? sender, MidiEventReceivedEventArgs e)
@@ -64,7 +85,16 @@ namespace StepMutator.ViewModels
             {
                 if (_tick % (ulong)(96 / _divider) == 0)
                 {
-                    HandleTick();
+                    if (_startStopPending)
+                    {
+                        IsPlaying = !IsPlaying;
+                        _startStopPending = false;
+                        _eventAggregator.GetEvent<StartStopEvent>().Publish(_isPlaying);
+                    }
+                    if (_isPlaying)
+                    {
+                        HandleTick();
+                    }
 
                 }
 
