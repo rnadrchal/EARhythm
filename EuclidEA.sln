@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Egami.Rhythm.Midi", "Egami.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Egami.EA.Metrics", "Egami.EA.Metrics\Egami.EA.Metrics.csproj", "{18EFD6E8-4911-4438-B55E-73B1E107623A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepMutator", "StepMutator\StepMutator.csproj", "{60F0B194-AD68-4B40-9652-FCF6A0823F82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Egami.Sequencer.UI", "Egami.Sequencer.UI\Egami.Sequencer.UI.csproj", "{3926334B-4245-41DE-8BA5-8F4F09F52794}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,14 @@ Global
 		{18EFD6E8-4911-4438-B55E-73B1E107623A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18EFD6E8-4911-4438-B55E-73B1E107623A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18EFD6E8-4911-4438-B55E-73B1E107623A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60F0B194-AD68-4B40-9652-FCF6A0823F82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60F0B194-AD68-4B40-9652-FCF6A0823F82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60F0B194-AD68-4B40-9652-FCF6A0823F82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60F0B194-AD68-4B40-9652-FCF6A0823F82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3926334B-4245-41DE-8BA5-8F4F09F52794}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3926334B-4245-41DE-8BA5-8F4F09F52794}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3926334B-4245-41DE-8BA5-8F4F09F52794}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3926334B-4245-41DE-8BA5-8F4F09F52794}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
