@@ -41,6 +41,7 @@ public class Sequence : BindableBase, ISequence
                 RaisePropertyChanged(nameof(Steps));
                 SetNotes();
             }
+            RaisePropertyChanged(nameof(Length));
         }
     }
     public IEnumerable<IStep> Steps => _steps.Select(s => new Step(s));
@@ -97,7 +98,7 @@ public class Sequence : BindableBase, ISequence
                     pitch,
                     velocity,
                     length,
-                    (pitchbend - 8192) / 8192.0 * 100,
+                    (pitchbend - 8192) / 8192.0 * 50,
                     modWheel
                 ));
 

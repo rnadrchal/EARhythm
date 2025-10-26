@@ -28,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Egami.Rhythm.EA\Egami.Rhythm.EA.csproj" />
+    <ProjectReference Include="..\Egami.Rhythm.Midi\Egami.Rhythm.Midi.csproj" />
     <ProjectReference Include="..\Egami.Sequencer.UI\Egami.Sequencer.UI.csproj" />
   </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@ using System.Windows.Data;
 
 namespace Egami.Sequencer.UI.Converters;
 
-public class NoteNameConverter : IValueConverter
+public class NoteNumberConverter : IValueConverter
 {
     private static readonly string[] NoteNames = new string[]
     {
@@ -15,13 +15,13 @@ public class NoteNameConverter : IValueConverter
         if (value is byte byteValue)
         {
             int noteIndex = byteValue % 12;
-            return NoteNames[noteIndex];
+            return $"{NoteNames[noteIndex]}{byteValue / 12}";
         }
 
         if (value is int intValue)
         {
             int noteIndex = intValue % 12;
-            return NoteNames[noteIndex];
+            return $"{NoteNames[noteIndex]}{intValue / 12}";
         }
 
         return value;

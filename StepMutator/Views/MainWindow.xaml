@@ -8,6 +8,11 @@
         syncfusion:SfSkinManager.Theme="{syncfusion:SkinManagerExtension ThemeName=FluentDark}"
         Title="{Binding Title}" Height="350" Width="525" WindowState="Maximized" >
     <Grid>
-        <ContentControl Content="{Binding Sequence}" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <ContentControl Grid.Row="1" Content="{Binding Sequence}" />
     </Grid>
 </Window>

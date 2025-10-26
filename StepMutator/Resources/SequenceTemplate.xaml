@@ -2,13 +2,17 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:model="clr-namespace:StepMutator.Models"
                     xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
-                    xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI">
+                    xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
     <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     <converters:MultConverter x:Key="Multiply" />
     <converters:AddConverter x:Key="Add" />
-    <converters:NoteNameConverter x:Key="NoteName" />
-    <converters:BooleanToBrushConverter x:Key="BooleanToBrush"></converters:BooleanToBrushConverter>
-    <DataTemplate DataType="{x:Type model:Step}">
+    <converters:NoteNumberConverter x:Key="NoteName" />
+    <converters:BooleanToOpacityConverter x:Key="BooleanToOpacity" />
+    <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
+    <converters:BarHeightConverter x:Key="BarHeight" />
+    <converters:BarOffsetConverter x:Key="BarOffset" />
+    <!--<DataTemplate DataType="{x:Type model:Step}">
         <Border>
             <Grid>
                 <Grid.RowDefinitions>
@@ -20,23 +24,58 @@
                                   Visibility="{Binding Tie, Converter={StaticResource BooleanToVisibility}}"  />
                 <Rectangle Grid.Row="1" Fill="{Binding On, ConverterParameter=Orange, Converter={StaticResource BooleanToBrush}}"
                            Width="24" Height="{Binding Velocity, ConverterParameter=0.25, Converter={StaticResource Multiply}}"
+                           Opacity="{Binding On, Converter={StaticResource BooleanToOpacity}}"
                            VerticalAlignment="Bottom"/>
                 <TextBlock Grid.Row="2" Text="{Binding Pitch, Converter={StaticResource NoteName}}"
                            HorizontalAlignment="Center" FontSize="10"
                            Visibility="{Binding On, Converter={StaticResource BooleanToVisibility}}"/>
             </Grid>
         </Border>
-    </DataTemplate>
+    </DataTemplate>-->
 
     <DataTemplate DataType="{x:Type model:ExtendedNote}">
-        <Border>
+        <Border Width="{Binding Length, ConverterParameter=26, Converter={StaticResource Multiply}}"
+                BorderBrush="#333" BorderThickness="1">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="50" />
+                    <RowDefinition Height="36" />
+                    <RowDefinition Height="36" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <TextBlock Text="{Binding Pitch, Converter={StaticResource NoteName}}"
-                           FontSize="10" HorizontalAlignment="Center" />
+                <Rectangle Grid.Row="0" HorizontalAlignment="Stretch"
+                           Height="{Binding Velocity, ConverterParameter=0.25, Converter={StaticResource Multiply}}"
+                           Fill="Orange" VerticalAlignment="Bottom">
+                    <Rectangle.ToolTip>
+                        <TextBlock FontSize="12">
+                            <Run Text="Velocity" />
+                            <Run Text="{Binding Velocity, Mode=OneWay}" />
+                        </TextBlock>
+                    </Rectangle.ToolTip>
+                </Rectangle>
+                <Rectangle Grid.Row="1"
+                    Height="{Binding Cents, Converter={StaticResource BarHeight}, ConverterParameter=36}"
+                    VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                    Margin="{Binding Cents, Converter={StaticResource BarOffset}, ConverterParameter=36}"
+                    Fill="DodgerBlue">
+                    <Rectangle.ToolTip>
+                        <TextBlock FontSize="12">
+                            <Run Text="{Binding Cents, StringFormat=N0, Mode=OneWay}" />
+                            <Run Text="cents" />
+                        </TextBlock>
+                    </Rectangle.ToolTip>
+                </Rectangle>
+                <Line Grid.Row="1" X1="0" Y1="0" Y2="0"
+                      X2="{Binding Length, ConverterParameter=24, Converter={StaticResource Multiply}}"
+                      Stroke="#666" StrokeThickness="1"/>
+                <Line Grid.Row="1" X1="0" Y1="18" Y2="18"
+                      X2="{Binding Length, ConverterParameter=24, Converter={StaticResource Multiply}}"
+                      Stroke="#666" StrokeThickness="1"/>
+                <Line Grid.Row="1" X1="0" Y1="32" Y2="32"
+                      X2="{Binding Length, ConverterParameter=24, Converter={StaticResource Multiply}}"
+                      Stroke="#666" StrokeThickness="1"/>
+                <TextBlock Grid.Row="2" Text="{Binding Pitch, Converter={StaticResource NoteName}}"
+                           FontSize="10" HorizontalAlignment="Center"
+                           Margin="0,5"/>
             </Grid>
         </Border>
     </DataTemplate>
@@ -47,24 +86,29 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2"
-                       VerticalAlignment="Center" HorizontalAlignment="Center"
-                       Text="{Binding Length}" />
-            <ScrollViewer Grid.Column="1" Grid.Row="0" Margin="5"
-                          VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Steps}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
-            </ScrollViewer>
-            <ScrollViewer Grid.Column="1" Grid.Row="1"
+            <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
+                <TextBlock Text="Length" HorizontalAlignment="Center" FontSize="10"></TextBlock>
+                <syncfusion:SfRadialSlider Width="120" Height="120" Margin="-12,-18, -12, -12"
+                                           Minimum="8" Maximum="128"
+                                           Value="{Binding Length}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="16"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden"
+                                           FontFamily="Kristen ITC">
+                    <TextBlock  FontSize="10">
+                        <Run Text="{Binding Length, Mode=OneWay}" />
+                    </TextBlock>
+                </syncfusion:SfRadialSlider>
+            </StackPanel>
+            <ScrollViewer Grid.Column="1" Margin="5" VerticalAlignment="Top"
                           VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding Notes}">
                     <ItemsControl.ItemsPanel>
