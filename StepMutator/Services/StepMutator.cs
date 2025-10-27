@@ -54,4 +54,12 @@ public class StepMutator<T> : IMutator<T> where T : struct, INumber<T>
         return result;
     }
 
+    public T GenerateOffspring(T parent1, T parent2, IEvolutionOptions options)
+    {
+        if (_random.NextDouble() <= options.CrossoverRate)
+        {
+            return parent1.Crossover(parent2, _random);
+        }
+        return _random.NextDouble() < 0.5 ? parent1 : parent2;
+    }
 }

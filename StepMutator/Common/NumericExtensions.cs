@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace StepMutator.Common;
@@ -173,5 +175,10 @@ public static class NumericExtensions
         if (typeof(T) == typeof(uint)) return 32;
         // ggf. weitere Typen ergänzen
         throw new NotSupportedException($"Bitbreite für Typ {typeof(T).Name} nicht bekannt.");
+    }
+
+    public static IEnumerable<ulong> GetFittest(this IEnumerable<ulong> source, int count, Func<ulong, double> fitness)
+    {
+        return source.OrderByDescending(fitness).Take(count);
     }
 }

@@ -4,14 +4,18 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using Egami.Rhythm.Common;
+using System.Windows.Navigation;
+using Egami.Rhythm.EA.Extensions;
 using Egami.Rhythm.Midi;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Prism.Mvvm;
+using StepMutator.Common;
+using StepMutator.Models.Evolution;
 using StepMutator.Services;
 using Syncfusion.Windows.Shared;
+using RandomProvider = Egami.Rhythm.Common.RandomProvider;
 
 namespace StepMutator.Models;
 
@@ -26,6 +30,15 @@ public class Sequence : BindableBase, ISequence
     private byte? _lastNote = null;
 
     private byte _channel;
+
+    public IEvolutionOptions Options => _evolutionOptions;
+
+    public IFitness[] Fitness { get; } =
+    [
+        new NoteFitness(),
+        new VelocityFitness(),
+        new OffFitness()
+    ];
 
     public byte Channel
     {
@@ -161,19 +174,39 @@ public class Sequence : BindableBase, ISequence
 
                 if (_isEvolutionActive && _tickCount % (ulong)_evolutionOptions.GenerationLength == 0)
                 {
-                    for (var i = 0; i < _steps.Length; i++)
-                    {
-                        for (var j = 0; j < _steps[i].Length; j++)
-                        {
-                            _steps[i][j] = _mutator.Mutate(_steps[i][j], 1.0 / _steps.Length);
-                        }
-                    }
+                    MutatePopulations();
+                    Tournament();
                     RaisePropertyChanged(nameof(Steps));
                     SetNotes();
                 }
                 _currentStep = (_currentStep + 1) % _steps.Length;
             }
             _tickCount++;
+        }
+    }
+
+    private void MutatePopulations()
+    {
+        for (var i = 0; i < _steps.Length; i++)
+        {
+            for (var j = 0; j < _steps[i].Length; j++)
+            {
+                _steps[i][j] = _mutator.Mutate(_steps[i][j], 1.0 / _steps.Length);
+            }
+        }
+    }
+
+    private void Tournament()
+    {
+        var rand = RandomProvider.Get(_evolutionOptions.Seed);
+        for (var i = 0; i < _steps.Length; i++)
+        {
+            var participants = _steps[i].TakeRandom(10, rand);
+            var fittest = participants.GetFittest(2, CombinedFitness);
+
+            var offspring = _mutator.GenerateOffspring(fittest.First(), fittest.Last(), _evolutionOptions);
+            var leastFittest = _steps[i].MinBy(CombinedFitness);
+            _steps[i][Array.IndexOf(_steps[i], leastFittest)] = offspring;
         }
     }
 
@@ -317,8 +350,15 @@ public class Sequence : BindableBase, ISequence
         GenerateRandomSteps(length);
     }
 
+    double CombinedFitness(ulong individual)
+    {
+        var total = Fitness.Sum(f => f.Weight);
+        return Fitness.Sum(f => f.Evaluate(individual)) / total;
+    }
+
     private ulong Fittest(ulong[] steps)
     {
-        return steps[0];
+        var fittest = steps.MaxBy(CombinedFitness);
+        return fittest;
     }
 }

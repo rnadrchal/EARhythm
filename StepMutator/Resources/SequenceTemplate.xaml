@@ -66,6 +66,10 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
             </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
             <StackPanel Orientation="Horizontal" Margin="10, -32, 50,15">
                 <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Bottom">
@@ -111,15 +115,17 @@
                     <TextBlock Text="Evolution" FontSize="10" />
                 </StackPanel>
 
+                <ContentControl Content="{Binding Options}" />
+
             </StackPanel>
 
-            <Grid Grid.Row="1" Margin="5">
+            <Grid Grid.Column="0" Grid.Row="1" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
+                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Top">
                     <TextBlock Text="Length" HorizontalAlignment="Center" FontSize="10"></TextBlock>
                     <syncfusion:SfRadialSlider Width="120" Height="120" Margin="-12,-18, -12, -12"
                                            Minimum="8" Maximum="128"
@@ -153,13 +159,19 @@
                     </ItemsControl>
                 </ScrollViewer>
 
-                <StackPanel Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Orientation="Vertical" VerticalAlignment="Center">
+                <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Vertical" VerticalAlignment="Top"
+                            Margin="10">
                     <Button Style="{StaticResource Round3DButton}" Command="{Binding DyeCommand}"
                         Background="Orange">
                         <wpf:MaterialIcon Kind="Dice5" Width="24" Opacity="0.5" />
                     </Button>
                 </StackPanel>
             </Grid>
+
+            <ScrollViewer Grid.Column="1" Grid.Row="1"
+                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Fitness}"></ItemsControl>
+            </ScrollViewer>
         </Grid>
 
     </DataTemplate>
