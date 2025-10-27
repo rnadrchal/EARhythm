@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -18,7 +19,7 @@ public class Sequence : BindableBase, ISequence
 {
     IEvolutionOptions _evolutionOptions;
     private IMutator<ulong> _mutator;
-    private ulong[] _steps;
+    private ulong[][] _steps;
 
     private ulong _tickCount = 0;
     private int _currentStep = 0;
@@ -122,14 +123,17 @@ public class Sequence : BindableBase, ISequence
         {
             if (_tickCount % (ulong)(96 / _divider) == 0)
             {
-                var step = new Step(_steps[_currentStep]);
+                var step = new Step(Fittest(_steps[_currentStep]));
                 if (_sendPitchbend)
                     MidiDevices.Output.SendEvent(new PitchBendEvent(step.Pitchbend));
                 MidiDevices.Output.SendEvent(new ControlChangeEvent((SevenBitNumber)_controlNumber,
                     (SevenBitNumber)step.ModWheel));
-                if (!step.Tie)
+
+                // Monophone Note-Off/On-Logik
+                if (_lastNote.HasValue)
                 {
-                    if (_lastNote.HasValue)
+                    // Falls die aktuelle Note nicht weiter gehalten werden soll (kein Tie oder Pitch-Wechsel)
+                    if (!step.On || !step.Tie || step.Pitch != _lastNote.Value)
                     {
                         MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value,
                             (SevenBitNumber)0)
@@ -139,21 +143,30 @@ public class Sequence : BindableBase, ISequence
                         _lastNote = null;
                     }
                 }
+
                 if (step.On)
                 {
-                    MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)step.Pitch,
-                        (SevenBitNumber)step.Velocity)
+                    // Falls eine neue Note gespielt werden soll (Pitch-Wechsel oder keine Note aktiv)
+                    if (!_lastNote.HasValue || step.Pitch != _lastNote.Value)
                     {
-                        Channel = (FourBitNumber)_channel
-                    });
-                    _lastNote = step.Pitch;
+                        MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)step.Pitch,
+                            (SevenBitNumber)step.Velocity)
+                        {
+                            Channel = (FourBitNumber)_channel
+                        });
+                        _lastNote = step.Pitch;
+                    }
+                    // Bei Tie mit gleichem Pitch bleibt die Note aktiv, kein erneutes NoteOn nötig
                 }
 
                 if (_isEvolutionActive && _tickCount % (ulong)_evolutionOptions.GenerationLength == 0)
                 {
                     for (var i = 0; i < _steps.Length; i++)
                     {
-                        _steps[i] = _mutator.Mutate(_steps[i], 1.0 / _steps.Length, _evolutionOptions);
+                        for (var j = 0; j < _steps[i].Length; j++)
+                        {
+                            _steps[i][j] = _mutator.Mutate(_steps[i][j], 1.0 / _steps.Length);
+                        }
                     }
                     RaisePropertyChanged(nameof(Steps));
                     SetNotes();
@@ -172,7 +185,10 @@ public class Sequence : BindableBase, ISequence
             if (value > _steps.Length)
             {
                 var steps = _steps.ToList();
-                steps.AddRange(Enumerable.Range(0, value - _steps.Length).Select(_ => GetRandomStep()));
+                for (var i = 0; i < value - _steps.Length; ++i)
+                {
+                    steps.Add(CreateRandomPopulation());
+                }
                 _steps = steps.ToArray();
                 RaisePropertyChanged(nameof(Steps));
                 SetNotes();
@@ -190,20 +206,25 @@ public class Sequence : BindableBase, ISequence
             RaisePropertyChanged(nameof(Length));
         }
     }
-    public IEnumerable<IStep> Steps => _steps.Select(s => new Step(s));
+    public IEnumerable<IStep> Steps => _steps.Select(s => new Step(Fittest(s)));
 
     private void GenerateRandomSteps(int count)
     {
-        _steps = Enumerable.Range(0, count).Select(_ => GetRandomStep()).ToArray();
+        _steps = new ulong[count][];
+        for (var i = 0; i < _steps.Length; ++i)
+        {
+            _steps[i] = CreateRandomPopulation();
+        }
         RaisePropertyChanged(nameof(Steps));
         SetNotes();
     }
 
     private ulong GetRandomStep()
     {
-        var u1 = RandomProvider.Get(null).NextInt64(long.MinValue, long.MaxValue);
-        var u2 = RandomProvider.Get(null).NextInt64(long.MinValue, long.MaxValue);
-        return (ulong)(u1 ^ u2 << 32);
+        var rand = RandomProvider.Get(_evolutionOptions.Seed);
+        byte[] bytes = new byte[8];
+        rand.NextBytes(bytes);
+        return BitConverter.ToUInt64(bytes, 0);
     }
 
     public void SetNotes()
@@ -212,21 +233,24 @@ public class Sequence : BindableBase, ISequence
         int i = 0;
         while (i < _steps.Length)
         {
-            var step = new Step(_steps[i]);
+            var fittest = Fittest(_steps[i]);
+            var step = new Step(fittest);
+
             if (step.On)
             {
-                // Starte neue Note
+                // Start new note
                 int length = 1;
                 var pitch = step.Pitch;
                 var velocity = step.Velocity;
                 var pitchbend = step.Pitchbend;
                 var modWheel = step.ModWheel;
 
-                // Suche nach Ties
+                // Find ties
                 int j = i + 1;
                 while (j < _steps.Length)
                 {
-                    var nextStep = new Step(_steps[j]);
+                    var nextFittest = Fittest(_steps[j]);
+                    var nextStep = new Step(nextFittest);
                     if (nextStep.On && nextStep.Tie && nextStep.Pitch == pitch)
                     {
                         length++;
@@ -238,7 +262,6 @@ public class Sequence : BindableBase, ISequence
                     }
                 }
 
-                // Füge Note hinzu
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     Notes.Add(new ExtendedNote(
@@ -255,13 +278,22 @@ public class Sequence : BindableBase, ISequence
             }
             else
             {
-                // Zähle Pausen
+                // Count pauses
                 int pauseLength = 1;
                 int j = i + 1;
-                while (j < _steps.Length && !new Step(_steps[j]).On)
+                while (j < _steps.Length)
                 {
-                    pauseLength++;
-                    j++;
+                    var nextFittest = Fittest(_steps[j]);
+                    var nextStep = new Step(nextFittest);
+                    if (!nextStep.On)
+                    {
+                        pauseLength++;
+                        j++;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
 
                 Application.Current.Dispatcher.Invoke(() =>
@@ -273,8 +305,20 @@ public class Sequence : BindableBase, ISequence
         }
     }
 
+    private ulong[] CreateRandomPopulation()
+    {
+        return Enumerable.Range(0, _evolutionOptions.PopulationSize)
+            .Select(_ => GetRandomStep())
+            .ToArray();
+    }
+
     private void Dye(int length)
     {
         GenerateRandomSteps(length);
+    }
+
+    private ulong Fittest(ulong[] steps)
+    {
+        return steps[0];
     }
 }
