@@ -26,7 +26,14 @@ public class Sequence : BindableBase, ISequence
     public byte Channel
     {
         get => _channel;
-        set => SetProperty(ref _channel, value);
+        set
+        {
+            if (SetProperty(ref _channel, value))
+            {
+                // ±0,5 Halbton: semitones = 0, fraction = 64 (≈ 50 Cent)
+                SetPitchBendRange(MidiDevices.Output, _channel, 0, 64);
+            }
+        }
     }
 
     private int _divider = 16;
@@ -45,15 +52,46 @@ public class Sequence : BindableBase, ISequence
         set => SetProperty(ref _controlNumber, value);
     }
 
+    private bool _sendPitchbend;
+    public bool SendPitchbend
+    {
+        get => _sendPitchbend;
+        set => SetProperty(ref _sendPitchbend, value);
+    }
+
+    private bool _isEvolutionActive = false;
+    public bool IsEvolutionActive
+    {
+        get => _isEvolutionActive;
+        set => SetProperty(ref _isEvolutionActive, value);
+    }
+
     public ObservableCollection<ExtendedNote> Notes { get; } = new();
 
     public ICommand DyeCommand { get; }
+    public ICommand ToggleEvolutionCommand { get; }
+    public ICommand TogglePitchbendCommand { get; }
 
     public Sequence(int length = 16)
     {
         Dye(length);
         DyeCommand = new DelegateCommand(_ => Dye(Length));
+        ToggleEvolutionCommand = new DelegateCommand(_ => IsEvolutionActive = !IsEvolutionActive);
+        TogglePitchbendCommand = new DelegateCommand(_ => SendPitchbend = !SendPitchbend);
         MidiDevices.Input.EventReceived += OnMidiEvent;
+        // ±0,5 Halbton: semitones = 0, fraction = 64 (≈ 50 Cent)
+        SetPitchBendRange(MidiDevices.Output, _channel, 0, 64);
+    }
+
+    void SetPitchBendRange(OutputDevice dev, int channel, int semitones, int fraction)
+    {
+        dev.SendEvent(new ControlChangeEvent((SevenBitNumber)101, (SevenBitNumber)0) { Channel = (FourBitNumber)channel }); // RPN MSB
+        dev.SendEvent(new ControlChangeEvent((SevenBitNumber)100, (SevenBitNumber)0) { Channel = (FourBitNumber)channel }); // RPN LSB
+        dev.SendEvent(new ControlChangeEvent((SevenBitNumber)6, (SevenBitNumber)semitones) { Channel = (FourBitNumber)channel }); // Data Entry MSB
+        dev.SendEvent(new ControlChangeEvent((SevenBitNumber)38, (SevenBitNumber)fraction) { Channel = (FourBitNumber)channel }); // Data Entry LSB
+        // RPN deselect
+        dev.SendEvent(new ControlChangeEvent((SevenBitNumber)101, (SevenBitNumber)127) { Channel = (FourBitNumber)channel });
+        dev.SendEvent(new ControlChangeEvent((SevenBitNumber)100, (SevenBitNumber)127) { Channel = (FourBitNumber)channel });
     }
 
     private void OnMidiEvent(object? sender, MidiEventReceivedEventArgs e)
@@ -80,7 +118,8 @@ public class Sequence : BindableBase, ISequence
             if (_tickCount % (ulong)(96 / _divider) == 0)
             {
                 var step = new Step(_steps[_currentStep]);
-                MidiDevices.Output.SendEvent(new PitchBendEvent(step.Pitchbend));
+                if (_sendPitchbend)
+                    MidiDevices.Output.SendEvent(new PitchBendEvent(step.Pitchbend));
                 MidiDevices.Output.SendEvent(new ControlChangeEvent((SevenBitNumber)_controlNumber,
                     (SevenBitNumber)step.ModWheel));
                 if (!step.Tie)

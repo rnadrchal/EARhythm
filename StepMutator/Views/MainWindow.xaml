@@ -24,13 +24,6 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Margin="5" Orientation="Vertical"
-                        HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button Style="{StaticResource Round3DButton}" Height="60" Width="60"
-                        Background="Red" Command="{Binding ToggleStartStopCommand}">
-                    <wpf:MaterialIcon Kind="{Binding IsPlaying, Converter={StaticResource RunningToIcon}, Mode=OneWay}" Height="36" />
-                </Button>
-            </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center"
                         Margin="5">
                 <Ellipse Style="{StaticResource LedEllipseStyle}"
