@@ -71,7 +71,7 @@ namespace StepMutator.ViewModels
         public MainWindowViewModel(IEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
-            _sequence = new Sequence(_eventAggregator, 16);
+            _sequence = new Sequence(16);
             MidiDevices.Input.EventReceived += OnMidiEventReceived;
             ToggleStartStopCommand = new Prism.Commands.DelegateCommand(() =>
             {
@@ -83,21 +83,6 @@ namespace StepMutator.ViewModels
         {
             if (e.Event is TimingClockEvent clock)
             {
-                if (_tick % (ulong)(96 / _divider) == 0)
-                {
-                    if (_startStopPending)
-                    {
-                        IsPlaying = !IsPlaying;
-                        _startStopPending = false;
-                        _eventAggregator.GetEvent<StartStopEvent>().Publish(_isPlaying);
-                    }
-                    if (_isPlaying)
-                    {
-                        HandleTick();
-                    }
-
-                }
-
                 if (_tick % 24 == 0)
                 {
                     LedOn = true;
@@ -111,37 +96,5 @@ namespace StepMutator.ViewModels
             }
         }
 
-        private void HandleTick()
-        {
-            var note = Sequence.Notes[_currentStep];
-            if (_tick >= _nextTick)
-            {
-                if (_lastNote.HasValue)
-                {
-                    MidiDevices.Output.SendEvent(
-                        new NoteOffEvent((SevenBitNumber)_lastNote.Value,
-                            (SevenBitNumber)0)
-                        {
-                            Channel = (FourBitNumber)_channel
-                        });
-                    _lastNote = null;
-                }
-
-                if (!note.Pause)
-                {
-                    MidiDevices.Output.SendEvent(
-                        new NoteOnEvent((SevenBitNumber)note.Pitch,
-                            (SevenBitNumber)note.Velocity)
-                        {
-                            Channel = (FourBitNumber)_channel
-                        });
-                    _lastNote = note.Pitch;
-                }
-
-                _nextTick = (_tick + (ulong)(note.Length * _divider));
-                _currentStep++;
-                if (_currentStep >= Sequence.Notes.Count) _currentStep = 0;
-            }
-        }
     }
 }
