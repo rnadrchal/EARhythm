@@ -37,8 +37,17 @@ public class Sequence : BindableBase, ISequence
     [
         new NoteFitness(),
         new VelocityFitness(),
-        new OffFitness()
+        new OffFitness(),
+        new TieFitness(),
+        new PitchbendFitness()
     ];
+
+    private bool _showSteps = false;
+    public bool ShowSteps
+    {
+        get => _showSteps;
+        set => SetProperty(ref _showSteps, value);
+    }
 
     public byte Channel
     {
@@ -88,6 +97,7 @@ public class Sequence : BindableBase, ISequence
     public ICommand DyeCommand { get; }
     public ICommand ToggleEvolutionCommand { get; }
     public ICommand TogglePitchbendCommand { get; }
+    public ICommand ToggleViewCommand { get; }
 
     public Sequence(IEvolutionOptions evolutionOptions, IMutator<ulong> mutator, int length = 16)
     {
@@ -96,7 +106,18 @@ public class Sequence : BindableBase, ISequence
         Dye(length);
         DyeCommand = new DelegateCommand(_ => Dye(Length));
         ToggleEvolutionCommand = new DelegateCommand(_ => IsEvolutionActive = !IsEvolutionActive);
-        TogglePitchbendCommand = new DelegateCommand(_ => SendPitchbend = !SendPitchbend);
+        TogglePitchbendCommand = new DelegateCommand(_ =>
+        {
+            SendPitchbend = !SendPitchbend;
+            if (!SendPitchbend && _lastNote.HasValue)
+            {
+                MidiDevices.Output.SendEvent(new PitchBendEvent(8192)
+                {
+                    Channel = (FourBitNumber)_channel
+                });
+            }
+        });
+        ToggleViewCommand = new DelegateCommand(_ => ShowSteps = !ShowSteps);
         MidiDevices.Input.EventReceived += OnMidiEvent;
         // ±0,5 Halbton: semitones = 0, fraction = 64 (≈ 50 Cent)
         SetPitchBendRange(MidiDevices.Output, _channel, 0, 64);
@@ -203,10 +224,30 @@ public class Sequence : BindableBase, ISequence
         {
             var participants = _steps[i].TakeRandom(10, rand);
             var fittest = participants.GetFittest(2, CombinedFitness);
+            var extinct = Extinct(_steps[i]).ToArray();
+            if (extinct.Length > _steps[i].Length / 2)
+            {
+                extinct = extinct.Take(_steps[i].Length / 2).ToArray();
+            }
 
-            var offspring = _mutator.GenerateOffspring(fittest.First(), fittest.Last(), _evolutionOptions);
+            var offsprings = _mutator.GenerateOffspring(fittest.First(), fittest.Last(), extinct.Length + 1, _evolutionOptions)
+                .ToList();
+            for (var j = 0; j < extinct.Length; j++)
+            {
+                _steps[i][extinct[j]] = _mutator.Mutate(offsprings[j],1.0 / _steps[i].Length);
+            }
             var leastFittest = _steps[i].MinBy(CombinedFitness);
-            _steps[i][Array.IndexOf(_steps[i], leastFittest)] = offspring;
+            _steps[i][Array.IndexOf(_steps[i], leastFittest)] = _mutator.Mutate( offsprings[^1], 1.0 / _steps[i].Length);
+        }
+    }
+    IEnumerable<int> Extinct(ulong[] population, double threshold = 0.1)
+    {
+        for (int i = 0; i < population.Length; i++)
+        {
+            if (Fitness.Any(f => f.Weight > 0.1 && f.Evaluate(population[i]) < threshold))
+            {
+                yield return i;
+            }
         }
     }
 
@@ -239,7 +280,11 @@ public class Sequence : BindableBase, ISequence
             RaisePropertyChanged(nameof(Length));
         }
     }
-    public IEnumerable<IStep> Steps => _steps.Select(s => new Step(Fittest(s)));
+    public IEnumerable<IStep> Steps => _steps.Select(s =>
+    {
+        var fittest = Fittest(s);
+        return new Step(fittest) { Fitness = CombinedFitness(fittest) };
+    });
 
     private void GenerateRandomSteps(int count)
     {

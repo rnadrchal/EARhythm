@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using StepMutator.Common;
 
@@ -54,12 +55,15 @@ public class StepMutator<T> : IMutator<T> where T : struct, INumber<T>
         return result;
     }
 
-    public T GenerateOffspring(T parent1, T parent2, IEvolutionOptions options)
+    public IEnumerable<T> GenerateOffspring(T parent1, T parent2, int count, IEvolutionOptions options)
     {
-        if (_random.NextDouble() <= options.CrossoverRate)
+        for (var i = 0; i < count; i++)
         {
-            return parent1.Crossover(parent2, _random);
+            if (_random.NextDouble() <= options.CrossoverRate)
+            {
+                yield return parent1.Crossover(parent2, _random);
+            }
+            yield return _random.NextDouble() < 0.5 ? parent1 : parent2;
         }
-        return _random.NextDouble() < 0.5 ? parent1 : parent2;
     }
 }

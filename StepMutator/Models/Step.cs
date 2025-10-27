@@ -71,6 +71,13 @@ public class Step : BindableBase, IStep
         set => SetProperty(ref _modWheel, value);
     }
 
+    private double _fitness = 0.0;
+    public double Fitness
+    {
+        get => _fitness;
+        set => SetProperty(ref _fitness, value);
+    }
+
     private ulong Encode()
     {
         ulong value = 0;

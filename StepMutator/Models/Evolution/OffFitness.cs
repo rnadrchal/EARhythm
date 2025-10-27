@@ -32,9 +32,9 @@ public class OffFitness : BindableBase, IFitness
         var step = new Step(individual);
         if (step.On == FavorOn)
         {
-            return 1.0 * _weight;
+            return 0.99 * _weight;
         }
 
-        return 0.0;
+        return 0.01 * _weight;
     }
 }
