@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using Egami.Rhythm.Common;
 using Egami.Rhythm.Midi;
@@ -8,13 +9,15 @@ using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Prism.Mvvm;
+using StepMutator.Services;
 using Syncfusion.Windows.Shared;
 
 namespace StepMutator.Models;
 
 public class Sequence : BindableBase, ISequence
 {
-
+    IEvolutionOptions _evolutionOptions;
+    private IMutator<ulong> _mutator;
     private ulong[] _steps;
 
     private ulong _tickCount = 0;
@@ -72,8 +75,10 @@ public class Sequence : BindableBase, ISequence
     public ICommand ToggleEvolutionCommand { get; }
     public ICommand TogglePitchbendCommand { get; }
 
-    public Sequence(int length = 16)
+    public Sequence(IEvolutionOptions evolutionOptions, IMutator<ulong> mutator, int length = 16)
     {
+        _evolutionOptions = evolutionOptions;
+        _mutator = mutator;
         Dye(length);
         DyeCommand = new DelegateCommand(_ => Dye(Length));
         ToggleEvolutionCommand = new DelegateCommand(_ => IsEvolutionActive = !IsEvolutionActive);
@@ -143,6 +148,16 @@ public class Sequence : BindableBase, ISequence
                     });
                     _lastNote = step.Pitch;
                 }
+
+                if (_isEvolutionActive && _tickCount % (ulong)_evolutionOptions.GenerationLength == 0)
+                {
+                    for (var i = 0; i < _steps.Length; i++)
+                    {
+                        _steps[i] = _mutator.Mutate(_steps[i], 1.0 / _steps.Length, _evolutionOptions);
+                    }
+                    RaisePropertyChanged(nameof(Steps));
+                    SetNotes();
+                }
                 _currentStep = (_currentStep + 1) % _steps.Length;
             }
             _tickCount++;
@@ -170,7 +185,7 @@ public class Sequence : BindableBase, ISequence
                     _currentStep = _steps.Length - 1;
                 }
                 RaisePropertyChanged(nameof(Steps));
-                SetNotes();
+                Application.Current.Dispatcher.Invoke(SetNotes);
             }
             RaisePropertyChanged(nameof(Length));
         }
@@ -193,7 +208,7 @@ public class Sequence : BindableBase, ISequence
 
     public void SetNotes()
     {
-        Notes.Clear();
+        Application.Current.Dispatcher.Invoke(Notes.Clear);
         int i = 0;
         while (i < _steps.Length)
         {
@@ -224,14 +239,17 @@ public class Sequence : BindableBase, ISequence
                 }
 
                 // Füge Note hinzu
-                Notes.Add(new ExtendedNote(
-                    false,
-                    pitch,
-                    velocity,
-                    length,
-                    (pitchbend - 8192) / 8192.0 * 50,
-                    modWheel
-                ));
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Notes.Add(new ExtendedNote(
+                        false,
+                        pitch,
+                        velocity,
+                        length,
+                        (pitchbend - 8192) / 8192.0 * 50,
+                        modWheel
+                    ));
+                });
 
                 i += length;
             }
@@ -245,7 +263,11 @@ public class Sequence : BindableBase, ISequence
                     pauseLength++;
                     j++;
                 }
-                Notes.Add(new ExtendedNote(true, 0, 0, pauseLength, 0, 0));
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Notes.Add(new ExtendedNote(true, 0, 0, pauseLength, 0, 0));
+                });
                 i += pauseLength;
             }
         }

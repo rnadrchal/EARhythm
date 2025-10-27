@@ -8,12 +8,15 @@ using Prism.Events;
 using Prism.Mvvm;
 using StepMutator.Events;
 using StepMutator.Models;
+using StepMutator.Services;
 
 namespace StepMutator.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
         private readonly IEventAggregator _eventAggregator;
+        private readonly IEvolutionOptions _evolutionOptions;
+        private readonly IMutator<ulong> _mutator;
         private ulong _tick = 0;
         private string _title = "Step Mutator";
         private int _currentStep = 0;
@@ -68,10 +71,12 @@ namespace StepMutator.ViewModels
 
         public ICommand ToggleStartStopCommand { get; }
 
-        public MainWindowViewModel(IEventAggregator eventAggregator)
+        public MainWindowViewModel(IEventAggregator eventAggregator, IEvolutionOptions evolutionOptions, IMutator<ulong> mutator)
         {
             _eventAggregator = eventAggregator;
-            _sequence = new Sequence(16);
+            _evolutionOptions = evolutionOptions;
+            _mutator = mutator;
+            _sequence = new Sequence(evolutionOptions, mutator, 16);
             MidiDevices.Input.EventReceived += OnMidiEventReceived;
             ToggleStartStopCommand = new Prism.Commands.DelegateCommand(() =>
             {

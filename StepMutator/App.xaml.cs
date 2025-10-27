@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Prism.Ioc;
 using StepMutator.Views;
 using System.Windows;
+using StepMutator.Models.Evolution;
+using StepMutator.Services;
 
 namespace StepMutator
 {
@@ -29,7 +31,8 @@ namespace StepMutator
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-
+            containerRegistry.RegisterSingleton<IEvolutionOptions, EvolutionOptions>();
+            containerRegistry.RegisterSingleton<IMutator<ulong>, StepMutator<ulong>>();
         }
     }
 }
