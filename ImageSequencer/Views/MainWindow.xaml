@@ -1,0 +1,24 @@
+﻿<Window x:Class="ImageSequencer.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:views="clr-namespace:ImageSequencer.Views"
+        xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+        syncfusion:SfSkinManager.Theme="{syncfusion:SkinManagerExtension ThemeName=FluentDark}"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        Title="{Binding Title}" Height="350" Width="525" WindowState="Maximized">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
+            <Button Style="{StaticResource Round3DButton}" Background="Orange"
+                    Command="{Binding ImageViewer.OpenBitmapCommand}">
+                <wpf:MaterialIcon Kind="FileImage" Height="24" Opacity="0.5" />
+            </Button>
+        </StackPanel>
+        <ContentControl Grid.Row="1" Content="{Binding ImageViewer}" Margin="5" />
+    </Grid>
+</Window>

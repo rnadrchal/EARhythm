@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepMutator", "StepMutator\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Egami.Sequencer.UI", "Egami.Sequencer.UI\Egami.Sequencer.UI.csproj", "{3926334B-4245-41DE-8BA5-8F4F09F52794}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageSequencer", "ImageSequencer\ImageSequencer.csproj", "{CC1032B0-9371-4B22-980D-296C52B3E5B2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{3926334B-4245-41DE-8BA5-8F4F09F52794}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3926334B-4245-41DE-8BA5-8F4F09F52794}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3926334B-4245-41DE-8BA5-8F4F09F52794}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC1032B0-9371-4B22-980D-296C52B3E5B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC1032B0-9371-4B22-980D-296C52B3E5B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC1032B0-9371-4B22-980D-296C52B3E5B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC1032B0-9371-4B22-980D-296C52B3E5B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
