@@ -34,6 +34,7 @@ namespace EuclidEA
             _mutator = new SequenceMutator();
             var dawName = _config.GetSection("LoopMidiPorts")["Daw"];
             MidiDevices.Initialize(dawName);
+            MidiDevices.Input.StartEventsListening();
 
         }
         protected override Window CreateShell()
