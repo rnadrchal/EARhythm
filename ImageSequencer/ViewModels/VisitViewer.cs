@@ -1,31 +1,38 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Windows;
-using System.Windows.Media;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using Egami.Imaging.Extensions;
 using Egami.Imaging.Midi;
 using Egami.Imaging.Visiting;
 using Egami.Rhythm.Common;
 using Egami.Rhythm.Midi;
+using ImageSequencer.Events;
 using ImageSequencer.Models;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
+using Prism.Events;
 using Prism.Mvvm;
+using Syncfusion.Windows.Shared;
 
 namespace ImageSequencer.ViewModels;
 
-public class VisitViewer : BindableBase
+public class VisitViewer : BindableBase, IDisposable
 {
+    private readonly IEventAggregator _eventAggregator;
     private readonly ApplicationSettings _applicationSettings;
+    private bool _isPaused = false;
     public ApplicationSettings ApplicationSettings => _applicationSettings;
 
     private IBitmapVisitor _visitor = null;
+    public ICommand ResetCommand { get; }
+    public ICommand FastForwardCommand { get; }
 
-    public VisitViewer(ApplicationSettings applicationSettings)
+    public VisitViewer(ApplicationSettings applicationSettings, IEventAggregator eventAggregator)
     {
         _applicationSettings = applicationSettings;
+        _eventAggregator = eventAggregator;
         _applicationSettings.PropertyChanged += OnApplicationSettingsChanged;
         if (_applicationSettings.Bitmap != null)
         {
@@ -33,6 +40,8 @@ public class VisitViewer : BindableBase
         }
 
         MidiDevices.Input.EventReceived += OnMidiEventReceived;
+        ResetCommand = new DelegateCommand(_ => Reset());
+        FastForwardCommand = new DelegateCommand(_ => FastForward());
     }
 
     private ulong _tick = 0;
@@ -64,12 +73,13 @@ public class VisitViewer : BindableBase
         if (e.PropertyName == nameof(ApplicationSettings.Bitmap) ||
             e.PropertyName == nameof(ApplicationSettings.VisitorType))
         {
-            SetVisitor();
+            Reset();
+            //SetVisitor();
         }
 
         if (e.PropertyName == nameof(ApplicationSettings.IsVisiting))
         {
-            if (_applicationSettings.IsVisiting)
+            if (_applicationSettings.IsVisiting && _visitor == null)
             {
                 SetVisitor();
             }
@@ -104,7 +114,8 @@ public class VisitViewer : BindableBase
         {
             if (_applicationSettings.RenderTarget != null)
             {
-                HandleMidiEvent(e);
+                if (!_isPaused)
+                    HandleMidiEvent(e);
                 _applicationSettings.RenderTarget.SetPixel(e.X, e.Y, e.Color);
             }
         });
@@ -112,10 +123,33 @@ public class VisitViewer : BindableBase
 
     private void HandleMidiEvent(VisitorEventArgs e)
     {
+
+        var step = new StepInfo();
+
+        if (_applicationSettings.SendPitchbendOn)
+        {
+            var pitchbend = (int)Math.Round(ColorToCvFactory.Create(_applicationSettings.PitchbendColorToCvType,
+                _applicationSettings.PitchbendBaseColor).Convert(e.Color) / 127.0 * 16383);
+            MidiDevices.Output.SendEvent(new PitchBendEvent((ushort)pitchbend));
+            step.Pitchbend = pitchbend;;
+        }
+
+        if (_applicationSettings.SendControlChangeOn)
+        {
+            var ccValue = ColorToCvFactory.Create(_applicationSettings.ControlChangeColorToCvType,
+                _applicationSettings.ControlChangeBaseColor).Convert(e.Color);
+            MidiDevices.Output.SendEvent(new ControlChangeEvent((SevenBitNumber)_applicationSettings.ControlChangeNumber,
+                (SevenBitNumber)ccValue));
+            step.ControlChangeNumber = _applicationSettings.ControlChangeNumber;
+            step.ControlChangeValue = ccValue;
+        }
+
         if (_applicationSettings.SendNoteOn)
         {
-            var pitch = new BaseColorToCv(BaseColor.Red).Convert(e.Color);
-            var velocity = new LuminanceToCv().Convert(e.Color);
+            var pitch = ColorToCvFactory.Create(_applicationSettings.PitchColorToCvType,
+                _applicationSettings.VelocityBaseColor).Convert(e.Color);
+            var velocity = ColorToCvFactory.Create(_applicationSettings.VelocityColorToCvType,
+                _applicationSettings.VelocityBaseColor).Convert(e.Color);
 
             if (_lastNote.HasValue)
             {
@@ -125,6 +159,8 @@ public class VisitViewer : BindableBase
                     {
                         MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0));
                         MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity));
+                        step.NoteNumber = pitch;
+                        step.Velocity = velocity;
                         _lastNote = pitch;
                     }
                     // Bei Pitch-Gleichheit: nichts tun, Note bleibt aktiv
@@ -133,14 +169,51 @@ public class VisitViewer : BindableBase
                 {
                     MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0));
                     MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity));
+                    step.NoteNumber = pitch;
+                    step.Velocity = velocity;
                     _lastNote = pitch;
                 }
             }
             else
             {
                 MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity));
+                step.NoteNumber = pitch;
+                step.Velocity = velocity;
                 _lastNote = pitch;
             }
         }
+        _eventAggregator.GetEvent<StepEvent>().Publish(step);
+    }
+
+    private void Reset()
+    {
+        _applicationSettings.ClearRenderTarget();
+        if (_lastNote != null)
+        {
+            MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0));
+        }
+        SetVisitor();
+    }
+
+    private void FastForward()
+    {
+        _isPaused = true;
+        var stepSize = _applicationSettings.Bitmap.Width * _applicationSettings.Bitmap.Height / 100;
+        for (var i = 0; i < stepSize; ++i)
+        {
+            _visitor.Next();
+        }
+
+        _isPaused = false;
+    }
+
+    public void Dispose()
+    {
+        if (_lastNote != null)
+        {
+            MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0));
+        }
+
+        MidiDevices.Input.EventReceived -= OnMidiEventReceived;
     }
 }

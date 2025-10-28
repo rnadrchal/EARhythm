@@ -4,9 +4,13 @@ namespace Egami.Imaging.Visiting;
 
 public sealed class SpiralOutwardBitmapVisitor : BitmapVisitorBase
 {
-    private int step = 1, dir = 0, x, y, count = 0, leg = 0;
     private readonly int width, height, total;
     private readonly int cx, cy;
+    private int x, y, count;
+    private int dir = 0; // 0: rechts, 1: unten, 2: links, 3: oben
+    private int stepsInCurrentLeg = 0;
+    private int legLength = 1;
+    private int legsDone = 0;
 
     public SpiralOutwardBitmapVisitor(WriteableBitmap bitmap) : base(bitmap)
     {
@@ -17,6 +21,7 @@ public sealed class SpiralOutwardBitmapVisitor : BitmapVisitorBase
         cy = height / 2;
         x = cx;
         y = cy;
+        count = 0;
     }
 
     protected override (int X, int Y)? GetNextCoordinates()
@@ -27,26 +32,43 @@ public sealed class SpiralOutwardBitmapVisitor : BitmapVisitorBase
             return (x, y);
         }
 
-        for (; count < total;)
+        while (count < total)
         {
-            for (int i = 0; i < step; i++)
+            // Richtung: 0=rechts, 1=unten, 2=links, 3=oben
+            switch (dir)
             {
-                switch (dir)
+                case 0: x++; break;
+                case 1: y++; break;
+                case 2: x--; break;
+                case 3: y--; break;
+            }
+            stepsInCurrentLeg++;
+
+            if (x >= 0 && x < width && y >= 0 && y < height)
+            {
+                count++;
+                if (stepsInCurrentLeg == legLength)
                 {
-                    case 0: x++; break; // rechts
-                    case 1: y++; break; // unten
-                    case 2: x--; break; // links
-                    case 3: y--; break; // oben
+                    dir = (dir + 1) % 4;
+                    stepsInCurrentLeg = 0;
+                    legsDone++;
+                    if (legsDone % 2 == 0)
+                        legLength++;
                 }
-                if (x >= 0 && x < width && y >= 0 && y < height)
+                return (x, y);
+            }
+            else
+            {
+                // Auch wenn der Pixel außerhalb ist, müssen wir die Spiral-Logik weiterführen
+                if (stepsInCurrentLeg == legLength)
                 {
-                    count++;
-                    return (x, y);
+                    dir = (dir + 1) % 4;
+                    stepsInCurrentLeg = 0;
+                    legsDone++;
+                    if (legsDone % 2 == 0)
+                        legLength++;
                 }
             }
-            dir = (dir + 1) % 4;
-            leg++;
-            if (leg % 2 == 0) step++;
         }
         return null;
     }

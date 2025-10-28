@@ -27,26 +27,60 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal"
-                    Margin="0,0,0,10">
-            <StackPanel Orientation="Vertical">
-                <Button Style="{StaticResource Round3DButton}" Background="Orange"
-                        Command="{Binding ImageViewer.OpenBitmapCommand}"
-                        IsEnabled="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource Not}}">
-                    <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" Kind="FileImage" />
-                </Button>
-                <TextBlock Style="{StaticResource ControlLabelStyle}" Text="Image" />
-            </StackPanel>
-            
-            <StackPanel Orientation="Vertical" Margin="10,0,0,0">
-                <Button Style="{StaticResource Round3DButton}" Background="Green"
-                        Command="{Binding ToggleVisitCommand}">
-                    <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" 
-                                      Kind="Walk"
-                                      Foreground="LightGreen"
-                                      Opacity="{Binding ApplicationSettings.IsVisiting}"/>
-                </Button>
-                <TextBlock Style="{StaticResource ControlLabelStyle}" Text="Visit"></TextBlock>
-            </StackPanel>
+                    Margin="0,0,0,10"
+                    HorizontalAlignment="Center">
+            <Button Style="{StaticResource Round3DButton}" Background="Orange"
+                    Command="{Binding ImageViewer.OpenBitmapCommand}"
+                    IsEnabled="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource Not}}">
+                <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" Kind="FileImage" />
+            </Button>
+
+            <wpf:MaterialIcon Kind="ArrowRightBold" Height="32" Margin="10,0,10,0"
+                              Opacity="{Binding ApplicationSettings.BitmapLoaded, Converter={StaticResource BooleanToOpacity}}"/>
+
+            <Button Style="{StaticResource Round3DButton}" Background="Green"
+                    Command="{Binding ToggleVisitCommand}"
+                    IsEnabled="{Binding ApplicationSettings.BitmapLoaded}">
+                <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" 
+                                  Kind="Walk"
+                                  Foreground="LightGreen"
+                                  Opacity="{Binding ApplicationSettings.IsVisiting}"/>
+            </Button>
+
+            <wpf:MaterialIcon Kind="ArrowRightBold" Height="32" Margin="10,0,0,0"
+                              Opacity="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource BooleanToOpacity }}"/>
+
+
+            <Border Padding="5"
+                    Background="#400"
+                    Margin="15,0,0,0">
+                <TextBlock Width="520" VerticalAlignment="Center"
+                           Style="{StaticResource DigitalText}"
+                           TextAlignment="Center"
+                           Text="{Binding StepInfo}"
+                           FontSize="32" />
+            </Border>
+
+            <wpf:MaterialIcon Kind="Undo" Height="32" Margin="15,0,15,0"
+                              Opacity="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource BooleanToOpacity }}"/>
+
+            <Button Style="{StaticResource Round3DButton}"
+                    Background="Red"
+                    Command="{Binding ResetCommand}">
+                <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" Kind="Restart"
+                                  Opacity="{Binding ApplicationSettings.IsVisiting}" />
+            </Button>
+
+            <wpf:MaterialIcon Kind="ArrowLeftBold" Height="32" Margin="10,0,10,0"
+                              Opacity="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource BooleanToOpacity }}"/>
+
+            <Button Style="{StaticResource Round3DButton}"
+                    Background="Orange"
+                    Command="{Binding FastForwardCommand}">
+                <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" Kind="RunFast"
+                                  Opacity="{Binding ApplicationSettings.IsVisiting}" />
+            </Button>
+
         </StackPanel>
         <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center">
             <Ellipse Style="{StaticResource LedEllipseStyle}"

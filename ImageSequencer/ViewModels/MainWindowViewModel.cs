@@ -1,8 +1,11 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Windows.Input;
 using Egami.Rhythm.Midi;
+using ImageSequencer.Events;
 using ImageSequencer.Models;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
+using Prism.Events;
 using Prism.Mvvm;
 using Syncfusion.Windows.Shared;
 
@@ -10,6 +13,7 @@ namespace ImageSequencer.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
+        private readonly IEventAggregator _eventAggregator;
         private readonly ApplicationSettings _applicationSettings;
         public ApplicationSettings ApplicationSettings => _applicationSettings;
 
@@ -32,18 +36,36 @@ namespace ImageSequencer.ViewModels
             set { SetProperty(ref _ledTick, value); }
         }
 
-        public ICommand ToggleVisitCommand { get; }
+        private string _stepInfo = string.Empty;
+        public string StepInfo
+        {
+            get => _stepInfo;
+            set => SetProperty(ref _stepInfo, value);
+        }
 
-        public MainWindowViewModel(ApplicationSettings applicationSettings, VisitViewer visitViewer, ImageViewer imageViewer)
+        public ICommand ToggleVisitCommand { get; }
+        public ICommand ResetCommand { get; }
+        public ICommand FastForwardCommand { get; }
+
+        public MainWindowViewModel(ApplicationSettings applicationSettings, VisitViewer visitViewer, ImageViewer imageViewer, IEventAggregator eventAggregator)
         {
             _applicationSettings = applicationSettings;
             _visitViewer = visitViewer;
             _imageViewer = imageViewer;
+            _eventAggregator = eventAggregator;
 
             ToggleVisitCommand =
                 new DelegateCommand(_ => ApplicationSettings.IsVisiting = !ApplicationSettings.IsVisiting);
 
             MidiDevices.Input.EventReceived += OnClockEvent;
+
+            _eventAggregator.GetEvent<StepEvent>().Subscribe(step =>
+            {
+                StepInfo = step.ToString();
+            });
+
+            ResetCommand = new DelegateCommand(_visitViewer.ResetCommand.Execute);
+            FastForwardCommand = new DelegateCommand(_visitViewer.FastForwardCommand.Execute);
         }
 
         private ulong _tickCount;

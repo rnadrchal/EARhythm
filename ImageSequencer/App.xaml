@@ -5,6 +5,9 @@
              xmlns:prism="http://prismlibrary.com/" >
     <Application.Resources>
         <ResourceDictionary>
+            <FontFamily x:Key="LED_Real">
+                Resources/Fonts/#LED Real
+            </FontFamily>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Egami.Sequencer.UI;component/Resources/Styles.xaml" />
                 <ResourceDictionary Source="Resources/CommonStyles.xaml" />

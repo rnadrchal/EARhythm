@@ -8,5 +8,6 @@ public enum BitmapVisitorType
     SnakeColumn,
     SpiralInward,
     SpiralOutward,
-    GreedyNeighbor
+    GreedyNeighbor,
+    Random
 }

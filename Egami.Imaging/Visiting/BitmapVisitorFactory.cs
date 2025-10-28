@@ -16,6 +16,7 @@ public static class BitmapVisitorFactory
             BitmapVisitorType.SpiralInward => new SpiralInwardBitmapVisitor(bitmap),
             BitmapVisitorType.SpiralOutward => new SpiralOutwardBitmapVisitor(bitmap),
             BitmapVisitorType.GreedyNeighbor => new GreedyNeighborBitmapVisitor(bitmap, startX, startY),
+            BitmapVisitorType.Random => new RandomBitmapVisitor(bitmap),
             _ => throw new ArgumentException("Unbekannter Visitor-Typ", nameof(type))
         };
     }

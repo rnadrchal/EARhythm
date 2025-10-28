@@ -37,5 +37,15 @@ namespace ImageSequencer
             containerRegistry.RegisterSingleton<ImageViewer>();
             containerRegistry.RegisterSingleton<VisitViewer>();
         }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+            var visitViewer = Container.Resolve<VisitViewer>();
+            if (visitViewer != null)
+            {
+                visitViewer.Dispose();
+            }
+        }
     }
 }
