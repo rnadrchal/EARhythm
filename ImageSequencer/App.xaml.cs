@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Prism.Ioc;
 using System.Windows;
 using Egami.Rhythm.Midi;
+using ImageSequencer.Models;
+using ImageSequencer.ViewModels;
 
 namespace ImageSequencer
 {
@@ -31,7 +33,9 @@ namespace ImageSequencer
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-
+            containerRegistry.RegisterSingleton<ApplicationSettings>();
+            containerRegistry.RegisterSingleton<ImageViewer>();
+            containerRegistry.RegisterSingleton<VisitViewer>();
         }
     }
 }

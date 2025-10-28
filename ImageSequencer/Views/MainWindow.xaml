@@ -5,20 +5,64 @@
         xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
         xmlns:views="clr-namespace:ImageSequencer.Views"
         xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+        xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
         syncfusion:SfSkinManager.Theme="{syncfusion:SkinManagerExtension ThemeName=FluentDark}"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Title="{Binding Title}" Height="350" Width="525" WindowState="Maximized">
-    <Grid>
+    <Grid Margin="10">
+        <Grid.Resources>
+            <converters:BooleanToOpacityConverter x:Key="BooleanToOpacity" />
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibility" />
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <converters:NotConverter x:Key="Not" />
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
-            <Button Style="{StaticResource Round3DButton}" Background="Orange"
-                    Command="{Binding ImageViewer.OpenBitmapCommand}">
-                <wpf:MaterialIcon Kind="FileImage" Height="24" Opacity="0.5" />
-            </Button>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal"
+                    Margin="0,0,0,10">
+            <StackPanel Orientation="Vertical">
+                <Button Style="{StaticResource Round3DButton}" Background="Orange"
+                        Command="{Binding ImageViewer.OpenBitmapCommand}"
+                        IsEnabled="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource Not}}">
+                    <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" Kind="FileImage" />
+                </Button>
+                <TextBlock Style="{StaticResource ControlLabelStyle}" Text="Image" />
+            </StackPanel>
+            
+            <StackPanel Orientation="Vertical" Margin="10,0,0,0">
+                <Button Style="{StaticResource Round3DButton}" Background="Green"
+                        Command="{Binding ToggleVisitCommand}">
+                    <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" 
+                                      Kind="Walk"
+                                      Foreground="LightGreen"
+                                      Opacity="{Binding ApplicationSettings.IsVisiting}"/>
+                </Button>
+                <TextBlock Style="{StaticResource ControlLabelStyle}" Text="Visit"></TextBlock>
+            </StackPanel>
         </StackPanel>
-        <ContentControl Grid.Row="1" Content="{Binding ImageViewer}" Margin="5" />
+        <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center">
+            <Ellipse Style="{StaticResource LedEllipseStyle}"
+                     Opacity="{Binding LedTick, Converter={StaticResource BooleanToOpacity}}"
+                     Width="14" Height="14" />
+            <TextBlock Style="{StaticResource ControlLabelStyle}" Text="Clock" />
+        </StackPanel>
+        <ContentControl Grid.Column="1" Grid.Row="1" 
+                        Content="{Binding ImageViewer}"
+                        Visibility="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource InverseBooleanToVisibility}}"/>
+        <ContentControl Grid.Column="1" Grid.Row="1"
+                        Content="{Binding VisitViewer}"
+                        Visibility="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource BooleanToVisibility}}" />
+        <ContentControl Grid.Column="2" Grid.Row="1" ContentTemplate="{StaticResource RightPanelTemplate}"
+                        Content="{Binding ApplicationSettings}" />
+        <ContentControl Grid.Column="0" Grid.Row="1" ContentTemplate="{StaticResource LeftPanelTemplate}"
+                        Content="{Binding ApplicationSettings}" />
     </Grid>
 </Window>

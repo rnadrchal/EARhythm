@@ -13,9 +13,9 @@
                 <behaviors:DragOverHighlightBehavior HighlightBrush="Orange" />
             </i:Interaction.Behaviors>
             <Grid>
-                <Image Source="{Binding Bitmap}" Stretch="Uniform" />
+                <Image Source="{Binding ApplicationSettings.Bitmap}" Stretch="Uniform" />
                 <TextBlock FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Visibility="{Binding Bitmap, Converter={StaticResource NullToVisibility}}">
+                           Visibility="{Binding ApplicationSettings.Bitmap, Converter={StaticResource NullToVisibility}}">
                     <Hyperlink Command="{Binding OpenBitmapCommand}">
                         <Run Text="Click here to open an image."></Run>
                     </Hyperlink>

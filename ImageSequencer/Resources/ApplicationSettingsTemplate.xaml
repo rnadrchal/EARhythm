@@ -1,0 +1,98 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:model="clr-namespace:ImageSequencer.Models"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+                    xmlns:visitor="clr-namespace:Egami.Imaging.Visiting;assembly=Egami.Imaging"
+                    xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI">
+
+    <converters:EnumToDoubleConverter x:Key="EnumToDouble" />
+    <converters:StringConverter x:Key="String" />
+    <DataTemplate DataType="{x:Type model:ApplicationSettings}" x:Key="RightPanelTemplate">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Hidden">
+            <StackPanel Orientation="Vertical" MinWidth="120" Margin="5,0,0,0">
+                <GroupBox>
+                    <GroupBox.Header>
+                        <TextBlock Style="{StaticResource HeaderTextStyle}" Text="MIDI"></TextBlock>
+                    </GroupBox.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <syncfusion:SfRadialSlider Grid.Row="0" 
+                                                   Margin="0,-8,0,-12"
+                                                   Width="80" Height="80"
+                                                   Minimum="1" Maximum="96"
+                                                   Value="{Binding Divider}"
+                                                   OuterRimRadiusFactor="0.6"
+                                                   OuterRimStroke="#444"
+                                                   OuterRimStrokeThickness="3"
+                                                   InnerRimFill="#666"
+                                                   InnerRimStroke="#444"
+                                                   InnerRimRadiusFactor="0.4"
+                                                   StartAngle="135" EndAngle="405"
+                                                   TickFrequency="4"
+                                                   TickVisibility="Visible"
+                                                   TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                                   LabelVisibility="Hidden"
+                                                   FontFamily="Kristen ITC">
+                            <TextBlock  FontSize="10">
+                                <Run Text="{Binding Divider}" />
+                            </TextBlock>
+                        </syncfusion:SfRadialSlider>
+                        <TextBlock Grid.Row="1" 
+                                   Style="{StaticResource ControlLabelStyle}"
+                                   Text="Divider" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox>
+                    <GroupBox.Header>
+                        <TextBlock Style="{StaticResource HeaderTextStyle}" Text="Visitor"></TextBlock>
+                    </GroupBox.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <syncfusion:SfRadialSlider Grid.Row="0"
+                                                   Margin="0,-8,0,-12"
+                                                   Width="80" Height="80"
+                                                   Minimum="0" Maximum="6"
+                                                   Value="{Binding VisitorType, Converter={StaticResource EnumToDouble}}"
+                                                   OuterRimRadiusFactor="0.6"
+                                                   OuterRimStroke="#444"
+                                                   OuterRimStrokeThickness="3"
+                                                   InnerRimFill="#666"
+                                                   InnerRimStroke="#444"
+                                                   InnerRimRadiusFactor="0.4"
+                                                   StartAngle="135" EndAngle="405"
+                                                   TickFrequency="4"
+                                                   TickVisibility="Visible"
+                                                   TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                                   LabelVisibility="Hidden"
+                                                   FontFamily="Kristen ITC">
+                        </syncfusion:SfRadialSlider>
+                        <TextBlock Grid.Row="1"
+                                   Style="{StaticResource ControlLabelStyle}"
+                                   Text="{Binding VisitorType, Converter={StaticResource String}}" />
+                    </Grid>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type model:ApplicationSettings}" x:Key="LeftPanelTemplate">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Hidden">
+            <StackPanel Orientation="Vertical" MinWidth="120" Margin="0,0,5,0">
+                <TextBlock></TextBlock>
+                <GroupBox>
+                    <GroupBox.Header>
+                        <TextBlock Text="Send" Style="{StaticResource HeaderTextStyle}" />
+                    </GroupBox.Header>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+    </DataTemplate>
+</ResourceDictionary>

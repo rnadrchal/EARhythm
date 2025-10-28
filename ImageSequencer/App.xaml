@@ -7,7 +7,10 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Egami.Sequencer.UI;component/Resources/Styles.xaml" />
+                <ResourceDictionary Source="Resources/CommonStyles.xaml" />
                 <ResourceDictionary Source="Resources/ImageViewerTemplate.xaml" />
+                <ResourceDictionary Source="Resources/VisitViewerTemplate.xaml" />
+                <ResourceDictionary Source="Resources/ApplicationSettingsTemplate.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

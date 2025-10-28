@@ -28,11 +28,12 @@
     <PackageReference Include="Syncfusion.Tools.WPF" Version="31.2.2" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Egami.Imaging\Egami.Imaging.csproj" />
     <ProjectReference Include="..\Egami.Rhythm.Midi\Egami.Rhythm.Midi.csproj" />
     <ProjectReference Include="..\Egami.Sequencer.UI\Egami.Sequencer.UI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
-    <Folder Include="Resources\" />
+    <Folder Include="Models\" />
   </ItemGroup>
 </Project>
