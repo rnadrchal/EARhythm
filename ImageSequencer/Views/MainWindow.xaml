@@ -1,0 +1,102 @@
+﻿<Window x:Class="ImageSequencer.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:views="clr-namespace:ImageSequencer.Views"
+        xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+        xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
+        syncfusion:SfSkinManager.Theme="{syncfusion:SkinManagerExtension ThemeName=FluentDark}"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        Title="{Binding Title}" Height="350" Width="525" WindowState="Maximized">
+    <Grid Margin="10">
+        <Grid.Resources>
+            <converters:BooleanToOpacityConverter x:Key="BooleanToOpacity" />
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibility" />
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <converters:NotConverter x:Key="Not" />
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal"
+                    Margin="0,0,0,10"
+                    HorizontalAlignment="Center">
+            <Button Style="{StaticResource Round3DButton}" Background="Orange"
+                    Command="{Binding ImageViewer.OpenBitmapCommand}"
+                    IsEnabled="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource Not}}">
+                <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" Kind="FileImage" />
+            </Button>
+
+            <wpf:MaterialIcon Kind="ArrowRightBold" Height="32" Margin="10,0,10,0"
+                              Opacity="{Binding ApplicationSettings.BitmapLoaded, Converter={StaticResource BooleanToOpacity}}"/>
+
+            <Button Style="{StaticResource Round3DButton}" Background="Green"
+                    Command="{Binding ToggleVisitCommand}"
+                    IsEnabled="{Binding ApplicationSettings.BitmapLoaded}">
+                <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" 
+                                  Kind="Walk"
+                                  Foreground="LightGreen"
+                                  Opacity="{Binding ApplicationSettings.IsVisiting}"/>
+            </Button>
+
+            <wpf:MaterialIcon Kind="ArrowRightBold" Height="32" Margin="10,0,0,0"
+                              Opacity="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource BooleanToOpacity }}"/>
+
+
+            <Border Padding="5"
+                    Background="#400"
+                    Margin="15,0,0,0">
+                <TextBlock Width="520" VerticalAlignment="Center"
+                           Style="{StaticResource DigitalText}"
+                           TextAlignment="Center"
+                           Text="{Binding StepInfo}"
+                           FontSize="32" />
+            </Border>
+
+            <wpf:MaterialIcon Kind="Undo" Height="32" Margin="15,0,15,0"
+                              Opacity="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource BooleanToOpacity }}"/>
+
+            <Button Style="{StaticResource Round3DButton}"
+                    Background="Red"
+                    Command="{Binding ResetCommand}">
+                <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" Kind="Restart"
+                                  Opacity="{Binding ApplicationSettings.IsVisiting}" />
+            </Button>
+
+            <wpf:MaterialIcon Kind="ArrowLeftBold" Height="32" Margin="10,0,10,0"
+                              Opacity="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource BooleanToOpacity }}"/>
+
+            <Button Style="{StaticResource Round3DButton}"
+                    Background="Orange"
+                    Command="{Binding FastForwardCommand}">
+                <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" Kind="RunFast"
+                                  Opacity="{Binding ApplicationSettings.IsVisiting}" />
+            </Button>
+
+        </StackPanel>
+        <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center">
+            <Ellipse Style="{StaticResource LedEllipseStyle}"
+                     Opacity="{Binding LedTick, Converter={StaticResource BooleanToOpacity}}"
+                     Width="14" Height="14" />
+            <TextBlock Style="{StaticResource ControlLabelStyle}" Text="Clock" />
+        </StackPanel>
+        <ContentControl Grid.Column="1" Grid.Row="1" 
+                        Content="{Binding ImageViewer}"
+                        Visibility="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource InverseBooleanToVisibility}}"/>
+        <ContentControl Grid.Column="1" Grid.Row="1"
+                        Content="{Binding VisitViewer}"
+                        Visibility="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource BooleanToVisibility}}" />
+        <ContentControl Grid.Column="2" Grid.Row="1" ContentTemplate="{StaticResource RightPanelTemplate}"
+                        Content="{Binding ApplicationSettings}" />
+        <ContentControl Grid.Column="0" Grid.Row="1" ContentTemplate="{StaticResource LeftPanelTemplate}"
+                        Content="{Binding ApplicationSettings}" />
+    </Grid>
+</Window>

@@ -1,0 +1,44 @@
+﻿using System;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using ImageSequencer.Models;
+using Microsoft.Win32;
+using Prism.Commands;
+using Prism.Mvvm;
+
+namespace ImageSequencer.ViewModels;
+
+public class ImageViewer : BindableBase
+{
+    private readonly ApplicationSettings _applicationSettings;
+    public ApplicationSettings ApplicationSettings => _applicationSettings;
+    public ICommand OpenBitmapCommand { get; }
+    public ICommand DropCommand { get; }
+
+    public ImageViewer(ApplicationSettings applicationSettings)
+    {
+        _applicationSettings = applicationSettings;
+        OpenBitmapCommand = new DelegateCommand(OpenBitmap);
+        DropCommand = new DelegateCommand<DragEventArgs>(DropImage);
+    }
+
+    private void OpenBitmap()
+    {
+        OpenFileDialog dlg = new OpenFileDialog
+        {
+            Filter =
+                "Images (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tiff)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tiff|All Files (*.*)|*.*"
+        };
+        if (dlg.ShowDialog() == true)
+        {
+            _applicationSettings.Bitmap = new WriteableBitmap(new BitmapImage(new Uri(dlg.FileName)));
+            _applicationSettings.RenderTarget = new WriteableBitmap(_applicationSettings.Bitmap.PixelWidth, _applicationSettings.Bitmap.PixelHeight, _applicationSettings.Bitmap.DpiX, _applicationSettings.Bitmap.DpiY, _applicationSettings.Bitmap.Format, null);
+        }
+    }
+
+    private void DropImage(DragEventArgs e)
+    {
+
+    }
+}

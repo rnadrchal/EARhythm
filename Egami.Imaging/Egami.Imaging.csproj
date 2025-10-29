@@ -8,12 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Material.Icons.WPF" Version="2.4.1" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+    <PackageReference Include="WriteableBitmapEx" Version="1.6.9" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Egami.Imaging\Egami.Imaging.csproj" />
+    <ProjectReference Include="..\Egami.Rhythm.Midi\Egami.Rhythm.Midi.csproj" />
   </ItemGroup>
 
 </Project>

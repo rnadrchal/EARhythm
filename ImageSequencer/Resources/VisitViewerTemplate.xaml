@@ -1,0 +1,12 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:ImageSequencer.ViewModels">
+   <DataTemplate DataType="{x:Type vm:VisitViewer}">
+        <Border x:Name="Border" BorderBrush="Green" BorderThickness="1">
+			<Grid>
+				<Image Source="{Binding ApplicationSettings.RenderTarget}" Stretch="Uniform" />
+			</Grid>
+        </Border>
+               
+   </DataTemplate> 
+</ResourceDictionary>
