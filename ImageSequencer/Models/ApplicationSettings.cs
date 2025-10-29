@@ -6,6 +6,7 @@ using Prism.Mvvm;
 using System.Windows.Media.Imaging;
 using Egami.Imaging.Extensions;
 using Egami.Imaging.Midi;
+using ImageSequencer.Extensions;
 
 namespace ImageSequencer.Models;
 
@@ -164,10 +165,43 @@ public class ApplicationSettings : BindableBase
         set => SetProperty(ref _controlChangeNumber, value);
     }
 
+    private byte _tonalRangeLower = 0;
+    public byte TonalRangeLower
+    {
+        get => _tonalRangeLower;
+        set
+        {
+            if (value <= _tonalRangeUpper)
+            {
+                SetProperty(ref _tonalRangeLower, value);
+                RaisePropertyChanged(nameof(TonalRange));
+            }
+        }
+    }
+
+    private byte _tonalRangeUpper = 127;
+    public byte TonalRangeUpper
+    {
+        get => _tonalRangeUpper;
+        set
+        {
+            if (value >= _tonalRangeLower)
+            {
+                SetProperty(ref _tonalRangeUpper, value);
+                RaisePropertyChanged(nameof(TonalRange));
+            }
+        }
+    }
+
+    public string TonalRange =>
+        $"{((int)TonalRangeLower).ToNoteNumberString()}-{((int)TonalRangeUpper).ToNoteNumberString()}";
+
     public ICommand ToggleSendNoteOnCommand { get; }
     public ICommand ToggleSendPitchbendOnCommand { get; }
     public ICommand ToggleSendControlChangeOnCommand { get; }
     public ICommand ToggleLegatoCommand { get; }
+    public ICommand WidelRangeCommand { get; }
+    public ICommand FullRangeCommand { get; }
 
     public ApplicationSettings()
     {
@@ -186,6 +220,18 @@ public class ApplicationSettings : BindableBase
         ToggleLegatoCommand = new Prism.Commands.DelegateCommand(() =>
         {
             Legato = !Legato;
+        });
+
+        WidelRangeCommand = new Prism.Commands.DelegateCommand(() =>
+        {
+            TonalRangeLower = 21;
+            TonalRangeUpper = 108;
+        });
+
+        FullRangeCommand = new Prism.Commands.DelegateCommand(() =>
+        {
+            TonalRangeLower = 0;
+            TonalRangeUpper = 127;
         });
     }
 

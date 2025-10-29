@@ -36,7 +36,6 @@
     <ProjectReference Include="..\Egami.Sequencer.UI\Egami.Sequencer.UI.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Extensions\" />
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>

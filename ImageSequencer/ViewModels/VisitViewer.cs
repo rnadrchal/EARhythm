@@ -148,6 +148,8 @@ public class VisitViewer : BindableBase, IDisposable
         {
             var pitch = ColorToCvFactory.Create(_applicationSettings.PitchColorToCvType,
                 _applicationSettings.VelocityBaseColor).Convert(e.Color);
+            pitch = (byte)(_applicationSettings.TonalRangeLower +
+                           (pitch / 127.0) * (_applicationSettings.TonalRangeUpper - _applicationSettings.TonalRangeLower));
             var velocity = ColorToCvFactory.Create(_applicationSettings.VelocityColorToCvType,
                 _applicationSettings.VelocityBaseColor).Convert(e.Color);
 

@@ -3,11 +3,17 @@
 public enum BitmapVisitorType
 {
     RowWise,
-    SnakeRow,
     ColumnWise,
+    SnakeRow,
     SnakeColumn,
+    Wavefront,
     SpiralInward,
     SpiralOutward,
+    RotatingInward,
+    RotatingOutward,
+    Checkerboard,
+    GridInterleaved,
     GreedyNeighbor,
+    RegionGrowing,
     Random
 }
