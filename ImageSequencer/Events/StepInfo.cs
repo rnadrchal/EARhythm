@@ -12,13 +12,13 @@ public class StepInfo
 
     public int NoteNumber { get; set; }
     public int Velocity { get; set; }
-    public int Pitchbend { get; set; } = 8192;
+    public int Pitchbend { get; set; } = 2048;
     public int ControlChangeNumber { get; set; }
     public int ControlChangeValue { get; set; }
 
     public override string ToString()
     {
-        var result = $"NN:{NoteNumber.ToNoteNumberString(),-5} VEL:{Velocity:000} PB:{Pitchbend - 8192: 0000;-0000; 0000} CC:{ControlChangeNumber:X2}-{ControlChangeValue:000}";
+        var result = $"NN:{NoteNumber.ToNoteNumberString(),-5} VEL:{Velocity:000} PB:{Pitchbend - 2048: 0000;-0000; 0000} CC:{ControlChangeNumber:X2}-{ControlChangeValue:000}";
         return result;
     }
 }

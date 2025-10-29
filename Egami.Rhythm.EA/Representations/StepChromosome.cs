@@ -15,7 +15,7 @@ public class StepChromosome
     public bool Tie { get; set; }
     public byte Pitch { get; set; }        // 0..127
     public byte Velocity { get; set; }     // 0..127
-    public ushort Pitchbend { get; set; }  // 0..16383
+    public ushort Pitchbend { get; set; }  // 0..4096
     public byte ModWheel { get; set; }     // 0..127
 
     public StepChromosome() { }

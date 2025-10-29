@@ -16,6 +16,38 @@
     <converters:EnumToOpacityConverter x:Key="EnumToOpacity" />
     <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibility" />
     <converters:ScaleConverter x:Key="Scale" />
+    <converters:NotConverter x:Key="Not" />
+    <converters:ActiveToColorConverter x:Key="ActiveToColor" />
+
+    <Style TargetType="Border" x:Key="SendHeaderBorder">
+        <Setter Property="Background" Value="#333" />
+        <Setter Property="CornerRadius" Value="5,5,0,0" />
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="SendHeaderText">
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style BasedOn="{StaticResource Round3DButton}" TargetType="Button"
+           x:Key="SendHeaderButton">
+        <Setter Property="Background" Value="#222" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Width" Value="30" />
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+    </Style>
+
+    <Style TargetType="wpf:MaterialIcon" x:Key="SendButtonIcon">
+        <Setter Property="Foreground" Value="LightGreen" />
+        <Setter Property="Height" Value="20" />
+    </Style>
+
+    <Style TargetType="wpf:MaterialIcon" x:Key="SendHeaderIcon" BasedOn="{StaticResource ButtonIcon}">
+        <Setter Property="Kind" Value="ArrowDownBold" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
 
     <DataTemplate DataType="{x:Type model:TransformSettings}">
         <StackPanel Orientation="Vertical">
@@ -85,97 +117,6 @@
                                Text="{Binding ColorModel, Converter={StaticResource String}}" />
                 </Grid>
             </GroupBox>
-            <GroupBox>
-                <GroupBox.Header>
-                    <TextBlock Style="{StaticResource HeaderTextStyle}"
-                               Text="Crop" />
-                </GroupBox.Header>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2"
-                               Style="{StaticResource DigitalText}"
-                               Text="{Binding Format}"
-                               Margin="0,5,0,0"
-                               TextAlignment="Center"/>
-                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                                               Margin="-10,-8,-10,-12"
-                                               Width="80" Height="80"
-                                               Minimum="0" Maximum="2"
-                                               Value="{Binding FormatIndex}"
-                                               OuterRimRadiusFactor="0.6"
-                                               OuterRimStroke="#444"
-                                               OuterRimStrokeThickness="3"
-                                               InnerRimFill="#666"
-                                               InnerRimStroke="#444"
-                                               InnerRimRadiusFactor="0.4"
-                                               StartAngle="135" EndAngle="405"
-                                               TickVisibility="Visible"
-                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
-                                               LabelVisibility="Hidden"
-                                               FontFamily="Kristen ITC">
-                    </syncfusion:SfRadialSlider>
-                    <TextBlock Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"
-                               Style="{StaticResource ControlLabelStyle}"
-                               Text="Format" />
-                    <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="0"
-                                               Margin="-10,-8,-10,-12"
-                                               Width="80" Height="80"
-                                               Minimum="0" Maximum="{Binding MaxX}"
-                                               Value="{Binding X}"
-                                               OuterRimRadiusFactor="0.6"
-                                               OuterRimStroke="#444"
-                                               OuterRimStrokeThickness="3"
-                                               InnerRimFill="#666"
-                                               InnerRimStroke="#444"
-                                               InnerRimRadiusFactor="0.4"
-                                               StartAngle="135" EndAngle="405"
-                                               TickFrequency="50"
-                                               TickVisibility="Visible"
-                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
-                                               LabelVisibility="Hidden"
-                                               FontFamily="Kristen ITC">
-                        <TextBlock Text="{Binding X}" 
-                                   Style="{StaticResource ControlLabelStyle}" />
-                    </syncfusion:SfRadialSlider>
-                    <TextBlock Grid.Column="0" Grid.Row="4"
-                               Style="{StaticResource ControlLabelStyle}"
-                               Text="X" />
-                    <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="1"
-                                               Margin="-10,-8,-10,-12"
-                                               Width="80" Height="80"
-                                               Minimum="0" Maximum="{Binding MaxY}"
-                                               Value="{Binding Y}"
-                                               OuterRimRadiusFactor="0.6"
-                                               OuterRimStroke="#444"
-                                               OuterRimStrokeThickness="3"
-                                               InnerRimFill="#666"
-                                               InnerRimStroke="#444"
-                                               InnerRimRadiusFactor="0.4"
-                                               StartAngle="135" EndAngle="405"
-                                               TickFrequency="50"
-                                               TickVisibility="Visible"
-                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
-                                               LabelVisibility="Hidden"
-                                               FontFamily="Kristen ITC">
-                        <TextBlock Text="{Binding Y}" 
-                                   Style="{StaticResource ControlLabelStyle}" />
-                    </syncfusion:SfRadialSlider>
-                    <TextBlock Grid.Column="1" Grid.Row="4"
-                               Style="{StaticResource ControlLabelStyle}"
-                               Text="Y" />
-                </Grid>
-            </GroupBox>
-
         </StackPanel>
     </DataTemplate>
 
@@ -183,20 +124,40 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Hidden">
             <StackPanel Orientation="Vertical" MinWidth="160" Margin="5,0,0,0">
+                <Grid Margin="5,0,0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" 
+                               Text="Output" 
+                               Style="{StaticResource RegionHeaderStyle}" />
+                    <wpf:MaterialIcon Grid.Column="1" 
+                                      Kind="Output" 
+                                      Foreground="Orange"
+                                      Height="14"/>
+                </Grid>
+
                 <GroupBox>
                     <GroupBox.Header>
                         <TextBlock Style="{StaticResource HeaderTextStyle}" Text="Visitor"></TextBlock>
                     </GroupBox.Header>
                     <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" FontFamily="{DynamicResource LED_Real}"
+                        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" FontFamily="{DynamicResource LED_Real}"
                                    Style="{StaticResource DigitalText}"
                                    Text="{Binding VisitorType, Converter={StaticResource String}}"
                                    Margin="0,5,0,0"/>
-                        <syncfusion:SfRadialSlider Grid.Row="1"
+                        <syncfusion:SfRadialSlider Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
                                                    Margin="0,-8,0,-12"
                                                    Width="80" Height="80"
                                                    Minimum="0" Maximum="13"
@@ -213,12 +174,61 @@
                                                    TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
                                                    LabelVisibility="Hidden"
                                                    FontFamily="Kristen ITC">
+                            <wpf:MaterialIcon Style="{StaticResource ButtonIcon}"
+                                              Kind="LocationEnter" 
+                                              Opacity="0.7" Foreground="LightGreen"/>
                         </syncfusion:SfRadialSlider>
+                        <syncfusion:SfRadialSlider Grid.Column="0" Grid.Row="2"
+                                                   Margin="-10,-8,-10,-12"
+                                                   Width="80" Height="80"
+                                                   Minimum="1" Maximum="16"
+                                                   Value="{Binding GridCols}"
+                                                   OuterRimRadiusFactor="0.6"
+                                                   OuterRimStroke="#444"
+                                                   OuterRimStrokeThickness="3"
+                                                   InnerRimFill="#666"
+                                                   InnerRimStroke="#444"
+                                                   InnerRimRadiusFactor="0.4"
+                                                   StartAngle="135" EndAngle="405"
+                                                   TickFrequency="2"
+                                                   TickVisibility="Visible"
+                                                   TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                                   LabelVisibility="Hidden"
+                                                   FontFamily="Kristen ITC">
+                            <TextBlock Style="{StaticResource ControlLabelStyle}"
+                                       Text="{Binding GridCols}"></TextBlock>
+                        </syncfusion:SfRadialSlider>
+                        <syncfusion:SfRadialSlider Grid.Column="1" Grid.Row="2"
+                                                   Margin="-10,-8,-10,-12"
+                                                   Width="80" Height="80"
+                                                   Minimum="1" Maximum="16"
+                                                   Value="{Binding GridRows}"
+                                                   OuterRimRadiusFactor="0.6"
+                                                   OuterRimStroke="#444"
+                                                   OuterRimStrokeThickness="3"
+                                                   InnerRimFill="#666"
+                                                   InnerRimStroke="#444"
+                                                   InnerRimRadiusFactor="0.4"
+                                                   StartAngle="135" EndAngle="405"
+                                                   TickFrequency="2"
+                                                   TickVisibility="Visible"
+                                                   TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                                   LabelVisibility="Hidden"
+                                                   FontFamily="Kristen ITC">
+                            <TextBlock Style="{StaticResource ControlLabelStyle}"
+                                       Text="{Binding GridRows}"></TextBlock>
+                        </syncfusion:SfRadialSlider>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                   Style="{StaticResource ControlLabelStyle}"
+                                   Text="x" VerticalAlignment="Center" />
+                        <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                   Style="{StaticResource ControlLabelStyle}"
+                                   Text="Grid" />
                     </Grid>
                 </GroupBox>
                 <GroupBox>
                     <GroupBox.Header>
-                        <TextBlock Style="{StaticResource HeaderTextStyle}" Text="Performance"></TextBlock>
+                        <TextBlock Style="{StaticResource HeaderTextStyle}" Text="Performance" />
                     </GroupBox.Header>
                     <Grid>
                         <Grid.RowDefinitions>
@@ -227,6 +237,10 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
                         <syncfusion:SfRadialSlider Grid.Row="0" 
                                                    Margin="0,-8,0,-12"
                                                    Width="80" Height="80"
@@ -248,10 +262,10 @@
                                 <Run Text="{Binding Divider}" />
                             </TextBlock>
                         </syncfusion:SfRadialSlider>
-                        <TextBlock Grid.Row="1" 
+                        <TextBlock Grid.Column="0" Grid.Row="1" 
                                    Style="{StaticResource ControlLabelStyle}"
                                    Text="Divider" />
-                        <Button Grid.Row="2" Style="{StaticResource Round3DButton}"
+                        <Button Grid.Column="1" Grid.Row="0" Style="{StaticResource Round3DButton}"
                                 Margin="0,10"
                                 Background="#222"
                                 Command="{Binding ToggleLegatoCommand}">
@@ -259,7 +273,7 @@
                                      Width="14" Height="14" Margin="0,5"
                                      Opacity="{Binding Legato, Converter={StaticResource BooleanToOpacity}}" />
                         </Button>
-                        <TextBlock Grid.Row="3"
+                        <TextBlock Grid.Column="1" Grid.Row="1"
                                    Style="{StaticResource ControlLabelStyle}"
                                    Text="Legato" />
                     </Grid>
@@ -335,8 +349,26 @@
                         </Button>
                     </Grid>
                 </GroupBox>
+
+                <Grid Margin="5,5,0,5"
+                      Opacity="{Binding BitmapLoaded, Converter={StaticResource BooleanToOpacity}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" 
+                               Text="Input" 
+                               Style="{StaticResource RegionHeaderStyle}"
+                               VerticalAlignment="Center"/>
+                    <wpf:MaterialIcon Grid.Column="1" 
+                                      Kind="Input" 
+                                      Foreground="Orange"
+                                      Height="16"/>
+                </Grid>
+
                 <ContentControl Content="{Binding TransformSettings}"
-                                Visibility="{Binding TransformSettings, Converter={StaticResource NotNullToVisibility}}"/>
+                                Visibility="{Binding TransformSettings, Converter={StaticResource NotNullToVisibility}}"
+                                IsEnabled="{Binding IsVisiting, Converter={StaticResource Not}}"/>
             </StackPanel>
         </ScrollViewer>
     </DataTemplate>
@@ -345,17 +377,33 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Hidden">
             <StackPanel Orientation="Vertical" MinWidth="140" Margin="0,0,5,0">
-                <TextBlock Text="Send" Style="{StaticResource RegionHeaderStyle}" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" 
+                               Text="Send" 
+                               Style="{StaticResource RegionHeaderStyle}" />
+                    <wpf:MaterialIcon Grid.Column="1" 
+                                      Kind="Send" 
+                                      Foreground="Orange"
+                                      Height="14"/>
+                </Grid>
                 <Separator />
-                <TextBlock Text="Note" Style="{StaticResource ControlLabelStyle}" FontWeight="Bold"
-                           Margin="0,5,0,0"/>
-                <Button Style="{StaticResource Round3DButton}" Background="#222"
-                        HorizontalAlignment="Center" Margin="0,5"
-                        Command="{Binding ToggleSendNoteOnCommand}">
-                    <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" Kind="MusicNote"
-                                      Foreground="LightGreen"
-                                      Opacity="{Binding SendNoteOn, Converter={StaticResource BooleanToOpacity}}"/>
-                </Button>
+                <Border Style="{StaticResource SendHeaderBorder}">
+                    <Grid>
+                        <TextBlock Text="Note" Style="{StaticResource SendHeaderText}"
+                                   Foreground="{Binding SendNoteOn, Converter={StaticResource ActiveToColor}, ConverterParameter=#AAA }"/>
+                        <Button Style="{StaticResource SendHeaderButton}"
+                                Command="{Binding ToggleSendNoteOnCommand}">
+                            <wpf:MaterialIcon Style="{StaticResource SendButtonIcon}" Kind="MusicNote"
+                                              Opacity="{Binding SendNoteOn, Converter={StaticResource BooleanToOpacity}}"/>
+                        </Button>
+                        <wpf:MaterialIcon Style="{StaticResource SendHeaderIcon}" 
+                                          Foreground="{Binding SendNoteOn, Converter={StaticResource ActiveToColor}, ConverterParameter=#AAA}"/>
+                    </Grid>
+                </Border>
                 <GroupBox Visibility="{Binding SendNoteOn, Converter={StaticResource BooleanToVisibility}}">
                     <GroupBox.Header>
                         <TextBlock Style="{StaticResource ControlLabelStyle}" Text="Pitch" />
@@ -473,16 +521,20 @@
 
                 </GroupBox>
 
-                <TextBlock Text="Pitchbend" Style="{StaticResource ControlLabelStyle}" FontWeight="Bold"
-                           Margin="0,5,0,0"/>
-                <Button Style="{StaticResource Round3DButton}" Background="#222"
-                        HorizontalAlignment="Center" Margin="0,5"
-                        Command="{Binding ToggleSendPitchbendOnCommand}">
-                    <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" 
-                                      Kind="Switch"
-                                      Foreground="LightGreen"
-                                      Opacity="{Binding SendPitchbendOn, Converter={StaticResource BooleanToOpacity}}"/>
-                </Button>
+                <Border Style="{StaticResource SendHeaderBorder}">
+                    <Grid>
+                        <TextBlock Text="PB" Style="{StaticResource SendHeaderText}" 
+                                   Foreground="{Binding SendPitchbendOn, Converter={StaticResource ActiveToColor}, ConverterParameter=#AAA}"/>
+                        <Button Style="{StaticResource SendHeaderButton}"
+                                Command="{Binding ToggleSendPitchbendOnCommand}">
+                            <wpf:MaterialIcon Style="{StaticResource SendButtonIcon}" Kind="Switch"
+                                              Opacity="{Binding SendPitchbendOn, Converter={StaticResource BooleanToOpacity}}"/>
+                        </Button>
+                        <wpf:MaterialIcon Style="{StaticResource SendHeaderIcon}"
+                                          Foreground="{Binding SendPitchbendOn, Converter={StaticResource ActiveToColor}, ConverterParameter=#AAA}"/>
+                    </Grid>
+                </Border>
+
 
                 <GroupBox Visibility="{Binding SendPitchbendOn, Converter={StaticResource BooleanToVisibility}}">
                     <GroupBox.Header>
@@ -543,16 +595,20 @@
 
                     </Grid>
                 </GroupBox>
-                <TextBlock Text="ControlChange" Style="{StaticResource ControlLabelStyle}" FontWeight="Bold"
-                           Margin="0,5,0,0"/>
-                <Button Style="{StaticResource Round3DButton}" Background="#222"
-                        HorizontalAlignment="Center" Margin="0,5"
-                        Command="{Binding ToggleSendControlChangeOnCommand}">
-                    <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" 
-                                      Kind="ControllerClassic"
-                                      Foreground="LightGreen"
-                                      Opacity="{Binding SendControlChangeOn, Converter={StaticResource BooleanToOpacity}}"/>
-                </Button>
+
+                <Border Style="{StaticResource SendHeaderBorder}">
+                    <Grid>
+                        <TextBlock Text="CC" Style="{StaticResource SendHeaderText}"
+                                   Foreground="{Binding SendControlChangeOn, Converter={StaticResource ActiveToColor}, ConverterParameter=#AAA}"/>
+                        <Button Style="{StaticResource SendHeaderButton}"
+                                Command="{Binding ToggleSendControlChangeOnCommand}">
+                            <wpf:MaterialIcon Style="{StaticResource SendButtonIcon}" Kind="ControllerClassic"
+                                              Opacity="{Binding SendControlChangeOn, Converter={StaticResource BooleanToOpacity}}"/>
+                        </Button>
+                        <wpf:MaterialIcon Style="{StaticResource SendHeaderIcon}"
+                                          Foreground="{Binding SendControlChangeOn, Converter={StaticResource ActiveToColor}, ConverterParameter=#AAA}"/>
+                    </Grid>
+                </Border>
 
                 <GroupBox Visibility="{Binding SendControlChangeOn, Converter={StaticResource BooleanToVisibility}}">
                     <GroupBox.Header>

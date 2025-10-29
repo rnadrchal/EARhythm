@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
+using ImageSequencer.ViewModels;
 
 namespace ImageSequencer.Views
 {
@@ -10,6 +12,14 @@ namespace ImageSequencer.Views
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void OnClosing(object sender, CancelEventArgs e)
+        {
+            if (DataContext is MainWindowViewModel vm)
+            {
+                vm.CloseOutsource();
+            }
         }
     }
 }

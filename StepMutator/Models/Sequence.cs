@@ -347,7 +347,7 @@ public class Sequence : BindableBase, ISequence
                         pitch,
                         velocity,
                         length,
-                        (pitchbend - 8192) / 8192.0 * 50,
+                        (pitchbend - 2048) / 2048 * 50,
                         modWheel
                     ));
                 });

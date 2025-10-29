@@ -8,7 +8,8 @@
         xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
         syncfusion:SfSkinManager.Theme="{syncfusion:SkinManagerExtension ThemeName=FluentDark}"
         prism:ViewModelLocator.AutoWireViewModel="True"
-        Title="{Binding Title}" Height="350" Width="525" WindowState="Maximized">
+        Title="{Binding Title}" Height="350" Width="525" WindowState="Maximized"
+        Closing="OnClosing">
     <Grid Margin="10">
         <Grid.Resources>
             <converters:BooleanToOpacityConverter x:Key="BooleanToOpacity" />
@@ -26,7 +27,43 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal"
+        <StackPanel Grid.Column="0"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center">
+            <Button Style="{StaticResource Round3DButton}"
+                    Background="#222"
+                    IsEnabled="{Binding ApplicationSettings.BitmapLoaded}"
+                    Command="{Binding ShowOutsourceCommand}"
+                    Visibility="{Binding IsOutsourceVisible, Converter={StaticResource InverseBooleanToVisibility}}">
+                <wpf:MaterialIcon Kind="ExternalLink" Style="{StaticResource ButtonIcon}" />
+            </Button>
+            <Button Style="{StaticResource Round3DButton}"
+                    Background="#222"
+                    IsEnabled="{Binding ApplicationSettings.BitmapLoaded}"
+                    Command="{Binding HideOutsourceCommand}"
+                    Visibility="{Binding IsOutsourceVisible, Converter={StaticResource BooleanToVisibility}}">
+                <wpf:MaterialIcon Kind="WindowClose" Style="{StaticResource ButtonIcon}" />
+            </Button>
+            <Grid Visibility="{Binding IsOutsourceVisible, Converter={StaticResource BooleanToVisibility}}">
+                <Button Style="{StaticResource Round3DButton}"
+                        Background="#222"
+                        IsEnabled="{Binding ApplicationSettings.BitmapLoaded}"
+                        Visibility="{Binding IsOutsourceMaximized, Converter={StaticResource InverseBooleanToVisibility}}"
+                        Command="{Binding MaximizeOutsourceCommand}">
+                    <wpf:MaterialIcon Kind="Maximize" Style="{StaticResource ButtonIcon}" />
+                </Button>
+                <Button Style="{StaticResource Round3DButton}"
+                        Background="#222"
+                        IsEnabled="{Binding ApplicationSettings.BitmapLoaded}"
+                        Visibility="{Binding IsOutsourceMaximized, Converter={StaticResource BooleanToVisibility}}"
+                        Command="{Binding MinimizeOutsourceCommand}">
+                    <wpf:MaterialIcon Kind="WindowRestore" Style="{StaticResource ButtonIcon}" />
+                </Button>
+            </Grid>
+        </StackPanel>
+
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal"
                     Margin="0,0,0,10"
                     HorizontalAlignment="Center">
             <Button Style="{StaticResource Round3DButton}" Background="Orange"

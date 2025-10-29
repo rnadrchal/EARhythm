@@ -86,6 +86,33 @@ public class ApplicationSettings : BindableBase
         }
     }
 
+    private int _gridCols = 1;
+    public int GridCols
+    {
+        get => _gridCols;
+        set
+        {
+            if (value > 0)
+            {
+                SetProperty(ref _gridCols, value);
+            }
+        }
+    }
+
+    private int _gridRows = 1;
+
+    public int GridRows
+    {
+        get => _gridRows;
+        set
+        {
+            if (value > 0)
+            {
+                SetProperty(ref _gridRows, value);
+            }
+        }
+    }
+
     private ColorToCvType _pitchColorToCvType = ColorToCvType.Color;
     public ColorToCvType PitchColorToCvType
     {

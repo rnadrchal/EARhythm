@@ -1,0 +1,25 @@
+﻿<Window x:Class="ImageSequencer.Views.OutsourceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ImageSequencer.Views"
+        xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
+        mc:Ignorable="d"
+        Loaded="OnLoaded"
+        Title="OutsourceWindow" Height="450" Width="800"
+        WindowStyle="SingleBorderWindow">
+    <Grid Background="Black">
+        <Grid.Resources>
+            <!--<converters:BooleanToOpacityConverter x:Key="BooleanToOpacity" />-->
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibility" />
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <!--<converters:NotConverter x:Key="Not" />-->
+
+        </Grid.Resources>
+        <ContentControl Content="{Binding ImageViewer}"
+                        Visibility="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource InverseBooleanToVisibility}}"/>
+        <ContentControl Content="{Binding VisitViewer}"
+                        Visibility="{Binding ApplicationSettings.IsVisiting, Converter={StaticResource BooleanToVisibility}}" />
+    </Grid>
+</Window>

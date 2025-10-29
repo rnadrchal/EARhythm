@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using Egami.Rhythm.Midi;
 using ImageSequencer.Events;
 using ImageSequencer.Models;
+using ImageSequencer.Views;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Prism.Events;
@@ -15,6 +17,7 @@ namespace ImageSequencer.ViewModels
     {
         private readonly IEventAggregator _eventAggregator;
         private readonly ApplicationSettings _applicationSettings;
+        private readonly OutsourceWindow _outsource;
         public ApplicationSettings ApplicationSettings => _applicationSettings;
 
         private readonly VisitViewer _visitViewer;
@@ -43,9 +46,30 @@ namespace ImageSequencer.ViewModels
             set => SetProperty(ref _stepInfo, value);
         }
 
+        private bool _isOutsourceVisible;
+
+        public bool IsOutsourceVisible
+        {
+            get => _isOutsourceVisible;
+            set => SetProperty(ref _isOutsourceVisible, value);
+        }
+
+        private bool _isOutsourceMaximized;
+
+        public bool IsOutsourceMaximized
+        {
+            get => _isOutsourceMaximized;
+            set => SetProperty(ref _isOutsourceMaximized, value);
+        }
+
         public ICommand ToggleVisitCommand { get; }
         public ICommand ResetCommand { get; }
         public ICommand FastForwardCommand { get; }
+        public ICommand ShowOutsourceCommand { get; }
+        public ICommand HideOutsourceCommand { get; }
+
+        public ICommand MaximizeOutsourceCommand { get; }
+        public ICommand MinimizeOutsourceCommand { get; }
 
         public MainWindowViewModel(ApplicationSettings applicationSettings, VisitViewer visitViewer, ImageViewer imageViewer, IEventAggregator eventAggregator)
         {
@@ -53,6 +77,11 @@ namespace ImageSequencer.ViewModels
             _visitViewer = visitViewer;
             _imageViewer = imageViewer;
             _eventAggregator = eventAggregator;
+
+            _outsource = new OutsourceWindow
+            {
+                DataContext = this
+            };
 
             ToggleVisitCommand =
                 new DelegateCommand(_ => ApplicationSettings.IsVisiting = !ApplicationSettings.IsVisiting);
@@ -66,6 +95,36 @@ namespace ImageSequencer.ViewModels
 
             ResetCommand = new DelegateCommand(_visitViewer.ResetCommand.Execute);
             FastForwardCommand = new DelegateCommand(_visitViewer.FastForwardCommand.Execute);
+            ShowOutsourceCommand = new DelegateCommand(_ => ShowOutsource());
+            HideOutsourceCommand = new DelegateCommand(_ => HideOutsource());
+            MaximizeOutsourceCommand = new DelegateCommand(_ => MaximizeOutsource());
+            MinimizeOutsourceCommand = new DelegateCommand(_ => MinimizeOutsource());
+        }
+
+        private void ShowOutsource()
+        {
+            _outsource.Show();
+            IsOutsourceVisible = true;
+        }
+
+        private void HideOutsource()
+        {
+            _outsource.Hide();
+            IsOutsourceVisible = false;
+        }
+
+        private void MaximizeOutsource()
+        {
+            _outsource.WindowState = WindowState.Maximized;
+            _outsource.WindowStyle = WindowStyle.None;
+            IsOutsourceMaximized = true;
+        }
+
+        private void MinimizeOutsource()
+        {
+            _outsource.WindowState = WindowState.Normal;
+            _outsource.WindowStyle = WindowStyle.SingleBorderWindow;
+            IsOutsourceMaximized = false;
         }
 
         private ulong _tickCount;
@@ -93,6 +152,11 @@ namespace ImageSequencer.ViewModels
                 }
                 ++_tickCount;
             }
+        }
+
+        public void CloseOutsource()
+        {
+            if (_outsource != null) _outsource.Close();
         }
     }
 }

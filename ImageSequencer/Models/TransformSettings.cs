@@ -11,11 +11,6 @@ namespace ImageSequencer.Models;
 public sealed class TransformSettings : BindableBase
 {
     private readonly ApplicationSettings _applicationSettings;
-    private static int[] BitDephts = new[]
-    {
-        1, 2, 4, 8, 24, 32, 48, 64
-    };
-
     private double _scale = 1.0;
     public double Scale
     {
@@ -49,48 +44,6 @@ public sealed class TransformSettings : BindableBase
 
     public string BitmapSize => $"{_applicationSettings?.Bitmap?.Width:N0} x {_applicationSettings?.Bitmap?.Height:N0}";
 
-    public int MaxFormat => CropHelper.Formats.Length - 1;
-    private int _formatIndex = 0;
-
-    public string Format => CropHelper.Formats[_formatIndex];
-
-    public int FormatIndex
-    {
-        get => _formatIndex;
-        set
-        {
-            if (SetProperty(ref _formatIndex, value))
-            {
-                RaisePropertyChanged(nameof(Format));
-            }
-        }
-    }
-
-    private int _x;
-
-    public int X
-    {
-        get => _x;
-        set
-        {
-            SetProperty(ref _x, value);
-        }
-    }
-
-    public int _y;
-
-    public int Y
-    {
-        get => _y;
-        set
-        {
-            SetProperty(ref _y, value);
-        }
-    }
-
-
-    public int? MaxX => (int?)(_applicationSettings?.Bitmap?.Width - 1);
-    public int? MaxY => (int?)(_applicationSettings?.Bitmap?.Height - 1);
     public TransformSettings(ApplicationSettings applicationSettings)
     {
         if (applicationSettings == null && applicationSettings.Original == null)
@@ -100,15 +53,6 @@ public sealed class TransformSettings : BindableBase
 
         _scale = 1;
         _applicationSettings = applicationSettings;
-        var ratio = CropHelper.GetAspectRatioString(applicationSettings.Original.PixelWidth, applicationSettings.Original.PixelHeight);
-        var index = CropHelper.Formats.ToList().IndexOf(ratio);
-        if (index < 0)
-        {
-            index = 0;
-        }
-        _formatIndex = index;
-        _x = (int)(applicationSettings.Original.Width / 2);
-        _y = (int)(applicationSettings.Original.Height / 2);
     }
 
     private void ScaleAndAdjustColorModel()

@@ -76,7 +76,7 @@ public static class BitmapTransform
     /// Berechnet gültige Crop-Koordinaten für ein Bitmap.
     /// </summary>
     public static (int validX, int validY) GetValidCropCoordinates(
-        WriteableBitmap source,
+        this WriteableBitmap source,
         int centerX,
         int centerY,
         int cropWidth,
@@ -106,7 +106,7 @@ public static class BitmapTransform
         rtb.Render(dv);
 
         // Schritt 2: Monochrom-WriteableBitmap erzeugen
-        var monoBitmap = new WriteableBitmap(width, height, source.DpiX, source.DpiY, PixelFormats.BlackWhite, null);
+        var monoBitmap = new WriteableBitmap(source.PixelWidth, source.PixelHeight, source.DpiX, source.DpiY, PixelFormats.BlackWhite, null);
 
         // Schritt 3: Pixel-Daten holen und Schwellenwert anwenden
         var buffer = new byte[width * height * 4];
@@ -146,7 +146,8 @@ public static class BitmapTransform
         int height = source.PixelHeight;
 
         // Ziel-WriteableBitmap mit Gray8-Format
-        var grayBitmap = new WriteableBitmap(width, height, source.DpiX, source.DpiY, PixelFormats.Gray8, null);
+        var grayBitmap = new WriteableBitmap(
+            source.PixelWidth, source.PixelHeight, source.DpiX, source.DpiY, PixelFormats.Gray8, null);
 
         // Quellbild in Pbgra32 rendern (falls nötig)
         var rtb = new RenderTargetBitmap(width, height, source.DpiX, source.DpiY, PixelFormats.Pbgra32);
