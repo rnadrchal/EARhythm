@@ -33,6 +33,8 @@ public class ImageViewer : BindableBase
         if (dlg.ShowDialog() == true)
         {
             _applicationSettings.Bitmap = new WriteableBitmap(new BitmapImage(new Uri(dlg.FileName)));
+            _applicationSettings.Original = _applicationSettings.Bitmap.Clone();
+            _applicationSettings.TransformSettings = new TransformSettings(_applicationSettings);
             _applicationSettings.RenderTarget = new WriteableBitmap(_applicationSettings.Bitmap.PixelWidth, _applicationSettings.Bitmap.PixelHeight, _applicationSettings.Bitmap.DpiX, _applicationSettings.Bitmap.DpiY, _applicationSettings.Bitmap.Format, null);
         }
     }

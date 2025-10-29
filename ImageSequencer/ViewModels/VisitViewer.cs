@@ -42,6 +42,7 @@ public class VisitViewer : BindableBase, IDisposable
         MidiDevices.Input.EventReceived += OnMidiEventReceived;
         ResetCommand = new DelegateCommand(_ => Reset());
         FastForwardCommand = new DelegateCommand(_ => FastForward());
+        _eventAggregator.GetEvent<ResetRequest>().Subscribe(Reset);
     }
 
     private ulong _tick = 0;

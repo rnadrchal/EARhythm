@@ -6,12 +6,24 @@ using Prism.Mvvm;
 using System.Windows.Media.Imaging;
 using Egami.Imaging.Extensions;
 using Egami.Imaging.Midi;
+using ImageSequencer.Events;
 using ImageSequencer.Extensions;
+using Prism.Events;
 
 namespace ImageSequencer.Models;
 
 public class ApplicationSettings : BindableBase
 {
+    private readonly IEventAggregator _aggregator;
+
+
+    private WriteableBitmap? _original;
+    public WriteableBitmap? Original
+    {
+        get => _original;
+        set => SetProperty(ref _original, value);
+    }
+
     private WriteableBitmap? _bitmap;
     public WriteableBitmap? Bitmap
     {
@@ -196,6 +208,13 @@ public class ApplicationSettings : BindableBase
     public string TonalRange =>
         $"{((int)TonalRangeLower).ToNoteNumberString()}-{((int)TonalRangeUpper).ToNoteNumberString()}";
 
+    private TransformSettings _transformSettings = null;
+    public TransformSettings TransformSettings
+    {
+        get => _transformSettings;
+        set => SetProperty(ref _transformSettings, value);
+    }
+
     public ICommand ToggleSendNoteOnCommand { get; }
     public ICommand ToggleSendPitchbendOnCommand { get; }
     public ICommand ToggleSendControlChangeOnCommand { get; }
@@ -203,8 +222,9 @@ public class ApplicationSettings : BindableBase
     public ICommand WidelRangeCommand { get; }
     public ICommand FullRangeCommand { get; }
 
-    public ApplicationSettings()
+    public ApplicationSettings(IEventAggregator aggregator)
     {
+        _aggregator = aggregator;
         ToggleSendNoteOnCommand = new Prism.Commands.DelegateCommand(() =>
         {
             SendNoteOn = !SendNoteOn;
@@ -242,5 +262,10 @@ public class ApplicationSettings : BindableBase
         {
             RenderTarget.Clear();
         });
+    }
+
+    public void RequestReset()
+    {
+        _aggregator.GetEvent<ResetRequest>().Publish();
     }
 }

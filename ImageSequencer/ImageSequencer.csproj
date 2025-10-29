@@ -36,9 +36,6 @@
     <ProjectReference Include="..\Egami.Sequencer.UI\Egami.Sequencer.UI.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Fonts\LEDREALI.TTF">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>

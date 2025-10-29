@@ -14,10 +14,175 @@
     <converters:EnumToBooleanConverter x:Key="EnumToBoolean" />
     <converters:AddConverter x:Key="Add" />
     <converters:EnumToOpacityConverter x:Key="EnumToOpacity" />
+    <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibility" />
+    <converters:ScaleConverter x:Key="Scale" />
+
+    <DataTemplate DataType="{x:Type model:TransformSettings}">
+        <StackPanel Orientation="Vertical">
+            <GroupBox>
+                <GroupBox.Header>
+                    <TextBlock Style="{StaticResource HeaderTextStyle}"
+                               Text="Resolution" />
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2"
+                               Style="{StaticResource DigitalText}"
+                               Text="{Binding BitmapSize}"
+                               Margin="0,5,0,0"
+                               TextAlignment="Center"/>
+                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0"
+                                               Margin="-10,-8,-10,-12"
+                                               Width="80" Height="80"
+                                               Minimum="0" Maximum="100"
+                                               Value="{Binding Scale, Converter={StaticResource Scale}}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC">
+                        <TextBlock Text="{Binding Scale, Converter={StaticResource Scale}, StringFormat=N0 }" 
+                                   Style="{StaticResource ControlLabelStyle}" />
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Column="0" Grid.Row="2"
+                               Style="{StaticResource ControlLabelStyle}"
+                               Text="Scale" />
+                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="1"
+                                               Margin="-10,-8,-10,-12"
+                                               Width="80" Height="80"
+                                               Minimum="0" Maximum="2"
+                                               Value="{Binding ColorModel, Converter={StaticResource EnumToDouble}}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="1"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC">
+                        <wpf:MaterialIcon Kind="Color" Opacity="0.6"></wpf:MaterialIcon>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Column="1" Grid.Row="2"
+                               Style="{StaticResource ControlLabelStyle}"
+                               Text="{Binding ColorModel, Converter={StaticResource String}}" />
+                </Grid>
+            </GroupBox>
+            <GroupBox>
+                <GroupBox.Header>
+                    <TextBlock Style="{StaticResource HeaderTextStyle}"
+                               Text="Crop" />
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2"
+                               Style="{StaticResource DigitalText}"
+                               Text="{Binding Format}"
+                               Margin="0,5,0,0"
+                               TextAlignment="Center"/>
+                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                               Margin="-10,-8,-10,-12"
+                                               Width="80" Height="80"
+                                               Minimum="0" Maximum="2"
+                                               Value="{Binding FormatIndex}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC">
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"
+                               Style="{StaticResource ControlLabelStyle}"
+                               Text="Format" />
+                    <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="0"
+                                               Margin="-10,-8,-10,-12"
+                                               Width="80" Height="80"
+                                               Minimum="0" Maximum="{Binding MaxX}"
+                                               Value="{Binding X}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="50"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC">
+                        <TextBlock Text="{Binding X}" 
+                                   Style="{StaticResource ControlLabelStyle}" />
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Column="0" Grid.Row="4"
+                               Style="{StaticResource ControlLabelStyle}"
+                               Text="X" />
+                    <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="1"
+                                               Margin="-10,-8,-10,-12"
+                                               Width="80" Height="80"
+                                               Minimum="0" Maximum="{Binding MaxY}"
+                                               Value="{Binding Y}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="50"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC">
+                        <TextBlock Text="{Binding Y}" 
+                                   Style="{StaticResource ControlLabelStyle}" />
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Column="1" Grid.Row="4"
+                               Style="{StaticResource ControlLabelStyle}"
+                               Text="Y" />
+                </Grid>
+            </GroupBox>
+
+        </StackPanel>
+    </DataTemplate>
+
     <DataTemplate DataType="{x:Type model:ApplicationSettings}" x:Key="RightPanelTemplate">
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Hidden">
-            <StackPanel Orientation="Vertical" MinWidth="140" Margin="5,0,0,0">
+            <StackPanel Orientation="Vertical" MinWidth="160" Margin="5,0,0,0">
                 <GroupBox>
                     <GroupBox.Header>
                         <TextBlock Style="{StaticResource HeaderTextStyle}" Text="Visitor"></TextBlock>
@@ -170,6 +335,8 @@
                         </Button>
                     </Grid>
                 </GroupBox>
+                <ContentControl Content="{Binding TransformSettings}"
+                                Visibility="{Binding TransformSettings, Converter={StaticResource NotNullToVisibility}}"/>
             </StackPanel>
         </ScrollViewer>
     </DataTemplate>
