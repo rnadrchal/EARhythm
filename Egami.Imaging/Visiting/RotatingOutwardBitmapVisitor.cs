@@ -4,21 +4,47 @@ namespace Egami.Imaging.Visiting;
 
 public class RotatingOutwardBitmapVisitor : BitmapVisitorBase
 {
-    private readonly int width, height, total;
-    private readonly double cx, cy;
-    private int visitedCount = 0;
-    private double radius = 0;
-    private const double AngleStep = Math.PI / 180; // 1° Schritte
-    private double angle = 0;
-    private HashSet<(int, int)> visited = new();
+    private readonly int _gridCols;
+    private readonly int _gridRows;
+    private readonly int _cellWidth;
+    private readonly int _cellHeight;
+    private readonly bool[,] visited;
+    private readonly int width;
+    private readonly int height;
+    private readonly int total;
+    private int visitedCount;
 
-    public RotatingOutwardBitmapVisitor(WriteableBitmap bitmap) : base(bitmap)
+    private readonly Queue<(int X, int Y)>[,] queues;
+    private readonly (int X, int Y)[,] centers;
+    private int cellStep = 0;
+    private readonly List<(int col, int row)> cellOrder;
+
+    public RotatingOutwardBitmapVisitor(WriteableBitmap bitmap, int gridCols = 1, int gridRows = 1) : base(bitmap)
     {
         width = bitmap.PixelWidth;
         height = bitmap.PixelHeight;
         total = width * height;
-        cx = (width - 1) / 2.0;
-        cy = (height - 1) / 2.0;
+        visited = new bool[width, height];
+        _gridCols = gridCols;
+        _gridRows = gridRows;
+        _cellWidth = width / _gridCols;
+        _cellHeight = height / _gridRows;
+
+        queues = new Queue<(int X, int Y)>[_gridCols, _gridRows];
+        centers = new (int X, int Y)[_gridCols, _gridRows];
+        cellOrder = new List<(int col, int row)>();
+
+        for (int col = 0; col < _gridCols; col++)
+        for (int row = 0; row < _gridRows; row++)
+        {
+            int centerX = col * _cellWidth + _cellWidth / 2;
+            int centerY = row * _cellHeight + _cellHeight / 2;
+            centerX = Math.Min(centerX, width - 1);
+            centerY = Math.Min(centerY, height - 1);
+            centers[col, row] = (centerX, centerY);
+            queues[col, row] = new Queue<(int X, int Y)>();
+            cellOrder.Add((col, row));
+        }
     }
 
     protected override (int X, int Y)? GetNextCoordinates()
@@ -26,26 +52,74 @@ public class RotatingOutwardBitmapVisitor : BitmapVisitorBase
         if (visitedCount >= total)
             return null;
 
-        int maxRadius = (int)Math.Ceiling(Math.Sqrt(cx * cx + cy * cy));
-        while (radius <= maxRadius)
+        var (col, row) = cellOrder[cellStep % cellOrder.Count];
+        cellStep++;
+
+        var queue = queues[col, row];
+
+        // Falls Queue leer, Spiral von Zentrum nach außen erzeugen
+        if (queue.Count == 0)
         {
-            int x = (int)Math.Round(cx + radius * Math.Cos(angle));
-            int y = (int)Math.Round(cy + radius * Math.Sin(angle));
-            angle += AngleStep;
-            if (angle >= 2 * Math.PI)
+            var center = centers[col, row];
+            foreach (var coord in GetSpiralOutwardCoordinates(col, row, center.X, center.Y))
             {
-                angle = 0;
-                radius += 1;
+                if (!visited[coord.X, coord.Y])
+                    queue.Enqueue(coord);
             }
-            if (x >= 0 && x < width && y >= 0 && y < height)
+        }
+
+        while (queue.Count > 0)
+        {
+            var (x, y) = queue.Dequeue();
+            if (!visited[x, y])
             {
-                if (visited.Add((x, y)))
+                visited[x, y] = true;
+                visitedCount++;
+                return (x, y);
+            }
+        }
+
+        // Falls alle Zellen abgearbeitet, suche beliebigen unbesuchten Pixel
+        for (int i = 0; i < width; i++)
+            for (int j = 0; j < height; j++)
+                if (!visited[i, j])
                 {
+                    visited[i, j] = true;
                     visitedCount++;
-                    return (x, y);
+                    return (i, j);
+                }
+
+        return null;
+    }
+
+    private IEnumerable<(int X, int Y)> GetSpiralOutwardCoordinates(int col, int row, int centerX, int centerY)
+    {
+        int startX = col * _cellWidth;
+        int endX = Math.Min(startX + _cellWidth, width);
+        int startY = row * _cellHeight;
+        int endY = Math.Min(startY + _cellHeight, height);
+
+        int maxRadius = Math.Max(_cellWidth, _cellHeight) / 2 + 1;
+        var visitedSpiral = new HashSet<(int, int)>();
+
+        // Spiral von innen (Zentrum) nach außen
+        for (int r = 0; r < maxRadius; r++)
+        {
+            for (int d = 0; d < 360; d += 8) // 8°-Schritte für feine Spiralbewegung
+            {
+                double rad = Math.PI * d / 180.0;
+                int x = centerX + (int)Math.Round(r * Math.Cos(rad));
+                int y = centerY + (int)Math.Round(r * Math.Sin(rad));
+                if (x >= startX && x < endX && y >= startY && y < endY)
+                {
+                    var coord = (x, y);
+                    if (!visitedSpiral.Contains(coord))
+                    {
+                        visitedSpiral.Add(coord);
+                        yield return coord;
+                    }
                 }
             }
         }
-        return null;
     }
 }

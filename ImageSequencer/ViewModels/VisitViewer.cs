@@ -90,16 +90,13 @@ public class VisitViewer : BindableBase, IDisposable
 
     private void SetVisitor()
     {
-        var isVisiting = _applicationSettings.IsVisiting;
         if (_visitor != null)
         {
             _visitor.Visited -= OnVisited;
         }
         if (_applicationSettings.Bitmap != null)
         {
-            var x = RandomProvider.Get(null).Next(0, (int)_applicationSettings.Bitmap.Width);
-            var y = RandomProvider.Get(null).Next(0, (int)_applicationSettings.Bitmap.Height);
-            _visitor = BitmapVisitorFactory.Create(_applicationSettings.VisitorType, _applicationSettings.Bitmap, x, y,
+            _visitor = BitmapVisitorFactory.Create(_applicationSettings.VisitorType, _applicationSettings.Bitmap,
                 gridCols: _applicationSettings.GridCols, gridRows: _applicationSettings.GridRows);
             _visitor.Visited += OnVisited;
         }

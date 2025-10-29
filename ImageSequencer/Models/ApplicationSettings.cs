@@ -94,7 +94,10 @@ public class ApplicationSettings : BindableBase
         {
             if (value > 0)
             {
-                SetProperty(ref _gridCols, value);
+                if (SetProperty(ref _gridCols, value))
+                {
+                    RequestReset();
+                }
             }
         }
     }
@@ -108,7 +111,10 @@ public class ApplicationSettings : BindableBase
         {
             if (value > 0)
             {
-                SetProperty(ref _gridRows, value);
+                if (SetProperty(ref _gridRows, value))
+                {
+                    RequestReset();
+                }
             }
         }
     }

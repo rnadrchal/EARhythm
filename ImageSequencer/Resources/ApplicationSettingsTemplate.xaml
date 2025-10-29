@@ -160,7 +160,7 @@
                         <syncfusion:SfRadialSlider Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
                                                    Margin="0,-8,0,-12"
                                                    Width="80" Height="80"
-                                                   Minimum="0" Maximum="13"
+                                                   Minimum="0" Maximum="18"
                                                    Value="{Binding VisitorType, Converter={StaticResource EnumToDouble}}"
                                                    OuterRimRadiusFactor="0.6"
                                                    OuterRimStroke="#444"

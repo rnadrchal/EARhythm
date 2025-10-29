@@ -1,0 +1,202 @@
+﻿using System.Windows.Media.Imaging;
+
+namespace Egami.Imaging.Visiting;
+
+public enum FractalSetType
+{
+    Mandelbrot,
+    Julia
+}
+
+public sealed class FractalSetBitmapVisitor : BitmapVisitorBase
+{
+    private readonly int _gridCols;
+    private readonly int _gridRows;
+    private readonly int _cellWidth;
+    private readonly int _cellHeight;
+    private readonly int width;
+    private readonly int height;
+    private readonly bool[,] visited;
+    private readonly int total;
+    private int visitedCount;
+
+    private readonly List<(int x, int y)>[,] fractalCurves;
+    private readonly int[,] fractalIndex;
+    private readonly List<(int col, int row)> cellOrder;
+    private int cellStep = 0;
+
+    // Für Julia-Set
+    private readonly double juliaCRe;
+    private readonly double juliaCIm;
+    private readonly FractalSetType setType;
+    private readonly int maxIterations;
+    private readonly double escapeRadius;
+
+    // Für jede Zelle: aktueller Zeilen- und Spaltenindex
+    private readonly int[,] localX;
+    private readonly int[,] localY;
+
+    public FractalSetBitmapVisitor(WriteableBitmap bitmap,
+        int gridCols = 1,
+        int gridRows = 1,
+        FractalSetType setType = FractalSetType.Mandelbrot,
+        int maxIterations = 128,
+        double escapeRadius = 2.0,
+        double juliaCRe = -0.7,
+        double juliaCIm = 0.27015) : base(bitmap)
+    {
+        width = bitmap.PixelWidth;
+        height = bitmap.PixelHeight;
+        total = width * height;
+        visited = new bool[width, height];
+        _gridCols = gridCols;
+        _gridRows = gridRows;
+        _cellWidth = width / _gridCols;
+        _cellHeight = height / _gridRows;
+
+        cellOrder = new List<(int col, int row)>();
+        for (int col = 0; col < _gridCols; col++)
+        for (int row = 0; row < _gridRows; row++)
+            cellOrder.Add((col, row));
+
+        fractalCurves = new List<(int x, int y)>[_gridCols, _gridRows];
+        fractalIndex = new int[_gridCols, _gridRows];
+
+        // Fraktal-Kurve für jede Zelle generieren (z.B. Hilbert-Kurve)
+        for (int col = 0; col < _gridCols; col++)
+        for (int row = 0; row < _gridRows; row++)
+        {
+            fractalCurves[col, row] = GenerateHilbertCurve(_cellWidth, _cellHeight);
+            fractalIndex[col, row] = 0;
+        }
+
+        this.setType = setType;
+        this.maxIterations = maxIterations;
+        this.escapeRadius = escapeRadius;
+        this.juliaCRe = juliaCRe;
+        this.juliaCIm = juliaCIm;
+    }
+
+    protected override (int X, int Y)? GetNextCoordinates()
+    {
+        if (visitedCount >= total)
+            return null;
+
+        int checkedCells = 0;
+        while (checkedCells < cellOrder.Count)
+        {
+            var (col, row) = cellOrder[cellStep % cellOrder.Count];
+            cellStep++;
+
+            var curve = fractalCurves[col, row];
+            int idx = fractalIndex[col, row];
+
+            var step = 2;
+            while (idx < curve.Count)
+            {
+                int x = col * _cellWidth + curve[idx].x;
+                int y = row * _cellHeight + curve[idx].y;
+                fractalIndex[col, row] += step;
+                if (x < width && y < height && !visited[x, y])
+                {
+                    visited[x, y] = true;
+                    visitedCount++;
+                    return (x, y);
+                }
+                idx = fractalIndex[col, row];
+            }
+            checkedCells++;
+        }
+
+        // Fallback
+        //for (int i = 0; i < width; i++)
+        //    for (int j = 0; j < height; j++)
+        //        if (!visited[i, j])
+        //        {
+        //            visited[i, j] = true;
+        //            visitedCount++;
+        //            return (i, j);
+        //        }
+        return null;
+    }
+
+    // Fraktal-Berechnung für den aktuellen Pixel
+    public int GetFractalIterations(int x, int y)
+    {
+        // Mapping auf komplexe Ebene [-2, 2] x [-2, 2]
+        double re = 4.0 * x / (width - 1) - 2.0;
+        double im = 4.0 * y / (height - 1) - 2.0;
+
+        double zRe, zIm, cRe, cIm;
+        if (setType == FractalSetType.Mandelbrot)
+        {
+            zRe = 0.0;
+            zIm = 0.0;
+            cRe = re;
+            cIm = im;
+        }
+        else // Julia
+        {
+            zRe = re;
+            zIm = im;
+            cRe = juliaCRe;
+            cIm = juliaCIm;
+        }
+
+        int iter = 0;
+        while (zRe * zRe + zIm * zIm <= escapeRadius * escapeRadius && iter < maxIterations)
+        {
+            double temp = zRe * zRe - zIm * zIm + cRe;
+            zIm = 2.0 * zRe * zIm + cIm;
+            zRe = temp;
+            iter++;
+        }
+        return iter;
+    }
+
+    // Hilbert-Kurven-Generator für quadratische Zellen (Potenz von 2)
+    private List<(int x, int y)> GenerateHilbertCurve(int w, int h)
+    {
+        int n = Math.Min(w, h);
+        int order = (int)Math.Log(n, 2);
+        var result = new List<(int x, int y)>();
+        int size = 1 << order;
+        for (int i = 0; i < size * size; i++)
+        {
+            var (x, y) = HilbertIndexToXY(i, order);
+            if (x < w && y < h)
+                result.Add((x, y));
+        }
+        return result;
+    }
+
+    // Hilbert-Index zu XY (rekursiv)
+    private (int x, int y) HilbertIndexToXY(int index, int order)
+    {
+        int x = 0, y = 0;
+        for (int s = 1, t = index; s < (1 << order); s <<= 1)
+        {
+            int rx = 1 & (t / 2);
+            int ry = 1 & (t ^ rx);
+            Rotate(s, ref x, ref y, rx, ry);
+            x += s * rx;
+            y += s * ry;
+            t /= 4;
+        }
+        return (x, y);
+    }
+
+    private void Rotate(int n, ref int x, ref int y, int rx, int ry)
+    {
+        if (ry == 0)
+        {
+            if (rx == 1)
+            {
+                x = n - 1 - x;
+                y = n - 1 - y;
+            }
+            // Swap x and y
+            (x, y) = (y, x);
+        }
+    }
+}
