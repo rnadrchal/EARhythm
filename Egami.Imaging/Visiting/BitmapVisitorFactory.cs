@@ -17,7 +17,7 @@ public static class BitmapVisitorFactory
             BitmapVisitorType.SpiralInward => new SpiralInwardBitmapVisitor(bitmap),
             BitmapVisitorType.SpiralOutward => new SpiralOutwardBitmapVisitor(bitmap),
             BitmapVisitorType.GreedyNeighbor => new GreedyNeighborBitmapVisitor(bitmap, startX, startY),
-            BitmapVisitorType.Random => new RandomBitmapVisitor(bitmap),
+            BitmapVisitorType.Random => new RandomBitmapVisitor(bitmap, gridCols, gridRows),
             BitmapVisitorType.Wavefront => new WavefrontBitmapVisitor(bitmap),
             BitmapVisitorType.Checkerboard => new CheckerboardBitmapVisitor(bitmap),
             BitmapVisitorType.RegionGrowing => new RegionGrowingBitmapVisitor(bitmap, startX, startY, tolerance),
