@@ -78,7 +78,6 @@ namespace ImageSequencer.ViewModels
 
         public ICommand SavePresetCommand { get; }
         public ICommand LoadPresetCommand { get; }
-        public ICommand RevertToOriginalCommand { get; }
 
         public MainWindowViewModel(ApplicationSettings applicationSettings, VisitViewer visitViewer, ImageViewer imageViewer, IEventAggregator eventAggregator)
         {
