@@ -16,6 +16,13 @@ public class ApplicationSettings : BindableBase
 {
     private readonly IEventAggregator _aggregator;
 
+    private string _filePath;
+    public string FilePath
+    {
+        get => _filePath;
+        set => SetProperty(ref _filePath, value);
+    }
+
 
     private WriteableBitmap? _original;
     public WriteableBitmap? Original

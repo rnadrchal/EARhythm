@@ -44,6 +44,7 @@ public class VisitViewer : BindableBase, IDisposable
         ResetCommand = new DelegateCommand(_ => Reset());
         FastForwardCommand = new DelegateCommand(_ => FastForward());
         _eventAggregator.GetEvent<ResetRequest>().Subscribe(Reset);
+        SetVisitor();
     }
 
     private ulong _tick = 0;

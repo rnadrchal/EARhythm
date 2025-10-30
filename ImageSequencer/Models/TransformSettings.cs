@@ -63,6 +63,12 @@ public sealed class TransformSettings : BindableBase
         _applicationSettings = applicationSettings;
     }
 
+    public void Apply()
+    {
+        ScaleAndAdjustColorModel();
+        RaisePropertyChanged(nameof(BitmapSize));
+    }
+
     private void ScaleAndAdjustColorModel()
     {
         if (_applicationSettings?.Original != null)

@@ -25,7 +25,7 @@ namespace ImageSequencer.ViewModels
         private readonly ImageViewer _imageViewer;
         public ImageViewer ImageViewer => _imageViewer;
 
-        private string _title = "Image Sequencer";
+        private string _title = "Jackson's Dance";
         public string Title
         {
             get { return _title; }

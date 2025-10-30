@@ -6,7 +6,7 @@
         xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
         mc:Ignorable="d"
         Loaded="OnLoaded"
-        Title="OutsourceWindow" Height="450" Width="800"
+        Title="Jackson's Dance" Height="450" Width="800"
         WindowStyle="ToolWindow">
     <Grid Background="Black">
         <Grid.Resources>

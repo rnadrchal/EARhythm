@@ -31,6 +31,34 @@
                     Orientation="Horizontal"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center">
+            <Button Style="{StaticResource Round3DButton}"
+                    Height="30" Width="30"
+                    Background="#222"
+                    ToolTip="Save Preset">
+                <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" 
+                                  Kind="ContentSave" 
+                                  Height="16" />
+            </Button>
+            <Button Style="{StaticResource Round3DButton}"
+                    Height="30" Width="30"
+                    Background="#222"
+                    Margin="5,0,0,0"
+                    ToolTip="Load Preset">
+                <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" 
+                                  Kind="Folder" 
+                                  Height="16" />
+            </Button>
+            <Button Style="{StaticResource Round3DButton}"
+                    Height="30" Width="30"
+                    Background="#222"
+                    Margin="5,0,0,0"
+                    IsEnabled="{Binding ApplicationSettings.BitmapLoaded}"
+                    ToolTip="Revert to Original">
+                <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" 
+                                  Kind="FileRevert" 
+                                  Foreground="Orange"
+                                  Height="16" />
+            </Button>
         </StackPanel>
 
         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal"
