@@ -77,7 +77,6 @@ public sealed class TransformSettings : BindableBase
             _applicationSettings.Bitmap = _colorModel switch
             {
                 ColorModel.Grayscale => scaledBitmap.ToGrayscale(),
-                ColorModel.Monochrome => scaledBitmap.ToMonochrome(),
                 _ => scaledBitmap,
             };
             _applicationSettings.RenderTarget = new WriteableBitmap(_applicationSettings.Bitmap.PixelWidth, _applicationSettings.Bitmap.PixelHeight, _applicationSettings.Bitmap.DpiX, _applicationSettings.Bitmap.DpiY, _applicationSettings.Bitmap.Format, null);

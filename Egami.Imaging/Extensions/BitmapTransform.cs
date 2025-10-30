@@ -1,4 +1,5 @@
-﻿using System.Windows.Media.Imaging;
+﻿using System;
+using System.Windows.Media.Imaging;
 using System.Windows.Media;
 
 namespace Egami.Imaging.Extensions;
@@ -9,29 +10,30 @@ public static class BitmapTransform
         this WriteableBitmap source,
         double scale)
     {
+        if (source == null) throw new ArgumentNullException(nameof(source));
+        if (scale <= 0) throw new ArgumentOutOfRangeException(nameof(scale), "Scale must be > 0");
+
         int scaledWidth = (int)Math.Max(1, Math.Round(source.PixelWidth * scale));
         int scaledHeight = (int)Math.Max(1, Math.Round(source.PixelHeight * scale));
-        // Verwende das ursprüngliche PixelFormat des Quellbildes
-        PixelFormat targetFormat = source.Format;
 
-        // RenderTargetBitmap unterstützt nicht alle Formate, daher immer Pbgra32 verwenden
-        var rtb = new RenderTargetBitmap(scaledWidth, scaledHeight, source.DpiX, source.DpiY, PixelFormats.Pbgra32);
+        // Wichtig: RenderTargetBitmap in 96 DPI erzeugen, damit DIPs == Pixel und
+        // das DrawImage-Rect (in Pixelwerten) korrekt das gesamte Ziel füllt.
+        var rtb = new RenderTargetBitmap(scaledWidth, scaledHeight, 96, 96, PixelFormats.Pbgra32);
+
         var dv = new DrawingVisual();
+        // hochwertige Skalierung verwenden
+        RenderOptions.SetBitmapScalingMode(dv, BitmapScalingMode.HighQuality);
+
         using (var dc = dv.RenderOpen())
         {
+            // Rechteck in DIPs; bei 96 DPI entspricht ein DIP genau einem Pixel.
             dc.DrawImage(source, new System.Windows.Rect(0, 0, scaledWidth, scaledHeight));
         }
+
         rtb.Render(dv);
 
-        // Schreibe die Daten in ein neues WriteableBitmap mit dem ursprünglichen Format
-        var result = new WriteableBitmap(scaledWidth, scaledHeight, 96, 96, targetFormat, source.Palette);
-        // Pixeldaten kopieren
-        int stride = (scaledWidth * targetFormat.BitsPerPixel + 7) / 8;
-        byte[] buffer = new byte[stride * scaledHeight];
-        rtb.CopyPixels(buffer, stride, 0);
-        result.WritePixels(new System.Windows.Int32Rect(0, 0, scaledWidth, scaledHeight), buffer, stride, 0);
-
-        return result;
+        // Direkt aus dem gerenderten Bitmap ein WriteableBitmap erzeugen.
+        return new WriteableBitmap(rtb);
     }
 
     /// <summary>
@@ -140,45 +142,34 @@ public static class BitmapTransform
 
     public static WriteableBitmap ToGrayscale(this WriteableBitmap source)
     {
-        int width = source.PixelWidth;
-        int height = source.PixelHeight;
+        if (source == null) throw new ArgumentNullException(nameof(source));
 
-        // Ziel-WriteableBitmap mit Gray8-Format
-        var grayBitmap = new WriteableBitmap(
-            source.PixelWidth, source.PixelHeight, source.DpiX, source.DpiY, PixelFormats.Gray8, null);
+        // Wenn bereits Gray8, einfach zurückgeben (neues WriteableBitmap-Objekt)
+        if (source.Format == PixelFormats.Gray8)
+            return new WriteableBitmap(source);
 
-        // Quellbild in Pbgra32 rendern (falls nötig)
-        var rtb = new RenderTargetBitmap(width, height, source.DpiX, source.DpiY, PixelFormats.Pbgra32);
-        var dv = new DrawingVisual();
-        using (var dc = dv.RenderOpen())
+        try
         {
-            dc.DrawImage(source, new System.Windows.Rect(0, 0, width, height));
+            // Direkte, explizite Formatkonvertierung — DPI und Größe werden beibehalten
+            var converted = new FormatConvertedBitmap(source, PixelFormats.Gray8, null, 0);
+            return new WriteableBitmap(converted);
         }
-        rtb.Render(dv);
-
-        // Pixeldaten holen
-        byte[] srcBuffer = new byte[width * height * 4];
-        rtb.CopyPixels(srcBuffer, width * 4, 0);
-
-        // Zielpuffer für Gray8
-        byte[] grayBuffer = new byte[width * height];
-
-        for (int i = 0; i < width * height; i++)
+        catch
         {
-            int idx = i * 4;
-            byte r = srcBuffer[idx + 2];
-            byte g = srcBuffer[idx + 1];
-            byte b = srcBuffer[idx + 0];
-            // Luminanz-Berechnung
-            byte luminance = (byte)((r * 299 + g * 587 + b * 114) / 1000);
-            grayBuffer[i] = luminance;
+            // Fallback: Rendern nach Pbgra32 und dann konvertieren
+            int width = source.PixelWidth;
+            int height = source.PixelHeight;
+            var rtb = new RenderTargetBitmap(width, height, source.DpiX, source.DpiY, PixelFormats.Pbgra32);
+            var dv = new DrawingVisual();
+            using (var dc = dv.RenderOpen())
+            {
+                dc.DrawImage(source, new System.Windows.Rect(0, 0, width, height));
+            }
+            rtb.Render(dv);
+
+            var converted = new FormatConvertedBitmap(rtb, PixelFormats.Gray8, null, 0);
+            return new WriteableBitmap(converted);
         }
-
-        // In das Zielbild schreiben
-        int stride = width;
-        grayBitmap.WritePixels(new System.Windows.Int32Rect(0, 0, width, height), grayBuffer, stride, 0);
-
-        return grayBitmap;
     }
 
 }

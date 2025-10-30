@@ -3,6 +3,5 @@
 public enum ColorModel
 {
     Original,
-    Monochrome,
     Grayscale
 }

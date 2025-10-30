@@ -34,7 +34,8 @@
             <Button Style="{StaticResource Round3DButton}"
                     Height="30" Width="30"
                     Background="#222"
-                    ToolTip="Save Preset">
+                    ToolTip="Save Preset"
+                    Command="{Binding SavePresetCommand}">
                 <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" 
                                   Kind="ContentSave" 
                                   Height="16" />
@@ -43,7 +44,8 @@
                     Height="30" Width="30"
                     Background="#222"
                     Margin="5,0,0,0"
-                    ToolTip="Load Preset">
+                    ToolTip="Load Preset"
+                    Command="{Binding LoadPresetCommand}">
                 <wpf:MaterialIcon Style="{StaticResource ButtonIcon}" 
                                   Kind="Folder" 
                                   Height="16" />

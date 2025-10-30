@@ -121,7 +121,7 @@
                     <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
                                                Margin="-10,-8,-10,-12"
                                                Width="80" Height="80"
-                                               Minimum="0" Maximum="3"
+                                               Minimum="0" Maximum="2"
                                                Value="{Binding Stretch, Converter={StaticResource EnumToDouble}}"
                                                OuterRimRadiusFactor="0.6"
                                                OuterRimStroke="#444"

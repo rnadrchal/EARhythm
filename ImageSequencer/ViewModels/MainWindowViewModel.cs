@@ -1,15 +1,20 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Input;
-using Egami.Rhythm.Midi;
+﻿using Egami.Rhythm.Midi;
 using ImageSequencer.Events;
 using ImageSequencer.Models;
+using ImageSequencer.Services;
 using ImageSequencer.Views;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
+using Microsoft.Win32;
 using Prism.Events;
 using Prism.Mvvm;
 using Syncfusion.Windows.Shared;
+using System;
+using System.ComponentModel;
+using System.IO;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Navigation;
 
 namespace ImageSequencer.ViewModels
 {
@@ -71,6 +76,10 @@ namespace ImageSequencer.ViewModels
         public ICommand MaximizeOutsourceCommand { get; }
         public ICommand MinimizeOutsourceCommand { get; }
 
+        public ICommand SavePresetCommand { get; }
+        public ICommand LoadPresetCommand { get; }
+        public ICommand RevertToOriginalCommand { get; }
+
         public MainWindowViewModel(ApplicationSettings applicationSettings, VisitViewer visitViewer, ImageViewer imageViewer, IEventAggregator eventAggregator)
         {
             _applicationSettings = applicationSettings;
@@ -99,6 +108,8 @@ namespace ImageSequencer.ViewModels
             HideOutsourceCommand = new DelegateCommand(_ => HideOutsource());
             MaximizeOutsourceCommand = new DelegateCommand(_ => MaximizeOutsource());
             MinimizeOutsourceCommand = new DelegateCommand(_ => MinimizeOutsource());
+            SavePresetCommand = new DelegateCommand(_ => SavePreset());
+            LoadPresetCommand = new DelegateCommand(_ => LoadPreset());
         }
 
         private void ShowOutsource()
@@ -161,6 +172,56 @@ namespace ImageSequencer.ViewModels
         public void CloseOutsource()
         {
             if (_outsource != null) _outsource.Close();
+        }
+
+        private void SavePreset()
+        {
+            var docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            var userDir = Path.Combine(docs, "Egami", "JacksonsDance", "User");
+            if (!Directory.Exists(userDir)) Directory.CreateDirectory(userDir);
+            var dlg = new SaveFileDialog()
+            {
+                InitialDirectory = Path.Combine(docs, "Egami", "JacksonsDance", "User"),
+                Filter = "Preset (*.json)|*.json",
+                DefaultExt = ".json",    // Default-Endung
+                AddExtension = true,     // bei fehlender Endung automatisch anhängen
+                Title = "Save Preset"
+            };
+            if (dlg.ShowDialog() == true)
+            {
+                var path = dlg.FileName;
+                // zusätzliche Sicherheit: bei fehlender/anderen Endung .json erzwingen
+                if (!path.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                {
+                    path = Path.ChangeExtension(path, ".json");
+                }
+
+                SettingsPersistence.Save( _applicationSettings, Path.Combine(dlg.RootDirectory, path));
+            }
+        }
+
+        public void LoadPreset()
+        {
+            var docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            var userDir = Path.Combine(docs, "Egami", "JacksonsDance", "User");
+            if (!Directory.Exists(userDir)) Directory.CreateDirectory(userDir);
+            var dlg = new OpenFileDialog()
+            {
+                InitialDirectory = userDir,
+                Filter = "Preset (*.json)|*.json",
+                Title = "Load Preset"
+            };
+            if (dlg.ShowDialog() == true)
+            {
+                SettingsPersistence.Load(_applicationSettings, dlg.FileName, loadBitmap: false);
+
+                // wenn FilePath erreichbar, Bild über ImageViewer laden
+                if (!string.IsNullOrWhiteSpace(_applicationSettings.FilePath) && File.Exists(_applicationSettings.FilePath))
+                {
+
+                    _imageViewer.LoadBitmap(_applicationSettings.FilePath);
+                }
+            }
         }
     }
 }
