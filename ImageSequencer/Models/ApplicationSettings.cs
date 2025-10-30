@@ -63,6 +63,19 @@ public class ApplicationSettings : BindableBase
         }
     }
 
+    private int _channel = 0;
+    public int Channel
+    {
+        get => _channel;
+        set
+        {
+            if (value >= 0 && value <= 15)
+            {
+                SetProperty(ref _channel, value);
+            }
+        }
+    }
+
     private int _divider = 16;
     public int Divider
     {

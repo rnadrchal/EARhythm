@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Egami.Imaging.Extensions;
 using Egami.Imaging.Visiting;
@@ -42,7 +43,14 @@ public sealed class TransformSettings : BindableBase
         }
     }
 
-    public string BitmapSize => $"{_applicationSettings?.Bitmap?.Width:N0} x {_applicationSettings?.Bitmap?.Height:N0}";
+    private Stretch _stretch = Stretch.Uniform;
+    public Stretch Stretch
+    {
+        get => _stretch;
+        set => SetProperty(ref _stretch, value);
+    }
+
+    public string BitmapSize => $"{(_applicationSettings?.Bitmap?.Width ?? 0):0} x {(_applicationSettings?.Bitmap?.Height ?? 0):0}";
 
     public TransformSettings(ApplicationSettings applicationSettings)
     {

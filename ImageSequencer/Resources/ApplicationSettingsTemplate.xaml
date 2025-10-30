@@ -61,6 +61,8 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
@@ -68,13 +70,14 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Row="0" Grid.ColumnSpan="2"
                                Style="{StaticResource DigitalText}"
+                               FontSize="24"
                                Text="{Binding BitmapSize}"
                                Margin="0,5,0,0"
                                TextAlignment="Center"/>
                     <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0"
                                                Margin="-10,-8,-10,-12"
                                                Width="80" Height="80"
-                                               Minimum="0" Maximum="100"
+                                               Minimum="1" Maximum="100"
                                                Value="{Binding Scale, Converter={StaticResource Scale}}"
                                                OuterRimRadiusFactor="0.6"
                                                OuterRimStroke="#444"
@@ -90,9 +93,6 @@
                         <TextBlock Text="{Binding Scale, Converter={StaticResource Scale}, StringFormat=N0 }" 
                                    Style="{StaticResource ControlLabelStyle}" />
                     </syncfusion:SfRadialSlider>
-                    <TextBlock Grid.Column="0" Grid.Row="2"
-                               Style="{StaticResource ControlLabelStyle}"
-                               Text="Scale" />
                     <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="1"
                                                Margin="-10,-8,-10,-12"
                                                Width="80" Height="80"
@@ -115,6 +115,31 @@
                     <TextBlock Grid.Column="1" Grid.Row="2"
                                Style="{StaticResource ControlLabelStyle}"
                                Text="{Binding ColorModel, Converter={StaticResource String}}" />
+                    <TextBlock Grid.Column="0" Grid.Row="2"
+                               Style="{StaticResource ControlLabelStyle}"
+                               Text="Scale" />
+                    <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                               Margin="-10,-8,-10,-12"
+                                               Width="80" Height="80"
+                                               Minimum="0" Maximum="3"
+                                               Value="{Binding Stretch, Converter={StaticResource EnumToDouble}}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="1"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC">
+                        <wpf:MaterialIcon Kind="StretchToPageOutline" Opacity="0.6"></wpf:MaterialIcon>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4"
+                               Style="{StaticResource ControlLabelStyle}"
+                               Text="{Binding Stretch, Converter={StaticResource String}}" />
                 </Grid>
             </GroupBox>
         </StackPanel>
@@ -123,7 +148,7 @@
     <DataTemplate DataType="{x:Type model:ApplicationSettings}" x:Key="RightPanelTemplate">
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Hidden">
-            <StackPanel Orientation="Vertical" MinWidth="160" Margin="5,0,0,0">
+            <StackPanel Orientation="Vertical" MinWidth="240" Margin="5,0,10,0">
                 <Grid Margin="5,0,0,5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
@@ -155,11 +180,12 @@
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0" Grid.ColumnSpan="2" FontFamily="{DynamicResource LED_Real}"
                                    Style="{StaticResource DigitalText}"
+                                   FontSize="24"
                                    Text="{Binding VisitorType, Converter={StaticResource String}}"
                                    Margin="0,5,0,0"/>
                         <syncfusion:SfRadialSlider Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
-                                                   Margin="0,-8,0,-12"
-                                                   Width="80" Height="80"
+                                                   Margin="0,-8,0,-24"
+                                                   Width="120" Height="120"
                                                    Minimum="0" Maximum="18"
                                                    Value="{Binding VisitorType, Converter={StaticResource EnumToDouble}}"
                                                    OuterRimRadiusFactor="0.6"
@@ -175,7 +201,7 @@
                                                    LabelVisibility="Hidden"
                                                    FontFamily="Kristen ITC">
                             <wpf:MaterialIcon Style="{StaticResource ButtonIcon}"
-                                              Kind="LocationEnter" 
+                                              Kind="Walk" 
                                               Opacity="0.7" Foreground="LightGreen"/>
                         </syncfusion:SfRadialSlider>
                         <syncfusion:SfRadialSlider Grid.Column="0" Grid.Row="2"
@@ -241,7 +267,31 @@
                             <ColumnDefinition />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <syncfusion:SfRadialSlider Grid.Row="0" 
+                        <syncfusion:SfRadialSlider Grid.Row="0" Grid.Column="0"
+                                                   Margin="0,-8,0,-12"
+                                                   Width="80" Height="80"
+                                                   Minimum="0" Maximum="15"
+                                                   Value="{Binding Channel}"
+                                                   OuterRimRadiusFactor="0.6"
+                                                   OuterRimStroke="#444"
+                                                   OuterRimStrokeThickness="3"
+                                                   InnerRimFill="#666"
+                                                   InnerRimStroke="#444"
+                                                   InnerRimRadiusFactor="0.4"
+                                                   StartAngle="135" EndAngle="405"
+                                                   TickFrequency="4"
+                                                   TickVisibility="Visible"
+                                                   TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                                   LabelVisibility="Hidden"
+                                                   FontFamily="Kristen ITC">
+                            <TextBlock  FontSize="10">
+                                <Run Text="{Binding Channel, ConverterParameter=1, Converter={StaticResource Add}}" />
+                            </TextBlock>
+                        </syncfusion:SfRadialSlider>
+                        <TextBlock Grid.Column="0" Grid.Row="1" 
+                                   Style="{StaticResource ControlLabelStyle}"
+                                   Text="Channel" />
+                        <syncfusion:SfRadialSlider Grid.Row="0" Grid.Column="1"
                                                    Margin="0,-8,0,-12"
                                                    Width="80" Height="80"
                                                    Minimum="1" Maximum="96"
@@ -262,10 +312,11 @@
                                 <Run Text="{Binding Divider}" />
                             </TextBlock>
                         </syncfusion:SfRadialSlider>
-                        <TextBlock Grid.Column="0" Grid.Row="1" 
+                        <TextBlock Grid.Column="1" Grid.Row="1" 
                                    Style="{StaticResource ControlLabelStyle}"
                                    Text="Divider" />
-                        <Button Grid.Column="1" Grid.Row="0" Style="{StaticResource Round3DButton}"
+                        <Button Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"
+                                Style="{StaticResource Round3DButton}"
                                 Margin="0,10"
                                 Background="#222"
                                 Command="{Binding ToggleLegatoCommand}">
@@ -273,7 +324,7 @@
                                      Width="14" Height="14" Margin="0,5"
                                      Opacity="{Binding Legato, Converter={StaticResource BooleanToOpacity}}" />
                         </Button>
-                        <TextBlock Grid.Column="1" Grid.Row="1"
+                        <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3"
                                    Style="{StaticResource ControlLabelStyle}"
                                    Text="Legato" />
                     </Grid>
@@ -292,7 +343,8 @@
                             <ColumnDefinition />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" FontFamily="{DynamicResource LED_Real}"
+                        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" 
+                                   FontSize="24"
                                    Style="{StaticResource DigitalText}"
                                    Text="{Binding TonalRange}"
                                    Margin="0,5,0,0"
@@ -336,15 +388,19 @@
                             <TextBlock Text="U" Style="{StaticResource ControlLabelStyle}" />
                         </syncfusion:SfRadialSlider>
                         <Button Style="{StaticResource Round3DButton}"
-                                Grid.Row="2" Grid.Column="0" Margin="5"
+                                Grid.Row="2" Grid.Column="0" Margin="5,10,10,5"
+                                HorizontalAlignment="Right"
                                 Background="#222"
-                                Command="{Binding FullRangeCommand}">
+                                Command="{Binding FullRangeCommand}"
+                                ToolTip="Full Tonal Range">
                             <wpf:MaterialIcon Kind="HearingImpaired" Style="{StaticResource ButtonIcon}" />
                         </Button>
                         <Button Style="{StaticResource Round3DButton}"
-                                Grid.Row="2" Grid.Column="1" Margin="5"
+                                Grid.Row="2" Grid.Column="1" Margin="10,10,5,5"
+                                HorizontalAlignment="Left"
                                 Background="#222"
-                                Command="{Binding WidelRangeCommand}">
+                                Command="{Binding WidelRangeCommand}"
+                                ToolTip="Audible Tonal Range">
                             <wpf:MaterialIcon Kind="EarHearing" Style="{StaticResource ButtonIcon}" />
                         </Button>
                     </Grid>

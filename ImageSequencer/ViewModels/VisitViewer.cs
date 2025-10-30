@@ -86,6 +86,11 @@ public class VisitViewer : BindableBase, IDisposable
                 SetVisitor();
             }
         }
+
+        if (e.PropertyName == nameof(ApplicationSettings.Channel))
+        {
+            AllNotesOf();
+        }
     }
 
     private void SetVisitor()
@@ -130,7 +135,10 @@ public class VisitViewer : BindableBase, IDisposable
         {
             var pitchbend = (int)Math.Round(ColorToCvFactory.Create(_applicationSettings.PitchbendColorToCvType,
                 _applicationSettings.PitchbendBaseColor).Convert(e.Color) / 127.0 * 4096);
-            MidiDevices.Output.SendEvent(new PitchBendEvent((ushort)pitchbend));
+            MidiDevices.Output.SendEvent(new PitchBendEvent((ushort)pitchbend)
+            {
+                Channel = (FourBitNumber)ApplicationSettings.Channel
+            });
             step.Pitchbend = pitchbend;;
         }
 
@@ -139,7 +147,10 @@ public class VisitViewer : BindableBase, IDisposable
             var ccValue = ColorToCvFactory.Create(_applicationSettings.ControlChangeColorToCvType,
                 _applicationSettings.ControlChangeBaseColor).Convert(e.Color);
             MidiDevices.Output.SendEvent(new ControlChangeEvent((SevenBitNumber)_applicationSettings.ControlChangeNumber,
-                (SevenBitNumber)ccValue));
+                (SevenBitNumber)ccValue)
+            {
+                Channel = (FourBitNumber)ApplicationSettings.Channel
+            });
             step.ControlChangeNumber = _applicationSettings.ControlChangeNumber;
             step.ControlChangeValue = ccValue;
         }
@@ -159,32 +170,47 @@ public class VisitViewer : BindableBase, IDisposable
                 {
                     if (_lastNote.Value != pitch)
                     {
-                        MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0));
-                        MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity));
+                        MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0)
+                        {
+                            Channel = (FourBitNumber)ApplicationSettings.Channel
+                        });
+                        MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity)
+                        {
+                            Channel = (FourBitNumber)ApplicationSettings.Channel
+                        });
                         step.NoteNumber = pitch;
                         step.Velocity = velocity;
                         _lastNote = pitch;
+                        _eventAggregator.GetEvent<StepEvent>().Publish(step);
                     }
                     // Bei Pitch-Gleichheit: nichts tun, Note bleibt aktiv
                 }
                 else
                 {
-                    MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0));
-                    MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity));
+                    MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0)
+                    {
+                        Channel = (FourBitNumber)ApplicationSettings.Channel
+                    });
+                    MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity)
+                    {
+                        Channel = (FourBitNumber)ApplicationSettings.Channel
+                    });
                     step.NoteNumber = pitch;
                     step.Velocity = velocity;
                     _lastNote = pitch;
+                    _eventAggregator.GetEvent<StepEvent>().Publish(step);
                 }
             }
             else
             {
-                MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity));
+                MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity) { Channel = (FourBitNumber)ApplicationSettings.Channel });
                 step.NoteNumber = pitch;
                 step.Velocity = velocity;
                 _lastNote = pitch;
+                _eventAggregator.GetEvent<StepEvent>().Publish(step);
+
             }
         }
-        _eventAggregator.GetEvent<StepEvent>().Publish(step);
     }
 
     private void Reset()
@@ -192,7 +218,7 @@ public class VisitViewer : BindableBase, IDisposable
         _applicationSettings.ClearRenderTarget();
         if (_lastNote != null)
         {
-            MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0));
+            MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0) { Channel = (FourBitNumber)ApplicationSettings.Channel });
         }
         SetVisitor();
     }
@@ -209,11 +235,19 @@ public class VisitViewer : BindableBase, IDisposable
         _isPaused = false;
     }
 
+    private void AllNotesOf()
+    {
+        for (var i = 0; i < 16; ++i)
+        {
+            MidiDevices.Output.SendEvent(new ControlChangeEvent((SevenBitNumber)123, (SevenBitNumber)0) { Channel = (FourBitNumber)i});
+        }
+    }
+
     public void Dispose()
     {
         if (_lastNote != null)
         {
-            MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0));
+            MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0) { Channel = (FourBitNumber)ApplicationSettings.Channel });
         }
 
         MidiDevices.Input.EventReceived -= OnMidiEventReceived;

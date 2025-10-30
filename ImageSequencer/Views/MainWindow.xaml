@@ -31,36 +31,6 @@
                     Orientation="Horizontal"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center">
-            <Button Style="{StaticResource Round3DButton}"
-                    Background="#222"
-                    IsEnabled="{Binding ApplicationSettings.BitmapLoaded}"
-                    Command="{Binding ShowOutsourceCommand}"
-                    Visibility="{Binding IsOutsourceVisible, Converter={StaticResource InverseBooleanToVisibility}}">
-                <wpf:MaterialIcon Kind="ExternalLink" Style="{StaticResource ButtonIcon}" />
-            </Button>
-            <Button Style="{StaticResource Round3DButton}"
-                    Background="#222"
-                    IsEnabled="{Binding ApplicationSettings.BitmapLoaded}"
-                    Command="{Binding HideOutsourceCommand}"
-                    Visibility="{Binding IsOutsourceVisible, Converter={StaticResource BooleanToVisibility}}">
-                <wpf:MaterialIcon Kind="WindowClose" Style="{StaticResource ButtonIcon}" />
-            </Button>
-            <Grid Visibility="{Binding IsOutsourceVisible, Converter={StaticResource BooleanToVisibility}}">
-                <Button Style="{StaticResource Round3DButton}"
-                        Background="#222"
-                        IsEnabled="{Binding ApplicationSettings.BitmapLoaded}"
-                        Visibility="{Binding IsOutsourceMaximized, Converter={StaticResource InverseBooleanToVisibility}}"
-                        Command="{Binding MaximizeOutsourceCommand}">
-                    <wpf:MaterialIcon Kind="Maximize" Style="{StaticResource ButtonIcon}" />
-                </Button>
-                <Button Style="{StaticResource Round3DButton}"
-                        Background="#222"
-                        IsEnabled="{Binding ApplicationSettings.BitmapLoaded}"
-                        Visibility="{Binding IsOutsourceMaximized, Converter={StaticResource BooleanToVisibility}}"
-                        Command="{Binding MinimizeOutsourceCommand}">
-                    <wpf:MaterialIcon Kind="WindowRestore" Style="{StaticResource ButtonIcon}" />
-                </Button>
-            </Grid>
         </StackPanel>
 
         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal"
@@ -119,11 +89,58 @@
             </Button>
 
         </StackPanel>
-        <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center">
-            <Ellipse Style="{StaticResource LedEllipseStyle}"
-                     Opacity="{Binding LedTick, Converter={StaticResource BooleanToOpacity}}"
-                     Width="14" Height="14" />
-            <TextBlock Style="{StaticResource ControlLabelStyle}" Text="Clock" />
+        <StackPanel Orientation="Horizontal"
+                    Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,0,15,0">
+            <Button Style="{StaticResource Round3DButton}"
+                    Margin="0,0,15,0"
+                    Width="30" Height="30"
+                    Background="#222"
+                    IsEnabled="{Binding ApplicationSettings.BitmapLoaded}"
+                    Command="{Binding ShowOutsourceCommand}"
+                    Visibility="{Binding IsOutsourceVisible, Converter={StaticResource InverseBooleanToVisibility}}">
+                <wpf:MaterialIcon Kind="ExternalLink" Style="{StaticResource ButtonIcon}"
+                                  Height="16"/>
+            </Button>
+            <Button Style="{StaticResource Round3DButton}"
+                    Margin="0,0,15,0"
+                    Width="30" Height="30"
+                    Background="#222"
+                    IsEnabled="{Binding ApplicationSettings.BitmapLoaded}"
+                    Command="{Binding HideOutsourceCommand}"
+                    Visibility="{Binding IsOutsourceVisible, Converter={StaticResource BooleanToVisibility}}">
+                <wpf:MaterialIcon Kind="WindowClose" Style="{StaticResource ButtonIcon}"
+                                  Height="16"/>
+            </Button>
+            <Grid Visibility="{Binding IsOutsourceVisible, Converter={StaticResource BooleanToVisibility}}">
+                <Button Style="{StaticResource Round3DButton}"
+                        Margin="0,0,15,0"
+                        Width="30" Height="30"
+                        Background="#222"
+                        IsEnabled="{Binding ApplicationSettings.BitmapLoaded}"
+                        Visibility="{Binding IsOutsourceMaximized, Converter={StaticResource InverseBooleanToVisibility}}"
+                        Command="{Binding MaximizeOutsourceCommand}">
+                    <wpf:MaterialIcon Kind="Maximize" Style="{StaticResource ButtonIcon}"
+                                      Height="16"/>
+                </Button>
+                <Button Style="{StaticResource Round3DButton}"
+                        Background="#222"
+                        Width="30" Height="30"
+                        Margin="0,0,15,0"
+                        IsEnabled="{Binding ApplicationSettings.BitmapLoaded}"
+                        Visibility="{Binding IsOutsourceMaximized, Converter={StaticResource BooleanToVisibility}}"
+                        Command="{Binding MinimizeOutsourceCommand}">
+                    <wpf:MaterialIcon Kind="WindowRestore" Style="{StaticResource ButtonIcon}"
+                                      Height="16"/>
+                </Button>
+            </Grid>
+
+            <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center">
+
+                <Ellipse Style="{StaticResource LedEllipseStyle}"
+                         Opacity="{Binding LedTick, Converter={StaticResource BooleanToOpacity}}"
+                         Width="14" Height="14" />
+                <TextBlock Style="{StaticResource ControlLabelStyle}" Text="Clock" />
+            </StackPanel>
         </StackPanel>
         <ContentControl Grid.Column="1" Grid.Row="1" 
                         Content="{Binding ImageViewer}"

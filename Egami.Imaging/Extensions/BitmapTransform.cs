@@ -9,9 +9,8 @@ public static class BitmapTransform
         this WriteableBitmap source,
         double scale)
     {
-        int scaledWidth = (int)Math.Max(1, source.PixelWidth * scale);
-        int scaledHeight = (int)Math.Max(1, source.PixelHeight * scale);
-
+        int scaledWidth = (int)Math.Max(1, Math.Round(source.PixelWidth * scale));
+        int scaledHeight = (int)Math.Max(1, Math.Round(source.PixelHeight * scale));
         // Verwende das ursprüngliche PixelFormat des Quellbildes
         PixelFormat targetFormat = source.Format;
 
@@ -25,8 +24,7 @@ public static class BitmapTransform
         rtb.Render(dv);
 
         // Schreibe die Daten in ein neues WriteableBitmap mit dem ursprünglichen Format
-        var result = new WriteableBitmap(scaledWidth, scaledHeight, source.DpiX, source.DpiY, targetFormat, source.Palette);
-
+        var result = new WriteableBitmap(scaledWidth, scaledHeight, 96, 96, targetFormat, source.Palette);
         // Pixeldaten kopieren
         int stride = (scaledWidth * targetFormat.BitsPerPixel + 7) / 8;
         byte[] buffer = new byte[stride * scaledHeight];

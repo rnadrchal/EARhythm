@@ -109,6 +109,10 @@ namespace ImageSequencer.ViewModels
 
         private void HideOutsource()
         {
+            if (_outsource.WindowState == WindowState.Maximized)
+            {
+                MinimizeOutsource();
+            }
             _outsource.Hide();
             IsOutsourceVisible = false;
         }
@@ -123,7 +127,7 @@ namespace ImageSequencer.ViewModels
         private void MinimizeOutsource()
         {
             _outsource.WindowState = WindowState.Normal;
-            _outsource.WindowStyle = WindowStyle.SingleBorderWindow;
+            _outsource.WindowStyle = WindowStyle.ToolWindow;
             IsOutsourceMaximized = false;
         }
 
