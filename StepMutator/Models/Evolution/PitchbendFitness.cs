@@ -12,7 +12,7 @@ public class PitchbendFitness : BindableBase, IFitness
         set => SetProperty(ref _weight, value);
     }
 
-    private ushort _targetPitchbend = 8192;
+    private ushort _targetPitchbend = 2048;
     public ushort TargetPitchbend
     {
         get => _targetPitchbend;
@@ -21,10 +21,10 @@ public class PitchbendFitness : BindableBase, IFitness
 
     public double Cents
     {
-        get => (_targetPitchbend - 8192)  / 8192.0 * 50.0;
+        get => (_targetPitchbend - 2048)  / 2048.0 * 50.0;
         set
         {
-            _targetPitchbend = (ushort)(8192 + (value / 50.0 * 8192.0));
+            _targetPitchbend = (ushort)(2048 + (value / 50.0 * 2048.0));
             RaisePropertyChanged(nameof(TargetPitchbend));
         }
     }
@@ -33,7 +33,7 @@ public class PitchbendFitness : BindableBase, IFitness
     {
         var step = new Step(individual);
         var diff = Math.Abs(step.Pitchbend - _targetPitchbend);
-        var score = 1.0 - (double)diff / 16383.0;
+        var score = 1.0 - (double)diff / 4096.0;
         return score * _weight;
     }
 }

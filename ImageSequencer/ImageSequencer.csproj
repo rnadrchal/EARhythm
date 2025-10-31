@@ -4,6 +4,7 @@
     <TargetFramework>net9.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationIcon>ImageSequencer.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Resources\Fonts\LED_REAL.TXT" />
@@ -12,6 +13,7 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ImageSequencer.ico" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Material.Icons.WPF" Version="2.4.1" />
@@ -34,9 +36,6 @@
     <ProjectReference Include="..\Egami.Imaging\Egami.Imaging.csproj" />
     <ProjectReference Include="..\Egami.Rhythm.Midi\Egami.Rhythm.Midi.csproj" />
     <ProjectReference Include="..\Egami.Sequencer.UI\Egami.Sequencer.UI.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Fonts\LEDREALI.TTF">

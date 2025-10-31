@@ -36,12 +36,15 @@ public class VisitViewer : BindableBase, IDisposable
         _applicationSettings.PropertyChanged += OnApplicationSettingsChanged;
         if (_applicationSettings.Bitmap != null)
         {
-            _visitor = BitmapVisitorFactory.Create(_applicationSettings.VisitorType, _applicationSettings.Bitmap);
+            _visitor = BitmapVisitorFactory.Create(_applicationSettings.VisitorType, _applicationSettings.Bitmap,
+                gridCols: _applicationSettings.GridCols, gridRows: _applicationSettings.GridRows);
         }
 
         MidiDevices.Input.EventReceived += OnMidiEventReceived;
         ResetCommand = new DelegateCommand(_ => Reset());
         FastForwardCommand = new DelegateCommand(_ => FastForward());
+        _eventAggregator.GetEvent<ResetRequest>().Subscribe(Reset);
+        SetVisitor();
     }
 
     private ulong _tick = 0;
@@ -84,20 +87,23 @@ public class VisitViewer : BindableBase, IDisposable
                 SetVisitor();
             }
         }
+
+        if (e.PropertyName == nameof(ApplicationSettings.Channel))
+        {
+            AllNotesOf();
+        }
     }
 
     private void SetVisitor()
     {
-        var isVisiting = _applicationSettings.IsVisiting;
         if (_visitor != null)
         {
             _visitor.Visited -= OnVisited;
         }
         if (_applicationSettings.Bitmap != null)
         {
-            var x = RandomProvider.Get(null).Next(0, (int)_applicationSettings.Bitmap.Width);
-            var y = RandomProvider.Get(null).Next(0, (int)_applicationSettings.Bitmap.Height);
-            _visitor = BitmapVisitorFactory.Create(_applicationSettings.VisitorType, _applicationSettings.Bitmap, x, y);
+            _visitor = BitmapVisitorFactory.Create(_applicationSettings.VisitorType, _applicationSettings.Bitmap,
+                gridCols: _applicationSettings.GridCols, gridRows: _applicationSettings.GridRows);
             _visitor.Visited += OnVisited;
         }
         else
@@ -129,8 +135,11 @@ public class VisitViewer : BindableBase, IDisposable
         if (_applicationSettings.SendPitchbendOn)
         {
             var pitchbend = (int)Math.Round(ColorToCvFactory.Create(_applicationSettings.PitchbendColorToCvType,
-                _applicationSettings.PitchbendBaseColor).Convert(e.Color) / 127.0 * 16383);
-            MidiDevices.Output.SendEvent(new PitchBendEvent((ushort)pitchbend));
+                _applicationSettings.PitchbendBaseColor).Convert(e.Color) / 127.0 * 4096);
+            MidiDevices.Output.SendEvent(new PitchBendEvent((ushort)pitchbend)
+            {
+                Channel = (FourBitNumber)ApplicationSettings.Channel
+            });
             step.Pitchbend = pitchbend;;
         }
 
@@ -139,7 +148,10 @@ public class VisitViewer : BindableBase, IDisposable
             var ccValue = ColorToCvFactory.Create(_applicationSettings.ControlChangeColorToCvType,
                 _applicationSettings.ControlChangeBaseColor).Convert(e.Color);
             MidiDevices.Output.SendEvent(new ControlChangeEvent((SevenBitNumber)_applicationSettings.ControlChangeNumber,
-                (SevenBitNumber)ccValue));
+                (SevenBitNumber)ccValue)
+            {
+                Channel = (FourBitNumber)ApplicationSettings.Channel
+            });
             step.ControlChangeNumber = _applicationSettings.ControlChangeNumber;
             step.ControlChangeValue = ccValue;
         }
@@ -147,7 +159,7 @@ public class VisitViewer : BindableBase, IDisposable
         if (_applicationSettings.SendNoteOn)
         {
             var pitch = ColorToCvFactory.Create(_applicationSettings.PitchColorToCvType,
-                _applicationSettings.VelocityBaseColor).Convert(e.Color);
+                _applicationSettings.PitchBaseColor).Convert(e.Color);
             pitch = (byte)(_applicationSettings.TonalRangeLower +
                            (pitch / 127.0) * (_applicationSettings.TonalRangeUpper - _applicationSettings.TonalRangeLower));
             var velocity = ColorToCvFactory.Create(_applicationSettings.VelocityColorToCvType,
@@ -159,32 +171,47 @@ public class VisitViewer : BindableBase, IDisposable
                 {
                     if (_lastNote.Value != pitch)
                     {
-                        MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0));
-                        MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity));
+                        MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0)
+                        {
+                            Channel = (FourBitNumber)ApplicationSettings.Channel
+                        });
+                        MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity)
+                        {
+                            Channel = (FourBitNumber)ApplicationSettings.Channel
+                        });
                         step.NoteNumber = pitch;
                         step.Velocity = velocity;
                         _lastNote = pitch;
+                        _eventAggregator.GetEvent<StepEvent>().Publish(step);
                     }
                     // Bei Pitch-Gleichheit: nichts tun, Note bleibt aktiv
                 }
                 else
                 {
-                    MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0));
-                    MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity));
+                    MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0)
+                    {
+                        Channel = (FourBitNumber)ApplicationSettings.Channel
+                    });
+                    MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity)
+                    {
+                        Channel = (FourBitNumber)ApplicationSettings.Channel
+                    });
                     step.NoteNumber = pitch;
                     step.Velocity = velocity;
                     _lastNote = pitch;
+                    _eventAggregator.GetEvent<StepEvent>().Publish(step);
                 }
             }
             else
             {
-                MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity));
+                MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity) { Channel = (FourBitNumber)ApplicationSettings.Channel });
                 step.NoteNumber = pitch;
                 step.Velocity = velocity;
                 _lastNote = pitch;
+                _eventAggregator.GetEvent<StepEvent>().Publish(step);
+
             }
         }
-        _eventAggregator.GetEvent<StepEvent>().Publish(step);
     }
 
     private void Reset()
@@ -192,7 +219,7 @@ public class VisitViewer : BindableBase, IDisposable
         _applicationSettings.ClearRenderTarget();
         if (_lastNote != null)
         {
-            MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0));
+            MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0) { Channel = (FourBitNumber)ApplicationSettings.Channel });
         }
         SetVisitor();
     }
@@ -209,11 +236,19 @@ public class VisitViewer : BindableBase, IDisposable
         _isPaused = false;
     }
 
+    private void AllNotesOf()
+    {
+        for (var i = 0; i < 16; ++i)
+        {
+            MidiDevices.Output.SendEvent(new ControlChangeEvent((SevenBitNumber)123, (SevenBitNumber)0) { Channel = (FourBitNumber)i});
+        }
+    }
+
     public void Dispose()
     {
         if (_lastNote != null)
         {
-            MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0));
+            MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_lastNote.Value, (SevenBitNumber)0) { Channel = (FourBitNumber)ApplicationSettings.Channel });
         }
 
         MidiDevices.Input.EventReceived -= OnMidiEventReceived;

@@ -1,38 +1,148 @@
-﻿using System.Windows.Media.Imaging;
+﻿using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Egami.Imaging.Visiting;
 
 public sealed class CheckerboardBitmapVisitor : BitmapVisitorBase
 {
-    private readonly List<(int X, int Y)> coords = new();
-    private int index = 0;
+    private readonly int _gridCols;
+    private readonly int _gridRows;
+    private readonly int _cellWidth;
+    private readonly int _cellHeight;
+    private readonly bool[,] visited;
+    private readonly int width;
+    private readonly int height;
+    private readonly int total;
+    private int visitedCount;
 
-    public CheckerboardBitmapVisitor(WriteableBitmap bitmap) : base(bitmap)
+    private readonly (int X, int Y)[,] seeds;
+    private readonly PriorityQueue<(int X, int Y), double>[,] queues;
+    private readonly Random rnd = new();
+
+    private int cellStep = 0;
+    private readonly List<(int col, int row)> cellOrder;
+    public CheckerboardBitmapVisitor(WriteableBitmap bitmap, int gridCols = 1, int gridRows = 1) : base(bitmap)
     {
-        int width = bitmap.PixelWidth, height = bitmap.PixelHeight;
-        int layers = Math.Min(width, height) / 2;
-        for (int l = 0; l <= layers; l++)
+        width = bitmap.PixelWidth;
+        height = bitmap.PixelHeight;
+        total = width * height;
+        visited = new bool[width, height];
+        _gridCols = gridCols;
+        _gridRows = gridRows;
+        _cellWidth = width / _gridCols;
+        _cellHeight = height / _gridRows;
+
+        seeds = new (int X, int Y)[_gridCols, _gridRows];
+        queues = new PriorityQueue<(int X, int Y), double>[_gridCols, _gridRows];
+        cellOrder = new List<(int col, int row)>();
+
+        // Nur "Checkerboard"-Zellen (abwechselnd) aufnehmen
+        for (int col = 0; col < _gridCols; col++)
+        for (int row = 0; row < _gridRows; row++)
         {
-            // Obere und untere Kante
-            for (int x = l; x < width - l; x++)
+            if ((col + row) % 2 == 0) // Checkerboard-Muster
             {
-                coords.Add((x, l));
-                if (height - l - 1 != l)
-                    coords.Add((x, height - l - 1));
+                int sx = col * _cellWidth + rnd.Next(_cellWidth);
+                int sy = row * _cellHeight + rnd.Next(_cellHeight);
+                sx = Math.Min(sx, width - 1);
+                sy = Math.Min(sy, height - 1);
+                seeds[col, row] = (sx, sy);
+                queues[col, row] = new PriorityQueue<(int X, int Y), double>();
+                cellOrder.Add((col, row));
             }
-            // Linke und rechte Kante
-            for (int y = l + 1; y < height - l - 1; y++)
+        }
+        // Danach die anderen Zellen (für vollständige Abdeckung)
+        for (int col = 0; col < _gridCols; col++)
+        for (int row = 0; row < _gridRows; row++)
+        {
+            if ((col + row) % 2 != 0)
             {
-                coords.Add((l, y));
-                if (width - l - 1 != l)
-                    coords.Add((width - l - 1, y));
+                int sx = col * _cellWidth + rnd.Next(_cellWidth);
+                int sy = row * _cellHeight + rnd.Next(_cellHeight);
+                sx = Math.Min(sx, width - 1);
+                sy = Math.Min(sy, height - 1);
+                seeds[col, row] = (sx, sy);
+                queues[col, row] = new PriorityQueue<(int X, int Y), double>();
+                cellOrder.Add((col, row));
             }
         }
     }
 
     protected override (int X, int Y)? GetNextCoordinates()
     {
-        if (index >= coords.Count) return null;
-        return coords[index++];
+        if (visitedCount >= total)
+            return null;
+
+        var (col, row) = cellOrder[cellStep % cellOrder.Count];
+        cellStep++;
+
+        var queue = queues[col, row];
+
+        // Falls Queue leer, Seed einfügen
+        if (queue.Count == 0)
+        {
+            var seed = seeds[col, row];
+            if (!visited[seed.X, seed.Y])
+            {
+                queue.Enqueue(seed, 0);
+            }
+        }
+
+        // Greedy innerhalb der Zelle
+        while (queue.Count > 0)
+        {
+            var (x, y) = queue.Dequeue();
+            if (!visited[x, y])
+            {
+                visited[x, y] = true;
+                visitedCount++;
+
+                // Nachbarn in der Zelle einfügen
+                Color currentColor = Bitmap.GetPixel(x, y);
+                foreach (var (nx, ny) in GetCellNeighbors(col, row, x, y))
+                {
+                    if (!visited[nx, ny])
+                    {
+                        Color neighborColor = Bitmap.GetPixel(nx, ny);
+                        double dist = ColorDistance(currentColor, neighborColor);
+                        queue.Enqueue((nx, ny), dist);
+                    }
+                }
+                return (x, y);
+            }
+        }
+
+        // Falls alle Zellen abgearbeitet, suche beliebigen unbesuchten Pixel
+        for (int i = 0; i < width; i++)
+            for (int j = 0; j < height; j++)
+                if (!visited[i, j])
+                {
+                    visited[i, j] = true;
+                    visitedCount++;
+                    return (i, j);
+                }
+
+        return null;
+    }
+
+    private IEnumerable<(int X, int Y)> GetCellNeighbors(int col, int row, int x, int y)
+    {
+        int startX = col * _cellWidth;
+        int endX = Math.Min(startX + _cellWidth, width);
+        int startY = row * _cellHeight;
+        int endY = Math.Min(startY + _cellHeight, height);
+
+        if (x > startX) yield return (x - 1, y);
+        if (x < endX - 1) yield return (x + 1, y);
+        if (y > startY) yield return (x, y - 1);
+        if (y < endY - 1) yield return (x, y + 1);
+    }
+
+    private static double ColorDistance(Color a, Color b)
+    {
+        int dr = a.R - b.R;
+        int dg = a.G - b.G;
+        int db = a.B - b.B;
+        return dr * dr + dg * dg + db * db;
     }
 }

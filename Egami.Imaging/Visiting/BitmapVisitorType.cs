@@ -15,5 +15,10 @@ public enum BitmapVisitorType
     GridInterleaved,
     GreedyNeighbor,
     RegionGrowing,
+    HilbertCurve,
+    SierpinskiTriangle,
+    PeanoCurve,
+    FractalMandelbrot,
+    FractalJulia,
     Random
 }

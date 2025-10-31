@@ -32,8 +32,30 @@ public class ImageViewer : BindableBase
         };
         if (dlg.ShowDialog() == true)
         {
-            _applicationSettings.Bitmap = new WriteableBitmap(new BitmapImage(new Uri(dlg.FileName)));
+            LoadBitmap(dlg.FileName);
+        }
+    }
+
+    // Neu: Lädt ein Bild programmgesteuert (z. B. beim App-Start)
+    public void LoadBitmap(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return;
+
+        try
+        {
+            _applicationSettings.FilePath = path;
+            var wb = new WriteableBitmap(new BitmapImage(new Uri(path)));
+            _applicationSettings.Bitmap = wb;
+            _applicationSettings.Original = wb.Clone();
             _applicationSettings.RenderTarget = new WriteableBitmap(_applicationSettings.Bitmap.PixelWidth, _applicationSettings.Bitmap.PixelHeight, _applicationSettings.Bitmap.DpiX, _applicationSettings.Bitmap.DpiY, _applicationSettings.Bitmap.Format, null);
+            _applicationSettings.TransformSettings ??= new TransformSettings(_applicationSettings);
+            _applicationSettings.TransformSettings.Apply();
+            _applicationSettings.RequestReset();
+        }
+        catch
+        {
+            // optional: Logging einbauen; hier still fail-safe
         }
     }
 

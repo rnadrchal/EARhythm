@@ -6,12 +6,31 @@ using Prism.Mvvm;
 using System.Windows.Media.Imaging;
 using Egami.Imaging.Extensions;
 using Egami.Imaging.Midi;
+using ImageSequencer.Events;
 using ImageSequencer.Extensions;
+using Prism.Events;
 
 namespace ImageSequencer.Models;
 
 public class ApplicationSettings : BindableBase
 {
+    private readonly IEventAggregator _aggregator;
+
+    private string _filePath;
+    public string FilePath
+    {
+        get => _filePath;
+        set => SetProperty(ref _filePath, value);
+    }
+
+
+    private WriteableBitmap? _original;
+    public WriteableBitmap? Original
+    {
+        get => _original;
+        set => SetProperty(ref _original, value);
+    }
+
     private WriteableBitmap? _bitmap;
     public WriteableBitmap? Bitmap
     {
@@ -51,6 +70,19 @@ public class ApplicationSettings : BindableBase
         }
     }
 
+    private int _channel = 0;
+    public int Channel
+    {
+        get => _channel;
+        set
+        {
+            if (value >= 0 && value <= 15)
+            {
+                SetProperty(ref _channel, value);
+            }
+        }
+    }
+
     private int _divider = 16;
     public int Divider
     {
@@ -71,6 +103,39 @@ public class ApplicationSettings : BindableBase
         set
         {
             SetProperty(ref _visitorType, value);
+        }
+    }
+
+    private int _gridCols = 1;
+    public int GridCols
+    {
+        get => _gridCols;
+        set
+        {
+            if (value > 0)
+            {
+                if (SetProperty(ref _gridCols, value))
+                {
+                    RequestReset();
+                }
+            }
+        }
+    }
+
+    private int _gridRows = 1;
+
+    public int GridRows
+    {
+        get => _gridRows;
+        set
+        {
+            if (value > 0)
+            {
+                if (SetProperty(ref _gridRows, value))
+                {
+                    RequestReset();
+                }
+            }
         }
     }
 
@@ -196,6 +261,13 @@ public class ApplicationSettings : BindableBase
     public string TonalRange =>
         $"{((int)TonalRangeLower).ToNoteNumberString()}-{((int)TonalRangeUpper).ToNoteNumberString()}";
 
+    private TransformSettings _transformSettings = null;
+    public TransformSettings TransformSettings
+    {
+        get => _transformSettings;
+        set => SetProperty(ref _transformSettings, value);
+    }
+
     public ICommand ToggleSendNoteOnCommand { get; }
     public ICommand ToggleSendPitchbendOnCommand { get; }
     public ICommand ToggleSendControlChangeOnCommand { get; }
@@ -203,8 +275,9 @@ public class ApplicationSettings : BindableBase
     public ICommand WidelRangeCommand { get; }
     public ICommand FullRangeCommand { get; }
 
-    public ApplicationSettings()
+    public ApplicationSettings(IEventAggregator aggregator)
     {
+        _aggregator = aggregator;
         ToggleSendNoteOnCommand = new Prism.Commands.DelegateCommand(() =>
         {
             SendNoteOn = !SendNoteOn;
@@ -242,5 +315,10 @@ public class ApplicationSettings : BindableBase
         {
             RenderTarget.Clear();
         });
+    }
+
+    public void RequestReset()
+    {
+        _aggregator.GetEvent<ResetRequest>().Publish();
     }
 }
