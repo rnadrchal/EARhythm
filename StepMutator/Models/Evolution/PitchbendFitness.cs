@@ -5,7 +5,7 @@ namespace StepMutator.Models.Evolution;
 
 public class PitchbendFitness : BindableBase, IFitness
 {
-    private double _weight = 0.2;
+    private double _weight = 0.1;
     public double Weight
     {
         get => _weight;
@@ -21,12 +21,8 @@ public class PitchbendFitness : BindableBase, IFitness
 
     public double Cents
     {
-        get => (_targetPitchbend - 2048)  / 2048.0 * 50.0;
-        set
-        {
-            _targetPitchbend = (ushort)(2048 + (value / 50.0 * 2048.0));
-            RaisePropertyChanged(nameof(TargetPitchbend));
-        }
+        get => PitchbendHelpers.RawToCents(_targetPitchbend, 0.5);
+        set => TargetPitchbend = (ushort)PitchbendHelpers.CentsToRaw(value, 0.5);
     }
 
     public double Evaluate(ulong individual)

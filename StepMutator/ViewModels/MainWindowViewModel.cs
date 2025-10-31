@@ -1,12 +1,9 @@
-﻿using System.Threading.Channels;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Egami.Rhythm.Midi;
-using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Prism.Events;
 using Prism.Mvvm;
-using StepMutator.Events;
 using StepMutator.Models;
 using StepMutator.Services;
 
@@ -18,7 +15,7 @@ namespace StepMutator.ViewModels
         private readonly IEvolutionOptions _evolutionOptions;
         private readonly IMutator<ulong> _mutator;
         private ulong _tick = 0;
-        private string _title = "Step Mutator";
+        private string _title = "Helix";
         private int _currentStep = 0;
         private ulong _nextTick = 0;
         private byte? _lastNote;
@@ -76,7 +73,7 @@ namespace StepMutator.ViewModels
             _eventAggregator = eventAggregator;
             _evolutionOptions = evolutionOptions;
             _mutator = mutator;
-            _sequence = new Sequence(evolutionOptions, mutator, 16);
+            _sequence = new Sequence(evolutionOptions, mutator, _eventAggregator, 16);
             MidiDevices.Input.EventReceived += OnMidiEventReceived;
             ToggleStartStopCommand = new Prism.Commands.DelegateCommand(() =>
             {

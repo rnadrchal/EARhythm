@@ -10,8 +10,10 @@ using Egami.Rhythm.Midi;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
+using Prism.Events;
 using Prism.Mvvm;
 using StepMutator.Common;
+using StepMutator.Events;
 using StepMutator.Models.Evolution;
 using StepMutator.Services;
 using Syncfusion.Windows.Shared;
@@ -22,6 +24,7 @@ namespace StepMutator.Models;
 public class Sequence : BindableBase, ISequence
 {
     IEvolutionOptions _evolutionOptions;
+    private IEventAggregator _eventAggregator;
     private IMutator<ulong> _mutator;
     private ulong[][] _steps;
 
@@ -39,7 +42,8 @@ public class Sequence : BindableBase, ISequence
         new VelocityFitness(),
         new OffFitness(),
         new TieFitness(),
-        new PitchbendFitness()
+        new PitchbendFitness(),
+        new ControlChangeFitness()
     ];
 
     private bool _showSteps = false;
@@ -64,10 +68,15 @@ public class Sequence : BindableBase, ISequence
 
     private int _divider = 16;
 
+    private static readonly int[] ValidDividers = [1, 2, 4, 8, 12, 16, 24, 32, 48, 64, 96];
     public int Divider
     {
         get => _divider;
-        set => SetProperty(ref _divider, value);
+        set
+        {
+            if (!ValidDividers.Contains(value)) return;
+            SetProperty(ref _divider, value);
+        }
     }
 
     private byte _controlNumber = 1;
@@ -92,17 +101,51 @@ public class Sequence : BindableBase, ISequence
         set => SetProperty(ref _isEvolutionActive, value);
     }
 
+    private bool _isRecording;
+
+    public bool IsRecording
+    {
+        get => _isRecording;
+        set => SetProperty(ref _isRecording, value);
+    }
+
+    private int _recordingStep = 0;
+    public int RecordingStep
+    {
+        get => _recordingStep;
+        set => SetProperty(ref _recordingStep, value);
+    }
+
+    // Standardmäßig 14-bit center (kein Bend)
+    private ushort _recordingPitchbend = PitchbendHelpers.RawCenter;
+
+    public ushort RecordingPitchbend
+    {
+        get => _recordingPitchbend;
+        set => SetProperty(ref _recordingPitchbend, value);
+    }
+
+    // Aktuelle Pitchbend-Range in Halbton (z.B. 0.5 = ±50 cents)
+    private double _pitchbendRangeSemitones = 0.5;
+
     public ObservableCollection<ExtendedNote> Notes { get; } = new();
+    public IEnumerable<IStep> Steps => _steps.Select(s =>
+    {
+        var fittest = Fittest(s);
+        return new Step(fittest) { Fitness = CombinedFitness(fittest) };
+    });
 
     public ICommand DyeCommand { get; }
     public ICommand ToggleEvolutionCommand { get; }
     public ICommand TogglePitchbendCommand { get; }
     public ICommand ToggleViewCommand { get; }
+    public ICommand ToggleRecordCommand { get; }
 
-    public Sequence(IEvolutionOptions evolutionOptions, IMutator<ulong> mutator, int length = 16)
+    public Sequence(IEvolutionOptions evolutionOptions, IMutator<ulong> mutator, IEventAggregator eventAggregator, int length = 16)
     {
         _evolutionOptions = evolutionOptions;
         _mutator = mutator;
+        _eventAggregator = eventAggregator;
         Dye(length);
         DyeCommand = new DelegateCommand(_ => Dye(Length));
         ToggleEvolutionCommand = new DelegateCommand(_ => IsEvolutionActive = !IsEvolutionActive);
@@ -118,13 +161,67 @@ public class Sequence : BindableBase, ISequence
             }
         });
         ToggleViewCommand = new DelegateCommand(_ => ShowSteps = !ShowSteps);
+        ToggleRecordCommand = new DelegateCommand(_ => IsRecording = !IsRecording);
         MidiDevices.Input.EventReceived += OnMidiEvent;
         // ±0,5 Halbton: semitones = 0, fraction = 64 (≈ 50 Cent)
         SetPitchBendRange(MidiDevices.Output, _channel, 0, 64);
+
+        _eventAggregator.GetEvent<GlobalKeyEvent>().Subscribe(OnGLobalKeyEvent);
+    }
+
+    private bool _leftShiftDown;
+
+    private void OnGLobalKeyEvent(GlobalKeyPayload payload)
+    {
+        if ((payload.Key == Key.LeftShift || payload.Key == Key.RightShift))
+        {
+            _leftShiftDown = payload.IsDown;
+        }
+
+        if (_isRecording && payload.Key == Key.P && payload.IsDown == false)
+        {
+            for (var i = 0; i < _steps[_recordingStep].Length; i++)
+            {
+                var s = new Step(_steps[_recordingStep][i]);
+                s.On = false;
+                s.Tie = false;
+                s.Pitch = 0;
+                s.Velocity = 0;
+                s.Pitchbend = PitchbendHelpers.RawCenter;
+                _steps[_recordingStep][i] = s.Encode();
+            }
+
+            RaisePropertyChanged(nameof(Steps));
+            SetNotes();
+            RecordingStep = (_recordingStep + 1) % _steps.Length;
+        }
+
+        if (_isRecording && payload.Key == Key.Left && payload.IsDown == false && _isRecording)
+        {
+            RecordingStep = (Math.Max(0, _recordingStep - 1)) % _steps.Length;
+        }
+
+        if (_isRecording && payload.Key == Key.Right && payload.IsDown == false && _isRecording)
+        {
+            RecordingStep = (_recordingStep + 1) % _steps.Length;
+        }
+
+        if (_isRecording && payload.Key == Key.Home && payload.IsDown == false && _isRecording)
+        {
+            RecordingStep = 0;
+        }
+
+        if (_isRecording && payload.Key == Key.End && payload.IsDown == false && _isRecording)
+        {
+            RecordingStep = _steps.Length - 1;
+        }
     }
 
     void SetPitchBendRange(OutputDevice dev, int channel, int semitones, int fraction)
     {
+        // speichere Range (fraction ist 0..127, dabei ~ fraction/128 Semitone)
+        _pitchbendRangeSemitones = semitones + (fraction / 128.0);
+
         dev.SendEvent(new ControlChangeEvent((SevenBitNumber)101, (SevenBitNumber)0) { Channel = (FourBitNumber)channel }); // RPN MSB
         dev.SendEvent(new ControlChangeEvent((SevenBitNumber)100, (SevenBitNumber)0) { Channel = (FourBitNumber)channel }); // RPN LSB
         dev.SendEvent(new ControlChangeEvent((SevenBitNumber)6, (SevenBitNumber)semitones) { Channel = (FourBitNumber)channel }); // Data Entry MSB
@@ -204,6 +301,33 @@ public class Sequence : BindableBase, ISequence
             }
             _tickCount++;
         }
+
+        if (_isRecording && e.Event is NoteOnEvent noteOn)
+        {
+            for (int i = 0; i < _steps[_recordingStep].Length; i++)
+            {
+                var s = new Step(_steps[_recordingStep][i]);
+                s.On = true;
+                s.Tie = _leftShiftDown;
+                s.Pitch = noteOn.NoteNumber;
+                s.Velocity = noteOn.Velocity;
+                s.Pitchbend = _recordingPitchbend;
+                _steps[_recordingStep][i] = s.Encode();
+            }
+            RecordingStep = (_recordingStep + 1) % _steps.Length;
+            SetNotes();
+            RaisePropertyChanged(nameof(Steps));
+        }
+
+        if (_isRecording && e.Event is PitchBendEvent pitchBend)
+        {
+            _recordingPitchbend = pitchBend.PitchValue;
+        }
+
+        if (_isRecording && e.Event is ControlChangeEvent cc)
+        {
+
+        }
     }
 
     private void MutatePopulations()
@@ -256,6 +380,7 @@ public class Sequence : BindableBase, ISequence
         get => _steps.Length;
         set
         {
+            if (value <= 0) return;
             if (value > _steps.Length)
             {
                 var steps = _steps.ToList();
@@ -277,14 +402,14 @@ public class Sequence : BindableBase, ISequence
                 RaisePropertyChanged(nameof(Steps));
                 Application.Current.Dispatcher.Invoke(SetNotes);
             }
+
+            if (RecordingStep >= value)
+            {
+                RecordingStep = value - 1;
+            }
             RaisePropertyChanged(nameof(Length));
         }
     }
-    public IEnumerable<IStep> Steps => _steps.Select(s =>
-    {
-        var fittest = Fittest(s);
-        return new Step(fittest) { Fitness = CombinedFitness(fittest) };
-    });
 
     private void GenerateRandomSteps(int count)
     {
@@ -340,6 +465,9 @@ public class Sequence : BindableBase, ISequence
                     }
                 }
 
+                // korrekte Umrechnung in Cents (signed, negativ/positiv)
+                double cents = PitchbendHelpers.RawToCents(pitchbend, _pitchbendRangeSemitones);
+
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     Notes.Add(new ExtendedNote(
@@ -347,7 +475,7 @@ public class Sequence : BindableBase, ISequence
                         pitch,
                         velocity,
                         length,
-                        (pitchbend - 2048) / 2048 * 50,
+                        cents,
                         modWheel
                     ));
                 });

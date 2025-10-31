@@ -10,11 +10,15 @@
     <converters:AddConverter x:Key="Add" />
     <converters:NoteNumberConverter x:Key="NoteName" />
     <converters:BooleanToOpacityConverter x:Key="BooleanToOpacity" />
+    <converters:NotToOpacityConverter x:Key="NotToOpacity" />
     <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
     <converters:BarHeightConverter x:Key="BarHeight" />
     <converters:BarOffsetConverter x:Key="BarOffset" />
     <converters:NotConverter x:Key="Not" />
     <converters:FitnessToBrushConverter x:Key="FitnessToBrush" />
+    <converters:OnOffToColorConverter x:Key="OffToColor" />
+    <converters:RecordingStateToIconConverter x:Key="RecordingStateToIcon" />
+    <converters:NumberToMarginConverter x:Key="NumberToMargin" />
 
     <DataTemplate DataType="{x:Type model:Step}">
         <Border BorderBrush="#333" BorderThickness="1" Width="26">
@@ -87,22 +91,24 @@
                     </Rectangle.ToolTip>
                 </Rectangle>
                 <Line Grid.Row="1" X1="0" Y1="0" Y2="0"
-                      X2="{Binding Length, ConverterParameter=24, Converter={StaticResource Multiply}}"
+                      X2="{Binding Length, ConverterParameter=26, Converter={StaticResource Multiply}}"
                       Stroke="#666" StrokeThickness="1"/>
                 <Line Grid.Row="1" X1="0" Y1="18" Y2="18"
-                      X2="{Binding Length, ConverterParameter=24, Converter={StaticResource Multiply}}"
+                      X2="{Binding Length, ConverterParameter=26, Converter={StaticResource Multiply}}"
                       Stroke="#666" StrokeThickness="1"/>
                 <Line Grid.Row="1" X1="0" Y1="32" Y2="32"
-                      X2="{Binding Length, ConverterParameter=24, Converter={StaticResource Multiply}}"
+                      X2="{Binding Length, ConverterParameter=26, Converter={StaticResource Multiply}}"
                       Stroke="#666" StrokeThickness="1"/>
                 <TextBlock Grid.Row="2" Text="{Binding Pitch, Converter={StaticResource NoteName}}"
                            FontSize="10" HorizontalAlignment="Center"
-                           Margin="0,5"/>
+                           Margin="0,5"
+                           Opacity="{Binding Pause, Converter={StaticResource NotToOpacity}}"/>
                 <TextBlock Grid.Row="3" Text="{Binding Mod}" FontSize="10" Foreground="#888" 
                            HorizontalAlignment="Center"/>
             </Grid>
         </Border>
     </DataTemplate>
+
     <DataTemplate DataType="{x:Type model:Sequence}">
         <Grid>
             <Grid.RowDefinitions>
@@ -138,6 +144,7 @@
                     </syncfusion:SfRadialSlider>
                     <TextBlock Text="Channel" HorizontalAlignment="Center" FontSize="10" />
                 </StackPanel>
+
                 <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
                     <Button Style="{StaticResource Round3DButton}" Height="48" Width="48"
                             Margin="0,10"
@@ -169,8 +176,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Top">
-                    <TextBlock Text="Length" HorizontalAlignment="Center" FontSize="10"></TextBlock>
-                    <syncfusion:SfRadialSlider Width="120" Height="120" Margin="-12,-18, -12, -12"
+                    <syncfusion:SfRadialSlider Width="100" Height="100" Margin="-12,-18, -12, -12"
                                            Minimum="8" Maximum="128"
                                            Value="{Binding Length}"
                                            OuterRimRadiusFactor="0.6"
@@ -190,12 +196,37 @@
                         <Run Text="{Binding Length, Mode=OneWay}" />
                         </TextBlock>
                     </syncfusion:SfRadialSlider>
+                    <TextBlock Text="Length" HorizontalAlignment="Center" FontSize="10" />
+
+                    <syncfusion:SfRadialSlider Width="100" Height="100" Margin="-12,0, -12, -12"
+                                               Minimum="1" Maximum="100"
+                                               Value="{Binding Divider}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC"
+                                               IsEnabled="{Binding IsRunning, Converter={StaticResource Not}}">
+                        <TextBlock  FontSize="10">
+                            <Run Text="{Binding Divider, Mode=OneWay}" />
+                        </TextBlock>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Text="Divider" HorizontalAlignment="Center" FontSize="10" />
+
                 </StackPanel>
-                <ScrollViewer Grid.Column="1" Margin="5" VerticalAlignment="Top"
+                <ScrollViewer Grid.Column="1" Margin="20,30,20,0" VerticalAlignment="Top"
                           VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Auto">
                     <Grid>
                         <ItemsControl ItemsSource="{Binding Notes}"
-                                      Visibility="{Binding ShowSteps, Converter={StaticResource InverseBooleanToVisibility}}">
+                                      Visibility="{Binding ShowSteps, Converter={StaticResource InverseBooleanToVisibility}}"
+                                      Margin="0,0,0,20">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <StackPanel Orientation="Horizontal" />
@@ -203,33 +234,49 @@
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
                         <ItemsControl ItemsSource="{Binding Steps}"
-                                      Visibility="{Binding ShowSteps, Converter={StaticResource BooleanToVisibility}}">
+                                      Visibility="{Binding ShowSteps, Converter={StaticResource BooleanToVisibility}}"
+                                      Margin="0,0,0,20">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <StackPanel Orientation="Horizontal" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
+                        <Border Padding="4,0,0,0"
+                                Margin="{Binding RecordingStep, Converter={StaticResource NumberToMargin}, ConverterParameter=26}"
+                                Visibility="{Binding IsRecording, Converter={StaticResource BooleanToVisibility}}">
+                            <wpf:MaterialIcon Height="20" Foreground="Red" Kind="ArrowUp"
+                                              HorizontalAlignment="Left" VerticalAlignment="Bottom" />
+                        </Border>
                     </Grid>
                 </ScrollViewer>
 
                 <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Vertical" VerticalAlignment="Top"
                             Margin="10">
+                    <TextBlock Text="Steps/Notes" FontSize="8" />
+                    <CheckBox Style="{StaticResource BinarySwitchCheckBox}" IsChecked="{Binding ShowSteps}" Margin="0,5,0,10" />
                     <Button Style="{StaticResource Round3DButton}" Command="{Binding DyeCommand}"
-                        Background="Orange">
+                        Background="Orange"
+                        ToolTip="Random Sequence">
                         <wpf:MaterialIcon Kind="Dice5" Width="24" Opacity="0.5" />
                     </Button>
-                    <TextBlock Text="Steps/Notes" FontSize="8" Margin="0,10,0,-5" />
-                    <CheckBox Style="{StaticResource BinarySwitchCheckBox}" IsChecked="{Binding ShowSteps}" Margin="0,10,0,0" />
+                    <Button Style="{StaticResource Round3DButton}"
+                            Margin="0,10,0,0"
+                            Background="{Binding IsRecording, Converter={StaticResource OffToColor}}"
+                            Command="{Binding ToggleRecordCommand}"
+                            ToolTip="Start/Stop Recording">
+                        <wpf:MaterialIcon Kind="{Binding IsRecording, Converter={StaticResource RecordingStateToIcon}}" 
+                                          Width="24" Opacity="0.5" />
+                    </Button>
                 </StackPanel>
             </Grid>
 
             <ScrollViewer Grid.Column="1" Grid.Row="1"
-                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
-                <Grid>
-                    <ItemsControl ItemsSource="{Binding Fitness}" />
-                </Grid>
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Hidden">
+                <ItemsControl Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Fitness}" />
             </ScrollViewer>
+
         </Grid>
 
     </DataTemplate>

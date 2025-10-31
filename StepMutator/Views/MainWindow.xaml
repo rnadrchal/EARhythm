@@ -7,7 +7,10 @@
         xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
         prism:ViewModelLocator.AutoWireViewModel="True"
         syncfusion:SfSkinManager.Theme="{syncfusion:SkinManagerExtension ThemeName=FluentDark}"
-        Title="{Binding Title}" Height="350" Width="525" WindowState="Maximized" >
+        Title="{Binding Title}" Height="350" Width="525" WindowState="Maximized"
+        KeyboardNavigation.TabNavigation="None"
+        KeyboardNavigation.DirectionalNavigation="None">
+
     <Grid>
         <Grid.Resources>
             <converters:BooleanToOpacityConverter x:Key="BooleanToOpacity" />
