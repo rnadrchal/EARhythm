@@ -9,6 +9,7 @@ using StepMutator.Views;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using StepMutator.Models;
 
 namespace StepMutator
 {
@@ -39,6 +40,7 @@ namespace StepMutator
         {
             containerRegistry.RegisterSingleton<IEvolutionOptions, EvolutionOptions>();
             containerRegistry.RegisterSingleton<IMutator<ulong>, StepMutator<ulong>>();
+            containerRegistry.RegisterSingleton<FitnessSettings>();
         }
 
         protected override void OnStartup(StartupEventArgs e)

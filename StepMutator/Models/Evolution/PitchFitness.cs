@@ -3,8 +3,9 @@ using Prism.Mvvm;
 
 namespace StepMutator.Models.Evolution;
 
-public class NoteFitness : BindableBase, IFitness
+public class PitchFitness : BindableBase, IFitness
 {
+    private readonly byte _pitch;
     private double _weight = 1.0;
     public double Weight
     {
@@ -12,17 +13,15 @@ public class NoteFitness : BindableBase, IFitness
         set => SetProperty(ref _weight, value);
     }
 
-    private byte _targetNote = 60;
-    public byte TargetNote
+    public PitchFitness(byte pitch)
     {
-        get => _targetNote;
-        set => SetProperty(ref _targetNote, value);
+        _pitch = pitch;
     }
 
     public double Evaluate(ulong individual)
     {
         var step = new Step(individual);
-        var result = Math.Max(0.0, 1.0 - Math.Abs(_targetNote - step.Pitch) / 127.0);
+        var result = Math.Max(0.0, 1.0 - Math.Abs(_pitch - step.Pitch) / 127.0);
         return result * _weight;
     }
 }

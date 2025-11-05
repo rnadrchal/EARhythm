@@ -138,5 +138,58 @@
         </Setter>
     </Style>
 
+    <!-- GroupBox mit links platziertem, -90° gedrehtem Header und kleiner Schrift -->
+    <Style x:Key="RotatedLeftGroupBox" TargetType="GroupBox">
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="BorderBrush" Value="#333" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="GroupBox">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <!-- Spalte für gedrehten Header -->
+                            <ColumnDefinition Width="Auto" />
+                            <!-- Spalte für Inhalt -->
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Inhalt (rechts) -->
+                        <Border Grid.Column="1"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  Background="{TemplateBinding Background}"
+                  Padding="{TemplateBinding Padding}">
+                            <ContentPresenter
+                Content="{TemplateBinding Content}"
+                ContentSource="Content"
+                Margin="4" />
+                        </Border>
+
+                        <!-- Header (links), LayoutTransform sorgt dafür, dass Layout die Drehung berücksichtigt -->
+                        <Border Grid.Column="0" Background="Transparent" Padding="4,0,6,0" VerticalAlignment="Center">
+                            <ContentPresenter
+                ContentSource="Header"
+                RecognizesAccessKey="True"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                SnapsToDevicePixels="True">
+                                <ContentPresenter.LayoutTransform>
+                                    <RotateTransform Angle="-90" />
+                                </ContentPresenter.LayoutTransform>
+                                <!-- kleine Schrift über TemplateBinding sicherstellen -->
+                                <ContentPresenter.Style>
+                                    <Style TargetType="ContentPresenter">
+                                        <Setter Property="TextBlock.FontSize" Value="10" />
+                                    </Style>
+                                </ContentPresenter.Style>
+                            </ContentPresenter>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 </ResourceDictionary>

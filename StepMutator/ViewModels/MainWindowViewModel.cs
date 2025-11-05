@@ -14,6 +14,7 @@ namespace StepMutator.ViewModels
         private readonly IEventAggregator _eventAggregator;
         private readonly IEvolutionOptions _evolutionOptions;
         private readonly IMutator<ulong> _mutator;
+        private readonly FitnessSettings _fitnessSettings;
         private ulong _tick = 0;
         private string _title = "Helix";
         private int _currentStep = 0;
@@ -68,12 +69,13 @@ namespace StepMutator.ViewModels
 
         public ICommand ToggleStartStopCommand { get; }
 
-        public MainWindowViewModel(IEventAggregator eventAggregator, IEvolutionOptions evolutionOptions, IMutator<ulong> mutator)
+        public MainWindowViewModel(IEventAggregator eventAggregator, IEvolutionOptions evolutionOptions, IMutator<ulong> mutator, FitnessSettings fitnessSettings)
         {
             _eventAggregator = eventAggregator;
             _evolutionOptions = evolutionOptions;
             _mutator = mutator;
-            _sequence = new Sequence(evolutionOptions, mutator, _eventAggregator, 16);
+            _fitnessSettings = fitnessSettings;
+            _sequence = new Sequence(evolutionOptions, mutator, _eventAggregator, _fitnessSettings, 16);
             MidiDevices.Input.EventReceived += OnMidiEventReceived;
             ToggleStartStopCommand = new Prism.Commands.DelegateCommand(() =>
             {

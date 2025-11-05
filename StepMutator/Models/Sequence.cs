@@ -26,6 +26,7 @@ public class Sequence : BindableBase, ISequence
     IEvolutionOptions _evolutionOptions;
     private IEventAggregator _eventAggregator;
     private IMutator<ulong> _mutator;
+    private readonly FitnessSettings _fitnessSettings;
     private ulong[][] _steps;
     private ulong[] _attractor;
 
@@ -36,16 +37,7 @@ public class Sequence : BindableBase, ISequence
     private byte _channel;
 
     public IEvolutionOptions Options => _evolutionOptions;
-
-    public IFitness[] Fitness { get; } =
-    [
-        new NoteFitness(),
-        new VelocityFitness(),
-        new OffFitness(),
-        new TieFitness(),
-        new PitchbendFitness(),
-        new ControlChangeFitness()
-    ];
+    public FitnessSettings FitnessSettings => _fitnessSettings;
 
     private bool _showSteps = false;
     public bool ShowSteps
@@ -103,13 +95,35 @@ public class Sequence : BindableBase, ISequence
         set => SetProperty(ref _isEvolutionActive, value);
     }
 
-    private bool _isRecording;
-
-    public bool IsRecording
+    private bool _isSourceRecording = false;
+    public bool IsSourceRecording
     {
-        get => _isRecording;
-        set => SetProperty(ref _isRecording, value);
+        get => _isSourceRecording;
+        set
+        {
+            if (SetProperty(ref _isSourceRecording, value))
+            {
+                RaisePropertyChanged(nameof(IsRecording));
+            }
+        }
     }
+
+    private bool _isTargetRecording = false;
+
+    public bool IsTargetRecording
+    {
+        get => _isTargetRecording;
+        set
+        {
+            if (SetProperty(ref _isTargetRecording, value))
+            {
+                RaisePropertyChanged(nameof(IsRecording));
+            }
+        }
+    }
+
+    public bool IsRecording => IsSourceRecording || IsTargetRecording;
+
 
     private int _recordingStep = 0;
     public int RecordingStep
@@ -117,6 +131,8 @@ public class Sequence : BindableBase, ISequence
         get => _recordingStep;
         set => SetProperty(ref _recordingStep, value);
     }
+
+    private byte _recordingControlValue = 0;
 
     // Standardmäßig 14-bit center (kein Bend)
     private ushort _recordingPitchbend = PitchbendHelpers.RawCenter;
@@ -131,15 +147,15 @@ public class Sequence : BindableBase, ISequence
     private double _pitchbendRangeSemitones = 0.5;
 
     public ObservableCollection<ExtendedNote> Notes { get; } = new();
-    public IEnumerable<IStep> Steps => _steps.Select(s =>
-    {
-        var fittest = Fittest(s);
-        return new Step(fittest) { Fitness = CombinedFitness(fittest) };
-    });
 
+    public IEnumerable<IStep> Steps => Enumerable.Range(0, _steps.Length).Select(i =>  new Step(Fittest(_steps[i], i)));
     public ObservableCollection<ExtendedNote> AttractorNotes { get; } = new();
 
     public IEnumerable<IStep> Attractor => _attractor.Select(a => new Step(a));
+
+    public double[] Fitness => Enumerable.Range(0, _steps.Length)
+        .Select(i => CombinedFitness(Fittest(_steps[i], i), i))
+        .ToArray();
 
     public int Length
     {
@@ -185,24 +201,30 @@ public class Sequence : BindableBase, ISequence
                 RecordingStep = value - 1;
             }
             RaisePropertyChanged();
+            RaisePropertyChanged(nameof(Fitness));
         }
     }
 
     public ICommand DyeCommand { get; }
+    public ICommand DyeAttractorCommand { get; }
     public ICommand ToggleEvolutionCommand { get; }
     public ICommand TogglePitchbendCommand { get; }
     public ICommand ToggleViewCommand { get; }
-    public ICommand ToggleRecordCommand { get; }
+    public ICommand ToggleSourceRecordingCommand { get; }
+    public ICommand ToggleTargetRecordingCommand { get; }
 
-    public Sequence(IEvolutionOptions evolutionOptions, IMutator<ulong> mutator, IEventAggregator eventAggregator, int length = 16)
+    public Sequence(IEvolutionOptions evolutionOptions, IMutator<ulong> mutator, IEventAggregator eventAggregator, FitnessSettings fitnessSettings, int length = 16)
     {
         _evolutionOptions = evolutionOptions;
         _mutator = mutator;
         _eventAggregator = eventAggregator;
+        _fitnessSettings = fitnessSettings;
 
         _attractor = Enumerable.Range(0, length).Select(_ => GetRandomStep()).ToArray();
+        SetAttractorNotes();
         Dye(length);
         DyeCommand = new DelegateCommand(_ => Dye(Length));
+        DyeAttractorCommand = new DelegateCommand(_ => DyeAttractor());
         ToggleEvolutionCommand = new DelegateCommand(_ => IsEvolutionActive = !IsEvolutionActive);
         TogglePitchbendCommand = new DelegateCommand(_ =>
         {
@@ -216,7 +238,8 @@ public class Sequence : BindableBase, ISequence
             }
         });
         ToggleViewCommand = new DelegateCommand(_ => ShowSteps = !ShowSteps);
-        ToggleRecordCommand = new DelegateCommand(_ => IsRecording = !IsRecording);
+        ToggleSourceRecordingCommand = new DelegateCommand(_ => IsSourceRecording = !IsSourceRecording);
+        ToggleTargetRecordingCommand = new DelegateCommand(_ => IsTargetRecording = !IsTargetRecording);
         MidiDevices.Input.EventReceived += OnMidiEvent;
         // ±0,5 Halbton: semitones = 0, fraction = 64 (≈ 50 Cent)
         SetPitchBendRange(MidiDevices.Output, _channel, 0, 64);
@@ -233,7 +256,7 @@ public class Sequence : BindableBase, ISequence
             _leftShiftDown = payload.IsDown;
         }
 
-        if (_isRecording && payload.Key == Key.P && payload.IsDown == false)
+        if (IsSourceRecording && payload.Key == Key.P && payload.IsDown == false)
         {
             for (var i = 0; i < _steps[_recordingStep].Length; i++)
             {
@@ -251,22 +274,22 @@ public class Sequence : BindableBase, ISequence
             RecordingStep = (_recordingStep + 1) % _steps.Length;
         }
 
-        if (_isRecording && payload.Key == Key.Left && payload.IsDown == false && _isRecording)
+        if (IsRecording && payload is { Key: Key.Left, IsDown: false })
         {
             RecordingStep = (Math.Max(0, _recordingStep - 1)) % _steps.Length;
         }
 
-        if (_isRecording && payload.Key == Key.Right && payload.IsDown == false && _isRecording)
+        if (IsRecording && payload is { Key: Key.Right, IsDown: false })
         {
             RecordingStep = (_recordingStep + 1) % _steps.Length;
         }
 
-        if (_isRecording && payload.Key == Key.Home && payload.IsDown == false && _isRecording)
+        if (IsRecording && payload is { Key: Key.Home, IsDown: false })
         {
             RecordingStep = 0;
         }
 
-        if (_isRecording && payload.Key == Key.End && payload.IsDown == false && _isRecording)
+        if (IsRecording && payload is { Key: Key.End, IsDown: false })
         {
             RecordingStep = _steps.Length - 1;
         }
@@ -309,7 +332,7 @@ public class Sequence : BindableBase, ISequence
         {
             if (_tickCount % (ulong)(96 / _divider) == 0)
             {
-                var step = new Step(Fittest(_steps[_currentStep]));
+                var step = new Step(Fittest(_steps[_currentStep], _currentStep));
                 if (_sendPitchbend)
                     MidiDevices.Output.SendEvent(new PitchBendEvent(step.Pitchbend));
                 MidiDevices.Output.SendEvent(new ControlChangeEvent((SevenBitNumber)_controlNumber,
@@ -350,6 +373,7 @@ public class Sequence : BindableBase, ISequence
                     MutatePopulations();
                     Tournament();
                     RaisePropertyChanged(nameof(Steps));
+                    RaisePropertyChanged(nameof(Fitness));
                     SetNotes();
                 }
                 _currentStep = (_currentStep + 1) % _steps.Length;
@@ -357,31 +381,50 @@ public class Sequence : BindableBase, ISequence
             _tickCount++;
         }
 
-        if (_isRecording && e.Event is NoteOnEvent noteOn)
+        if (IsRecording && e.Event is NoteOnEvent noteOn)
         {
-            for (int i = 0; i < _steps[_recordingStep].Length; i++)
+            if (IsSourceRecording)
             {
-                var s = new Step(_steps[_recordingStep][i]);
+                for (int i = 0; i < _steps[_recordingStep].Length; i++)
+                {
+                    var s = new Step(_steps[_recordingStep][i]);
+                    s.On = true;
+                    s.Tie = _leftShiftDown;
+                    s.Pitch = noteOn.NoteNumber;
+                    s.Velocity = noteOn.Velocity;
+                    s.Pitchbend = _recordingPitchbend;
+                    s.ModWheel = _recordingControlValue;
+                    _steps[_recordingStep][i] = s.Encode();
+                }
+                SetNotes();
+                RaisePropertyChanged(nameof(Steps));
+            }
+
+            if (IsTargetRecording)
+            {
+                var s = new Step(_attractor[_recordingStep]);
                 s.On = true;
                 s.Tie = _leftShiftDown;
                 s.Pitch = noteOn.NoteNumber;
                 s.Velocity = noteOn.Velocity;
                 s.Pitchbend = _recordingPitchbend;
-                _steps[_recordingStep][i] = s.Encode();
+                s.ModWheel = _recordingControlValue;
+                _attractor[_recordingStep] = s.Encode();
+                SetAttractorNotes();
+                RaisePropertyChanged(nameof(Attractor));
             }
+            RaisePropertyChanged(nameof(Fitness));
             RecordingStep = (_recordingStep + 1) % _steps.Length;
-            SetNotes();
-            RaisePropertyChanged(nameof(Steps));
         }
 
-        if (_isRecording && e.Event is PitchBendEvent pitchBend)
+        if (IsRecording && e.Event is PitchBendEvent pitchBend)
         {
             _recordingPitchbend = pitchBend.PitchValue;
         }
 
-        if (_isRecording && e.Event is ControlChangeEvent cc)
+        if (IsRecording && e.Event is ControlChangeEvent cc && cc.ControlNumber == 0)
         {
-
+            _recordingControlValue = cc.ControlValue;
         }
     }
 
@@ -402,8 +445,8 @@ public class Sequence : BindableBase, ISequence
         for (var i = 0; i < _steps.Length; i++)
         {
             var participants = _steps[i].TakeRandom(10, rand);
-            var fittest = participants.GetFittest(2, CombinedFitness);
-            var extinct = Extinct(_steps[i]).ToArray();
+            var fittest = participants.GetFittest(2, indivdual => CombinedFitness(indivdual, i));
+            var extinct = Extinct(i).ToArray();
             if (extinct.Length > _steps[i].Length / 2)
             {
                 extinct = extinct.Take(_steps[i].Length / 2).ToArray();
@@ -415,18 +458,22 @@ public class Sequence : BindableBase, ISequence
             {
                 _steps[i][extinct[j]] = _mutator.Mutate(offsprings[j],1.0 / _steps[i].Length);
             }
-            var leastFittest = _steps[i].MinBy(CombinedFitness);
+            var leastFittest = _steps[i].MinBy(individual => CombinedFitness(individual, i));
             _steps[i][Array.IndexOf(_steps[i], leastFittest)] = _mutator.Mutate( offsprings[^1], 1.0 / _steps[i].Length);
         }
     }
-    IEnumerable<int> Extinct(ulong[] population, double threshold = 0.1)
+    IEnumerable<int> Extinct(int stepIndex, double threshold = 0.1)
     {
+        var target = new Step(_attractor[stepIndex]);
+        var population = _steps[stepIndex];
         for (int i = 0; i < population.Length; i++)
         {
-            if (Fitness.Any(f => f.Weight > 0.1 && f.Evaluate(population[i]) < threshold))
-            {
-                yield return i;
-            }
+            if (_fitnessSettings.WeightHit > 0 && new HitFitness(target.On) { Weight = _fitnessSettings.WeightHit }.Evaluate(population[i]) < threshold) yield return i;
+            if (_fitnessSettings.WeightPitch > 0 && new PitchFitness(target.Pitch){Weight = _fitnessSettings.WeightPitch}.Evaluate(population[i]) < threshold) yield return i;
+            if (_fitnessSettings.WeightVelocity > 0 && new VelocityFitness(target.Velocity) { Weight = _fitnessSettings.WeightVelocity }.Evaluate(population[i]) < threshold) yield return i;
+            if (_fitnessSettings.WeightTie > 0 && new TieFitness(target.Tie) { Weight = _fitnessSettings.WeightTie }.Evaluate(population[i]) <= threshold) yield return i;
+            if (_fitnessSettings.WeightPitchbend > 0 && new PitchbendFitness(target.Pitchbend) { Weight = _fitnessSettings.WeightPitchbend }.Evaluate(population[i]) < threshold) yield return i;
+            if (_fitnessSettings.WeightModulation > 0 && new ModulationFitness(target.ModWheel) { Weight = _fitnessSettings.WeightModulation }.Evaluate(population[i]) < threshold) yield return i;
         }
     }
 
@@ -455,7 +502,7 @@ public class Sequence : BindableBase, ISequence
         int i = 0;
         while (i < _steps.Length)
         {
-            var fittest = Fittest(_steps[i]);
+            var fittest = Fittest(_steps[i], i);
             var step = new Step(fittest);
 
             if (step.On)
@@ -471,7 +518,7 @@ public class Sequence : BindableBase, ISequence
                 int j = i + 1;
                 while (j < _steps.Length)
                 {
-                    var nextFittest = Fittest(_steps[j]);
+                    var nextFittest = Fittest(_steps[j], j);
                     var nextStep = new Step(nextFittest);
                     if (nextStep.On && nextStep.Tie && nextStep.Pitch == pitch)
                     {
@@ -508,7 +555,7 @@ public class Sequence : BindableBase, ISequence
                 int j = i + 1;
                 while (j < _steps.Length)
                 {
-                    var nextFittest = Fittest(_steps[j]);
+                    var nextFittest = Fittest(_steps[j], j);
                     var nextStep = new Step(nextFittest);
                     if (!nextStep.On)
                     {
@@ -549,7 +596,7 @@ public class Sequence : BindableBase, ISequence
 
                 // Find ties
                 int j = i + 1;
-                while (j < _steps.Length)
+                while (j < _attractor.Length)
                 {
                     var nextStep = new Step(_attractor[j]);
                     if (nextStep.On && nextStep.Tie && nextStep.Pitch == pitch)
@@ -585,7 +632,7 @@ public class Sequence : BindableBase, ISequence
                 // Count pauses
                 int pauseLength = 1;
                 int j = i + 1;
-                while (j < _steps.Length)
+                while (j < _attractor.Length)
                 {
                     var nextStep = new Step(_attractor[j]);
                     if (!nextStep.On)
@@ -618,17 +665,38 @@ public class Sequence : BindableBase, ISequence
     private void Dye(int length)
     {
         GenerateRandomSteps(length);
+        SetNotes();
+        RaisePropertyChanged(nameof(Steps));
+        RaisePropertyChanged(nameof(Fitness));
     }
 
-    double CombinedFitness(ulong individual)
+    private void DyeAttractor()
     {
-        var total = Fitness.Sum(f => f.Weight);
-        return Fitness.Sum(f => f.Evaluate(individual)) / total;
+        _attractor = Enumerable.Range(0, _attractor.Length).Select(_ => GetRandomStep()).ToArray();
+        SetAttractorNotes();
+        RaisePropertyChanged(nameof(Attractor));
+        RaisePropertyChanged(nameof(Fitness));
     }
 
-    private ulong Fittest(ulong[] steps)
+    double CombinedFitness(ulong individual, int stepIndex)
     {
-        var fittest = steps.MaxBy(CombinedFitness);
+        var total = _fitnessSettings.WeightHit + _fitnessSettings.WeightTie + _fitnessSettings.WeightPitch +
+                    _fitnessSettings.WeightVelocity + _fitnessSettings.WeightPitchbend
+                    + _fitnessSettings.WeightModulation;
+        var target = new Step(_attractor[stepIndex]);
+        var sum = new PitchFitness(target.Pitch) { Weight = _fitnessSettings.WeightPitch}.Evaluate(individual);
+        sum += new VelocityFitness(target.Velocity) { Weight = _fitnessSettings.WeightVelocity }.Evaluate(individual);
+        sum += new HitFitness(target.On) { Weight = _fitnessSettings.WeightHit }.Evaluate(individual);
+        sum += new TieFitness(target.Tie) { Weight = _fitnessSettings.WeightTie }.Evaluate(individual);
+        sum += new PitchbendFitness(target.Pitchbend) { Weight = _fitnessSettings.WeightPitchbend }.Evaluate(individual);
+        sum += new ModulationFitness(target.ModWheel) { Weight = _fitnessSettings.WeightModulation }.Evaluate(individual);
+
+        return sum / total;
+    }
+
+    private ulong Fittest(ulong[] steps, int stepIndex)
+    {
+        var fittest = steps.MaxBy(individual => CombinedFitness(individual, stepIndex));
         return fittest;
     }
 }

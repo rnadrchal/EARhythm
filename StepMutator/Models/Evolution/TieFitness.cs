@@ -5,6 +5,7 @@ namespace StepMutator.Models.Evolution;
 
 public class TieFitness : BindableBase, IFitness
 {
+    private readonly bool _tie;
     private double _weight = 1.0;
 
     public double Weight
@@ -13,22 +14,13 @@ public class TieFitness : BindableBase, IFitness
         set => SetProperty(ref _weight, value);
     }
 
-    private bool _legato = true;
-    public bool Legato
+    public TieFitness(bool tie)
     {
-        get => _legato;
-        set => SetProperty(ref _legato, value);
-    }
-
-    public ICommand ToggleTieCommand { get; }
-
-    public TieFitness()
-    {
-        ToggleTieCommand = new Prism.Commands.DelegateCommand(() => Legato = !Legato);
+        _tie = tie;
     }
     public double Evaluate(ulong individual)
     {
         var step = new Step(individual);
-        return step.Tie == _legato ? 0.8 : 0.2;
+        return step.Tie == _tie ? 0.8 * _weight : 0.2 * _weight;
     }
 }
