@@ -24,33 +24,23 @@
         <Border BorderBrush="#333" BorderThickness="1" Width="26">
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="14" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="36" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="36" />
+                    <RowDefinition Height="32" />
                 </Grid.RowDefinitions>
                 <wpf:MaterialIcon Grid.Row="0" Kind="ArrowRight" Height="12"
                                   Visibility="{Binding Tie, Converter={StaticResource BooleanToVisibility}}"
                                   Opacity="{Binding On, Converter={StaticResource BooleanToOpacity}}"/>
-                <Rectangle Grid.Row="1" HorizontalAlignment="Stretch"
+                <TextBlock Grid.Row="1" Text="{Binding Pitch, Converter={StaticResource NoteName}}"
+                           FontSize="10" HorizontalAlignment="Center"
+                           Margin="0,5"/>
+                <Rectangle Grid.Row="2" HorizontalAlignment="Stretch"
                            Height="{Binding Velocity, ConverterParameter=0.25, Converter={StaticResource Multiply}}"
                            Fill="Orange" VerticalAlignment="Bottom">
                     <Rectangle.ToolTip>
                         <TextBlock FontSize="12">
                             <Run Text="Velocity" />
                             <Run Text="{Binding Velocity, Mode=OneWay}" />
-                        </TextBlock>
-                    </Rectangle.ToolTip>
-                </Rectangle>
-                <TextBlock Grid.Row="2" Text="{Binding Pitch, Converter={StaticResource NoteName}}"
-                           FontSize="10" HorizontalAlignment="Center"
-                           Margin="0,5"/>
-                <Rectangle Grid.Row="3" HorizontalAlignment="Stretch"
-                           Height="{Binding Fitness, ConverterParameter=36, Converter={StaticResource Multiply}}"
-                           Fill="{Binding Fitness, Converter={StaticResource FitnessToBrush}}" VerticalAlignment="Bottom">
-                    <Rectangle.ToolTip>
-                        <TextBlock FontSize="12">
-                            <Run Text="Fitness = " /><Run Text="{Binding Fitness, StringFormat=N2}" />
                         </TextBlock>
                     </Rectangle.ToolTip>
                 </Rectangle>
@@ -193,7 +183,7 @@
                                            FontFamily="Kristen ITC"
                                            IsEnabled="{Binding IsRunning, Converter={StaticResource Not}}">
                         <TextBlock  FontSize="10">
-                        <Run Text="{Binding Length, Mode=OneWay}" />
+                            <Run Text="{Binding Length, Mode=OneWay}" />
                         </TextBlock>
                     </syncfusion:SfRadialSlider>
                     <TextBlock Text="Length" HorizontalAlignment="Center" FontSize="10" />
@@ -224,7 +214,17 @@
                 <ScrollViewer Grid.Column="1" Margin="20,30,20,0" VerticalAlignment="Top"
                           VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Auto">
                     <Grid>
-                        <ItemsControl ItemsSource="{Binding Notes}"
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ItemsControl Grid.Column="0" Grid.Row="0" ItemsSource="{Binding Notes}"
                                       Visibility="{Binding ShowSteps, Converter={StaticResource InverseBooleanToVisibility}}"
                                       Margin="0,0,0,20">
                             <ItemsControl.ItemsPanel>
@@ -233,7 +233,7 @@
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
-                        <ItemsControl ItemsSource="{Binding Steps}"
+                        <ItemsControl Grid.Column="0" Grid.Row="0" ItemsSource="{Binding Steps}"
                                       Visibility="{Binding ShowSteps, Converter={StaticResource BooleanToVisibility}}"
                                       Margin="0,0,0,20">
                             <ItemsControl.ItemsPanel>
@@ -242,7 +242,26 @@
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
-                        <Border Padding="4,0,0,0"
+                        <ItemsControl Grid.Column="0" Grid.Row="1" ItemsSource="{Binding AttractorNotes}"
+                                      Visibility="{Binding ShowSteps, Converter={StaticResource InverseBooleanToVisibility}}"
+                                      Margin="0,0,0,20">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <ItemsControl Grid.Column="0" Grid.Row="1" ItemsSource="{Binding Attractor}"
+                                      Visibility="{Binding ShowSteps, Converter={StaticResource BooleanToVisibility}}"
+                                      Margin="0,0,0,20">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+
+                        <Border Grid.Column="0" Grid.Row="2" Padding="4,0,0,0"
                                 Margin="{Binding RecordingStep, Converter={StaticResource NumberToMargin}, ConverterParameter=26}"
                                 Visibility="{Binding IsRecording, Converter={StaticResource BooleanToVisibility}}">
                             <wpf:MaterialIcon Height="20" Foreground="Red" Kind="ArrowUp"

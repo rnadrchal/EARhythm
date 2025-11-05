@@ -27,6 +27,7 @@ public class Sequence : BindableBase, ISequence
     private IEventAggregator _eventAggregator;
     private IMutator<ulong> _mutator;
     private ulong[][] _steps;
+    private ulong[] _attractor;
 
     private ulong _tickCount = 0;
     private int _currentStep = 0;
@@ -78,6 +79,7 @@ public class Sequence : BindableBase, ISequence
             SetProperty(ref _divider, value);
         }
     }
+
 
     private byte _controlNumber = 1;
 
@@ -135,6 +137,57 @@ public class Sequence : BindableBase, ISequence
         return new Step(fittest) { Fitness = CombinedFitness(fittest) };
     });
 
+    public ObservableCollection<ExtendedNote> AttractorNotes { get; } = new();
+
+    public IEnumerable<IStep> Attractor => _attractor.Select(a => new Step(a));
+
+    public int Length
+    {
+        get => _steps.Length;
+        set
+        {
+            if (value <= 0) return;
+            if (value > _steps.Length)
+            {
+                var steps = _steps.ToList();
+                var attractorSteps = _attractor.ToList();
+                for (var i = 0; i < value - _steps.Length; ++i)
+                {
+                    steps.Add(CreateRandomPopulation());
+                    attractorSteps.Add(GetRandomStep());
+                }
+                _steps = steps.ToArray();
+                _attractor = attractorSteps.ToArray();
+                RaisePropertyChanged(nameof(Steps));
+                RaisePropertyChanged(nameof(Attractor));
+                SetNotes();
+                SetAttractorNotes();
+            }
+            if (value < _steps.Length)
+            {
+                _steps = _steps.Take(value).ToArray();
+                _attractor = _attractor.Take(value).ToArray();
+                if (_currentStep > _steps.Length)
+                {
+                    _currentStep = _steps.Length - 1;
+                }
+                RaisePropertyChanged(nameof(Steps));
+                RaisePropertyChanged(nameof(Attractor));
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    SetNotes();
+                    SetAttractorNotes();
+                });
+            }
+
+            if (RecordingStep >= value)
+            {
+                RecordingStep = value - 1;
+            }
+            RaisePropertyChanged();
+        }
+    }
+
     public ICommand DyeCommand { get; }
     public ICommand ToggleEvolutionCommand { get; }
     public ICommand TogglePitchbendCommand { get; }
@@ -146,6 +199,8 @@ public class Sequence : BindableBase, ISequence
         _evolutionOptions = evolutionOptions;
         _mutator = mutator;
         _eventAggregator = eventAggregator;
+
+        _attractor = Enumerable.Range(0, length).Select(_ => GetRandomStep()).ToArray();
         Dye(length);
         DyeCommand = new DelegateCommand(_ => Dye(Length));
         ToggleEvolutionCommand = new DelegateCommand(_ => IsEvolutionActive = !IsEvolutionActive);
@@ -375,42 +430,6 @@ public class Sequence : BindableBase, ISequence
         }
     }
 
-    public int Length
-    {
-        get => _steps.Length;
-        set
-        {
-            if (value <= 0) return;
-            if (value > _steps.Length)
-            {
-                var steps = _steps.ToList();
-                for (var i = 0; i < value - _steps.Length; ++i)
-                {
-                    steps.Add(CreateRandomPopulation());
-                }
-                _steps = steps.ToArray();
-                RaisePropertyChanged(nameof(Steps));
-                SetNotes();
-            }
-            if (value < _steps.Length)
-            {
-                _steps = _steps.Take(value).ToArray();
-                if (_currentStep > _steps.Length)
-                {
-                    _currentStep = _steps.Length - 1;
-                }
-                RaisePropertyChanged(nameof(Steps));
-                Application.Current.Dispatcher.Invoke(SetNotes);
-            }
-
-            if (RecordingStep >= value)
-            {
-                RecordingStep = value - 1;
-            }
-            RaisePropertyChanged(nameof(Length));
-        }
-    }
-
     private void GenerateRandomSteps(int count)
     {
         _steps = new ulong[count][];
@@ -505,6 +524,84 @@ public class Sequence : BindableBase, ISequence
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     Notes.Add(new ExtendedNote(true, 0, 0, pauseLength, 0, 0));
+                });
+                i += pauseLength;
+            }
+        }
+    }
+
+    private void SetAttractorNotes()
+    {
+        Application.Current.Dispatcher.Invoke(AttractorNotes.Clear);
+        int i = 0;
+        while (i < _attractor.Length)
+        {
+            var step = new Step(_attractor[i]);
+
+            if (step.On)
+            {
+                // Start new note
+                int length = 1;
+                var pitch = step.Pitch;
+                var velocity = step.Velocity;
+                var pitchbend = step.Pitchbend;
+                var modWheel = step.ModWheel;
+
+                // Find ties
+                int j = i + 1;
+                while (j < _steps.Length)
+                {
+                    var nextStep = new Step(_attractor[j]);
+                    if (nextStep.On && nextStep.Tie && nextStep.Pitch == pitch)
+                    {
+                        length++;
+                        j++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                // korrekte Umrechnung in Cents (signed, negativ/positiv)
+                double cents = PitchbendHelpers.RawToCents(pitchbend, _pitchbendRangeSemitones);
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    AttractorNotes.Add(new ExtendedNote(
+                        false,
+                        pitch,
+                        velocity,
+                        length,
+                        cents,
+                        modWheel
+                    ));
+                });
+
+                i += length;
+            }
+            else
+            {
+                // Count pauses
+                int pauseLength = 1;
+                int j = i + 1;
+                while (j < _steps.Length)
+                {
+                    var nextStep = new Step(_attractor[j]);
+                    if (!nextStep.On)
+                    {
+                        pauseLength++;
+                        j++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    AttractorNotes.Add(new ExtendedNote(true, 0, 0, pauseLength, 0, 0));
                 });
                 i += pauseLength;
             }
