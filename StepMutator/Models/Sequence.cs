@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Policy;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Navigation;
@@ -29,6 +30,9 @@ public class Sequence : BindableBase, ISequence
     private readonly FitnessSettings _fitnessSettings;
     private ulong[][] _steps;
     private ulong[] _attractor;
+
+    private ulong[][] _originalSteps = new ulong[][] {};
+    private ulong[] _originalAttractor = [];
 
     private ulong _tickCount = 0;
     private int _currentStep = 0;
@@ -212,6 +216,7 @@ public class Sequence : BindableBase, ISequence
     public ICommand ToggleViewCommand { get; }
     public ICommand ToggleSourceRecordingCommand { get; }
     public ICommand ToggleTargetRecordingCommand { get; }
+    public ICommand RevertCommand { get; }
 
     public Sequence(IEvolutionOptions evolutionOptions, IMutator<ulong> mutator, IEventAggregator eventAggregator, FitnessSettings fitnessSettings, int length = 16)
     {
@@ -238,13 +243,52 @@ public class Sequence : BindableBase, ISequence
             }
         });
         ToggleViewCommand = new DelegateCommand(_ => ShowSteps = !ShowSteps);
-        ToggleSourceRecordingCommand = new DelegateCommand(_ => IsSourceRecording = !IsSourceRecording);
-        ToggleTargetRecordingCommand = new DelegateCommand(_ => IsTargetRecording = !IsTargetRecording);
+        ToggleSourceRecordingCommand = new DelegateCommand(_ => ToggleSourceRecording());
+        ToggleTargetRecordingCommand = new DelegateCommand(_ => ToggleTargetRecording());
+        RevertCommand = new DelegateCommand(_ => RevertStepsAndAttractor());
         MidiDevices.Input.EventReceived += OnMidiEvent;
         // ±0,5 Halbton: semitones = 0, fraction = 64 (≈ 50 Cent)
         SetPitchBendRange(MidiDevices.Output, _channel, 0, 64);
 
         _eventAggregator.GetEvent<GlobalKeyEvent>().Subscribe(OnGLobalKeyEvent);
+    }
+
+    private void ToggleSourceRecording()
+    {
+        IsSourceRecording = !IsSourceRecording;
+        if (!IsRecording)
+        {
+            CloneStepsAndAttractor();
+        }
+    }
+
+    private void ToggleTargetRecording()
+    {
+        IsTargetRecording = !IsTargetRecording;
+        if (!IsRecording)
+        {
+            CloneStepsAndAttractor();
+        }
+    }
+
+    private void CloneStepsAndAttractor()
+    {
+        // Deep copy: jede Population (ulong[]) klonen, so dass _originalSteps unabhängig ist
+        _originalSteps = _steps?.Select(pop => pop?.ToArray() ?? Array.Empty<ulong>()).ToArray() ?? Array.Empty<ulong[]>();
+
+        // Deep copy des Attractors
+        _originalAttractor = _attractor?.ToArray() ?? Array.Empty<ulong>();
+    }
+
+    private void RevertStepsAndAttractor()
+    {
+        _steps = _originalSteps?.Select(pop => pop?.ToArray() ?? Array.Empty<ulong>()).ToArray() ?? Array.Empty<ulong[]>();
+        _attractor = _originalAttractor?.ToArray() ?? Array.Empty<ulong>();
+        SetNotes();
+        SetAttractorNotes();
+        RaisePropertyChanged(nameof(Length));
+        RaisePropertyChanged(nameof(Steps));
+        RaisePropertyChanged(nameof(Attractor));
     }
 
     private bool _leftShiftDown;
@@ -256,21 +300,42 @@ public class Sequence : BindableBase, ISequence
             _leftShiftDown = payload.IsDown;
         }
 
-        if (IsSourceRecording && payload.Key == Key.P && payload.IsDown == false)
+        if (IsRecording && payload.Key == Key.P && payload.IsDown == false)
         {
-            for (var i = 0; i < _steps[_recordingStep].Length; i++)
+            if (IsSourceRecording)
             {
-                var s = new Step(_steps[_recordingStep][i]);
-                s.On = false;
-                s.Tie = false;
-                s.Pitch = 0;
-                s.Velocity = 0;
-                s.Pitchbend = PitchbendHelpers.RawCenter;
-                _steps[_recordingStep][i] = s.Encode();
+
+                for (var i = 0; i < _steps[_recordingStep].Length; i++)
+                {
+                    var s = new Step(_steps[_recordingStep][i]);
+                    s.On = false;
+                    s.Tie = false;
+                    s.Pitch = 0;
+                    s.Velocity = 0;
+                    s.Pitchbend = PitchbendHelpers.RawCenter;
+                    _steps[_recordingStep][i] = s.Encode();
+                }
+
+                RaisePropertyChanged(nameof(Steps));
+                SetNotes();
             }
 
-            RaisePropertyChanged(nameof(Steps));
-            SetNotes();
+            if (IsTargetRecording)
+            {
+                var s = new Step(_attractor[_recordingStep])
+                {
+                    On = false,
+                    Tie = false,
+                    Pitch = 0,
+                    Velocity = 0,
+                    Pitchbend = PitchbendHelpers.RawCenter
+                };
+                _attractor[_recordingStep] = s.Encode();
+
+                RaisePropertyChanged(nameof(Attractor));
+                SetAttractorNotes();
+            }
+
             RecordingStep = (_recordingStep + 1) % _steps.Length;
         }
 
@@ -446,30 +511,31 @@ public class Sequence : BindableBase, ISequence
         {
             var fittest = _steps[i].GetFittest(_evolutionOptions.TournamentSize, individual => CombinedFitness(individual, i));
             var participants = fittest.TakeRandom(2, rand);
-            //var fittest = participants.GetFittest(2, indivdual => CombinedFitness(indivdual, i));
-            //var extinct = Extinct(i).ToArray();
-            //if (extinct.Length > _steps[i].Length * _evolutionOptions.ExtinctionRate)
-            //{
-            //    extinct = extinct.Take((int)(_steps[i].Length * _evolutionOptions.ExtinctionRate)).ToArray();
-            //}
+            var extinct = Extinct(i, _evolutionOptions.ExtinctionThreshold).ToArray();
+            if (extinct.Length > _steps[i].Length * _evolutionOptions.ExtinctionRate)
+            {
+                extinct = extinct.Take((int)(_steps[i].Length * _evolutionOptions.ExtinctionRate)).ToArray();
+            }
+
+            var replacements = _mutator.GenerateOffspring(participants.First(), participants.Last(), extinct.Length,
+                _evolutionOptions)
+                .ToList();
+            int j;
+            for (j = 0; j < extinct.Length; j++)
+            {
+                _steps[i][extinct[j]] = _mutator.Mutate(replacements[j], 1.0 / _steps[i].Length);
+            }
 
             var offspringCount = rand.Next(1, _evolutionOptions.MaxOffsprings);
             var offsprings = _mutator.GenerateOffspring(participants.First(), participants.Last(), offspringCount, _evolutionOptions)
                 .ToList();
             var leastFittest = _steps[i].OrderBy(individual => CombinedFitness(individual, i)).Take(offspringCount);
-            int j = 0;
+            j = 0;
             foreach (var individual in leastFittest)
             {
                 _steps[i][Array.IndexOf(_steps[i], individual)] = _mutator.Mutate(offsprings[j++], i);
-                //offsprings.RemoveAt(0);
             }
 
-            //for (var j = 0; j < extinct.Length; j++)
-            //{
-            //    _steps[i][extinct[j]] = _mutator.Mutate(offsprings[j],1.0 / _steps[i].Length);
-            //}
-            //var leastFittest = _steps[i].MinBy(individual => CombinedFitness(individual, i));
-            //_steps[i][Array.IndexOf(_steps[i], leastFittest)] = _mutator.Mutate( offsprings[^1], 1.0 / _steps[i].Length);
         }
     }
     IEnumerable<int> Extinct(int stepIndex, double threshold = 0.1)
@@ -675,6 +741,7 @@ public class Sequence : BindableBase, ISequence
     private void Dye(int length)
     {
         GenerateRandomSteps(length);
+        CloneStepsAndAttractor();
         SetNotes();
         RaisePropertyChanged(nameof(Steps));
         RaisePropertyChanged(nameof(Fitness));
@@ -683,6 +750,7 @@ public class Sequence : BindableBase, ISequence
     private void DyeAttractor()
     {
         _attractor = Enumerable.Range(0, _attractor.Length).Select(_ => GetRandomStep()).ToArray();
+        CloneStepsAndAttractor();
         SetAttractorNotes();
         RaisePropertyChanged(nameof(Attractor));
         RaisePropertyChanged(nameof(Fitness));

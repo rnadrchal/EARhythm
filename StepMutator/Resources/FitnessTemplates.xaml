@@ -3,12 +3,13 @@
                     xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
                     xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
                     xmlns:model="clr-namespace:StepMutator.Models"
-                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:evolution="clr-namespace:StepMutator.Models.Evolution">
 
     <converters:BooleanToOpacityConverter x:Key="BooleanToOpacity" />
     <converters:FitnessToBrushConverter x:Key="FitnessToBrush" />
 
-    <DataTemplate DataType="{x:Type model:FitnessSettings}">
+    <DataTemplate DataType="{x:Type evolution:FitnessSettings}">
         <GroupBox Header="Fitness Weights">
             <Grid>
                 <Grid.ColumnDefinitions>

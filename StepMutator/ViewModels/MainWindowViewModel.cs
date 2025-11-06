@@ -5,6 +5,7 @@ using Melanchall.DryWetMidi.Multimedia;
 using Prism.Events;
 using Prism.Mvvm;
 using StepMutator.Models;
+using StepMutator.Models.Evolution;
 using StepMutator.Services;
 
 namespace StepMutator.ViewModels

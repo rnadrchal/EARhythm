@@ -9,7 +9,6 @@ using StepMutator.Views;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
-using StepMutator.Models;
 
 namespace StepMutator
 {
