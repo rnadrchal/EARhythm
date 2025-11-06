@@ -63,7 +63,10 @@ public class StepMutator<T> : IMutator<T> where T : struct, INumber<T>
             {
                 yield return parent1.Crossover(parent2, _random);
             }
-            yield return _random.NextDouble() < 0.5 ? parent1 : parent2;
+            else
+            {
+                yield return _random.NextDouble() < 0.5 ? parent1 : parent2;
+            }
         }
     }
 }

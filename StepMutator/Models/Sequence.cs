@@ -444,22 +444,32 @@ public class Sequence : BindableBase, ISequence
         var rand = RandomProvider.Get(_evolutionOptions.Seed);
         for (var i = 0; i < _steps.Length; i++)
         {
-            var participants = _steps[i].TakeRandom(10, rand);
-            var fittest = participants.GetFittest(2, indivdual => CombinedFitness(indivdual, i));
-            var extinct = Extinct(i).ToArray();
-            if (extinct.Length > _steps[i].Length / 2)
+            var fittest = _steps[i].GetFittest(_evolutionOptions.TournamentSize, individual => CombinedFitness(individual, i));
+            var participants = fittest.TakeRandom(2, rand);
+            //var fittest = participants.GetFittest(2, indivdual => CombinedFitness(indivdual, i));
+            //var extinct = Extinct(i).ToArray();
+            //if (extinct.Length > _steps[i].Length * _evolutionOptions.ExtinctionRate)
+            //{
+            //    extinct = extinct.Take((int)(_steps[i].Length * _evolutionOptions.ExtinctionRate)).ToArray();
+            //}
+
+            var offspringCount = rand.Next(1, _evolutionOptions.MaxOffsprings);
+            var offsprings = _mutator.GenerateOffspring(participants.First(), participants.Last(), offspringCount, _evolutionOptions)
+                .ToList();
+            var leastFittest = _steps[i].OrderBy(individual => CombinedFitness(individual, i)).Take(offspringCount);
+            int j = 0;
+            foreach (var individual in leastFittest)
             {
-                extinct = extinct.Take(_steps[i].Length / 2).ToArray();
+                _steps[i][Array.IndexOf(_steps[i], individual)] = _mutator.Mutate(offsprings[j++], i);
+                //offsprings.RemoveAt(0);
             }
 
-            var offsprings = _mutator.GenerateOffspring(fittest.First(), fittest.Last(), extinct.Length + 1, _evolutionOptions)
-                .ToList();
-            for (var j = 0; j < extinct.Length; j++)
-            {
-                _steps[i][extinct[j]] = _mutator.Mutate(offsprings[j],1.0 / _steps[i].Length);
-            }
-            var leastFittest = _steps[i].MinBy(individual => CombinedFitness(individual, i));
-            _steps[i][Array.IndexOf(_steps[i], leastFittest)] = _mutator.Mutate( offsprings[^1], 1.0 / _steps[i].Length);
+            //for (var j = 0; j < extinct.Length; j++)
+            //{
+            //    _steps[i][extinct[j]] = _mutator.Mutate(offsprings[j],1.0 / _steps[i].Length);
+            //}
+            //var leastFittest = _steps[i].MinBy(individual => CombinedFitness(individual, i));
+            //_steps[i][Array.IndexOf(_steps[i], leastFittest)] = _mutator.Mutate( offsprings[^1], 1.0 / _steps[i].Length);
         }
     }
     IEnumerable<int> Extinct(int stepIndex, double threshold = 0.1)

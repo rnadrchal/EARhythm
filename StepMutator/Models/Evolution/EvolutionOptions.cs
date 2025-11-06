@@ -124,4 +124,26 @@ public class EvolutionOptions : BindableBase, IEvolutionOptions
         }
     }
 
+    private int _tournamentSize = 10;
+    public int TournamentSize
+    {
+        get => _tournamentSize;
+        set => SetProperty(ref _tournamentSize, value);
+    }
+
+    private double _extinctionRate = 0.25;
+    public double ExtinctionRate
+    {
+        get => _extinctionRate;
+        set => SetProperty(ref _extinctionRate, value);
+    }
+
+
+    private int _maxOffsprings = 10;
+    public int MaxOffsprings
+    {
+        get => _maxOffsprings;
+        set => SetProperty(ref _maxOffsprings, value);
+    }
+
 }

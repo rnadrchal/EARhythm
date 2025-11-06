@@ -23,7 +23,7 @@ public class PitchbendFitness : BindableBase, IFitness
     {
         var step = new Step(individual);
         var diff = Math.Abs(step.Pitchbend - _pitchbend);
-        var score = 1.0 - (double)diff / 4096.0;
+        var score = 1.0 - (double)diff / 16384.0;
         return score * _weight;
     }
 }

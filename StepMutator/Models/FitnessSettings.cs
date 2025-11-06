@@ -4,28 +4,28 @@ namespace StepMutator.Models;
 
 public class FitnessSettings : BindableBase
 {
-    private double _weightPitch = 20.0;
+    private double _weightPitch = 60.0;
     public double WeightPitch
     {
         get => _weightPitch;
         set => SetProperty(ref _weightPitch, value);
     }
 
-    private double _weightVelocity = 10.0;
+    private double _weightVelocity = 20.0;
     public double WeightVelocity
     {
         get => _weightVelocity;
         set => SetProperty(ref _weightVelocity, value);
     }
 
-    private double _weightHit = 40.0;
+    private double _weightHit = 90.0;
     public double WeightHit
     {
         get => _weightHit;
         set => SetProperty(ref _weightHit, value);
     }
 
-    private double _weightTie = 20.0;
+    private double _weightTie = 50.0;
     public double WeightTie
     {
         get => _weightTie;

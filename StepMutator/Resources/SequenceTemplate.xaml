@@ -131,27 +131,6 @@
 
             <StackPanel Orientation="Horizontal" Margin="10, -32, 50,15">
                 <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Bottom">
-                    <syncfusion:SfRadialSlider Width="80" Height="80" Margin="0,-10,0,-5"
-                                               Minimum="0" Maximum="15"
-                                               Value="{Binding Channel}"
-                                               OuterRimRadiusFactor="0.6"
-                                               OuterRimStroke="#444"
-                                               OuterRimStrokeThickness="3"
-                                               InnerRimFill="#666"
-                                               InnerRimStroke="#444"
-                                               InnerRimRadiusFactor="0.4"
-                                               StartAngle="135" EndAngle="405"
-                                               TickFrequency="16"
-                                               TickVisibility="Visible"
-                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
-                                               LabelVisibility="Hidden"
-                                               FontFamily="Kristen ITC"
-                                               IsEnabled="{Binding IsRunning, Converter={StaticResource Not}}">
-                        <TextBlock  FontSize="10">
-                            <Run Text="{Binding Channel, Mode=OneWay, ConverterParameter=1, Converter={StaticResource Add}}" />
-                        </TextBlock>
-                    </syncfusion:SfRadialSlider>
-                    <TextBlock Text="Channel" HorizontalAlignment="Center" FontSize="10" />
                 </StackPanel>
 
                 <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
@@ -178,19 +157,20 @@
 
             </StackPanel>
 
-            <Grid Grid.Column="0" Grid.Row="1" Margin="5" IsSharedSizeScope="True">
+            <Grid Grid.Column="0" Grid.Row="1" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="120" />
                     <RowDefinition Height="84" />
                     <RowDefinition Height="120" />
                 </Grid.RowDefinitions>
-                <StackPanel Grid.Column="0" Grid.RowSpan="3" Orientation="Vertical" VerticalAlignment="Top">
+                <StackPanel Grid.Column="0" Grid.RowSpan="5" Orientation="Vertical" VerticalAlignment="Top">
                     <TextBlock Text="View Mode" FontSize="8" HorizontalAlignment="Center" />
                     <CheckBox Style="{StaticResource BinarySwitchCheckBox}" IsChecked="{Binding ShowSteps}" Margin="0,5,0,10" />
 
@@ -214,9 +194,10 @@
                             <Run Text="{Binding Length, Mode=OneWay}" />
                         </TextBlock>
                     </syncfusion:SfRadialSlider>
-                    <TextBlock Text="Length" HorizontalAlignment="Center" FontSize="10" />
+                    <TextBlock Text="Length" HorizontalAlignment="Center" FontSize="10"
+                               Margin="0,-12,0,0"/>
 
-                    <syncfusion:SfRadialSlider Width="100" Height="100" Margin="-12,0, -12, -12"
+                    <syncfusion:SfRadialSlider Width="100" Height="100"
                                                Minimum="1" Maximum="100"
                                                Value="{Binding Divider}"
                                                OuterRimRadiusFactor="0.6"
@@ -236,7 +217,31 @@
                             <Run Text="{Binding Divider, Mode=OneWay}" />
                         </TextBlock>
                     </syncfusion:SfRadialSlider>
-                    <TextBlock Text="Divider" HorizontalAlignment="Center" FontSize="10" />
+                    <TextBlock Text="Divider" HorizontalAlignment="Center" FontSize="10" 
+                               Margin="0,-12,0,0"/>
+
+                    <syncfusion:SfRadialSlider Width="100" Height="100"
+                                               Minimum="0" Maximum="15"
+                                               Value="{Binding Channel}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC"
+                                               IsEnabled="{Binding IsRunning, Converter={StaticResource Not}}">
+                        <TextBlock  FontSize="10">
+                            <Run Text="{Binding Channel, Mode=OneWay, ConverterParameter=1, Converter={StaticResource Add}}" />
+                        </TextBlock>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Text="Channel" HorizontalAlignment="Center" FontSize="10" />
+
 
                 </StackPanel>
 
