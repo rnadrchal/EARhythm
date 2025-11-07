@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Security.Policy;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Navigation;
-using Egami.Rhythm.EA.Extensions;
+﻿using Egami.Rhythm.EA.Extensions;
 using Egami.Rhythm.Midi;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
+using Microsoft.Win32;
 using Prism.Events;
 using Prism.Mvvm;
 using StepMutator.Common;
@@ -18,6 +11,16 @@ using StepMutator.Events;
 using StepMutator.Models.Evolution;
 using StepMutator.Services;
 using Syncfusion.Windows.Shared;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Security.Policy;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Navigation;
 using RandomProvider = Egami.Rhythm.Common.RandomProvider;
 
 namespace StepMutator.Models;
@@ -217,6 +220,8 @@ public class Sequence : BindableBase, ISequence
     public ICommand ToggleSourceRecordingCommand { get; }
     public ICommand ToggleTargetRecordingCommand { get; }
     public ICommand RevertCommand { get; }
+    public ICommand LoadPresetCommand { get; }
+    public ICommand SavePresetCommand { get; }
 
     public Sequence(IEvolutionOptions evolutionOptions, IMutator<ulong> mutator, IEventAggregator eventAggregator, FitnessSettings fitnessSettings, int length = 16)
     {
@@ -225,9 +230,10 @@ public class Sequence : BindableBase, ISequence
         _eventAggregator = eventAggregator;
         _fitnessSettings = fitnessSettings;
 
-        _attractor = Enumerable.Range(0, length).Select(_ => GetRandomStep()).ToArray();
-        SetAttractorNotes();
-        Dye(length);
+        //_attractor = Enumerable.Range(0, length).Select(_ => GetRandomStep()).ToArray();
+        //SetAttractorNotes();
+        //Dye(length);
+        InitPreset();
         DyeCommand = new DelegateCommand(_ => Dye(Length));
         DyeAttractorCommand = new DelegateCommand(_ => DyeAttractor());
         ToggleEvolutionCommand = new DelegateCommand(_ => IsEvolutionActive = !IsEvolutionActive);
@@ -246,11 +252,150 @@ public class Sequence : BindableBase, ISequence
         ToggleSourceRecordingCommand = new DelegateCommand(_ => ToggleSourceRecording());
         ToggleTargetRecordingCommand = new DelegateCommand(_ => ToggleTargetRecording());
         RevertCommand = new DelegateCommand(_ => RevertStepsAndAttractor());
+        LoadPresetCommand = new DelegateCommand(_ => LoadPreset());
+        SavePresetCommand = new DelegateCommand(_ => SavePreset());
         MidiDevices.Input.EventReceived += OnMidiEvent;
         // ±0,5 Halbton: semitones = 0, fraction = 64 (≈ 50 Cent)
         SetPitchBendRange(MidiDevices.Output, _channel, 0, 64);
 
         _eventAggregator.GetEvent<GlobalKeyEvent>().Subscribe(OnGLobalKeyEvent);
+    }
+
+    public void AutoSave()
+    {
+        var dir = SequencePersistence.GetSettingsDirectory();
+        var fileName = $"settings-{DateTime.Now:yyyyMMddHHmmss}.helix";
+        var path = Path.Combine(dir, fileName);
+        SavePreset(path);
+    }
+
+    private void SavePreset(string path)
+    {
+        var evolutionOptions = _evolutionOptions as EvolutionOptions ?? new EvolutionOptions();
+        var snapshot = SequencePersistence.CreateSnapshot(
+            _originalSteps,
+            _originalAttractor,
+            _divider,
+            _channel,
+            _sendPitchbend,
+            _fitnessSettings,
+            evolutionOptions);
+        SequencePersistence.Save(snapshot, path);
+    }
+
+    private void SavePreset()
+    {
+        var dir = SequencePersistence.GetUserDirectory();
+        var dlg = new SaveFileDialog
+        {
+            InitialDirectory = dir,
+            Filter = "Preset (*.helix)|*.helix",
+            DefaultExt = ".helix",    // Default-Endung
+            AddExtension = true,     // bei fehlender Endung automatisch anhängen
+            Title = "Save Preset"
+        };
+        if (dlg.ShowDialog() == true)
+        {
+            var path = dlg.FileName;
+            if (!path.EndsWith(".helix", StringComparison.OrdinalIgnoreCase))
+            {
+                path = Path.ChangeExtension(path, ".helix");
+            }
+
+            SavePreset(path);
+        }
+    }
+
+    private void InitPreset()
+    {
+        var dir = SequencePersistence.GetSettingsDirectory();
+        var files = Directory.GetFiles(dir, "settings-*.helix")
+            .OrderByDescending(f => File.GetLastWriteTimeUtc(f))
+            .ToArray();
+        if (files == null || files.Length == 0)
+        {
+            _attractor = Enumerable.Range(0, 16).Select(_ => GetRandomStep()).ToArray();
+            SetAttractorNotes();
+            Dye(16);
+            return;
+        }
+
+        // die aktuellste Datei merken
+        var newest = files[0];
+
+        // Aufräumen: alle Dateien außer der neuesten löschen, falls älter als 1 Tag
+        var cutoff = DateTime.UtcNow - TimeSpan.FromDays(1);
+        foreach (var f in files.Skip(1))
+        {
+            try
+            {
+                if (File.GetLastWriteTimeUtc(f) < cutoff)
+                {
+                    File.Delete(f);
+                }
+            }
+            catch
+            {
+                // ignore Einzellausnahmen beim Löschen
+            }
+        }
+
+        LoadPreset(newest);
+    }
+
+    private void LoadPreset()
+    {
+        var dir = SequencePersistence.GetUserDirectory();
+        var dlg = new OpenFileDialog()
+        {
+            InitialDirectory = dir,
+            Filter = "Preset (*.helix)|*.helix",
+            Title = "Load Preset"
+        };
+        if (dlg.ShowDialog() == true)
+        {
+            LoadPreset(dlg.FileName);
+        }
+    }
+
+    private void LoadPreset(string path)
+    {
+        var snapshot = SequencePersistence.Load(path);
+        _steps = snapshot.OriginalSteps;
+        _attractor = snapshot.OriginalAttractor;
+        Channel = snapshot.Channel;
+        Divider = snapshot.Divider;
+        SendPitchbend = snapshot.SendPitchbend;
+        CloneStepsAndAttractor();
+
+        if (_evolutionOptions is EvolutionOptions options)
+        {
+            options.PopulationSize = snapshot.EvolutionOptions.PopulationSize;
+            options.GenerationLength = snapshot.EvolutionOptions.GenerationLength;
+            options.MaxOffsprings = snapshot.EvolutionOptions.MaxOffsprings;
+            options.TournamentSize = snapshot.EvolutionOptions.TournamentSize;
+            options.ExtinctionPercent = snapshot.EvolutionOptions.ExtinctionRate * 100.0;
+            options.ExtinctionThreshold = snapshot.EvolutionOptions.ExtinctionThreshold;
+            options.DeletionPercent = snapshot.EvolutionOptions.DeletionRate * 100.0;
+            options.InsertionPercent = snapshot.EvolutionOptions.InsertionRate * 100.0;
+            options.SwapPercent = snapshot.EvolutionOptions.SwapRate * 100.0;
+            options.InversionPercent = snapshot.EvolutionOptions.InversionRate * 100.0;
+            options.TranspositionPercent = snapshot.EvolutionOptions.TranspositionRate * 100.0;
+            options.CrossoverPercent = snapshot.EvolutionOptions.CrossoverRate * 100.0;
+        }
+
+        _fitnessSettings.WeightHit = snapshot.FitnessSettings.WeightHit;
+        _fitnessSettings.WeightTie = snapshot.FitnessSettings.WeightTie;
+        _fitnessSettings.WeightPitch = snapshot.FitnessSettings.WeightPitch;
+        _fitnessSettings.WeightVelocity = snapshot.FitnessSettings.WeightVelocity;
+        _fitnessSettings.WeightPitchbend = snapshot.FitnessSettings.WeightPitchbend;
+        _fitnessSettings.WeightModulation = snapshot.FitnessSettings.WeightModulation;
+
+        SetNotes();
+        SetAttractorNotes();
+        RaisePropertyChanged(nameof(Steps));
+        RaisePropertyChanged(nameof(Attractor));
+
     }
 
     private void ToggleSourceRecording()

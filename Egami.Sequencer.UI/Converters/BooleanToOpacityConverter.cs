@@ -7,7 +7,7 @@ public class BooleanToOpacityConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (parameter == null || !double.TryParse(parameter.ToString(), out var offValue))
+        if (parameter == null || !double.TryParse(parameter.ToString(), CultureInfo.InvariantCulture, out var offValue))
         {
             offValue = 0.1;
         }
