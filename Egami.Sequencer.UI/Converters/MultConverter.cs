@@ -23,6 +23,11 @@ public class MultConverter : IValueConverter
             {
                 return dd * d;
             }
+
+            if (value is ushort us)
+            {
+                return us * d;
+            }
         }
         return value;
     }

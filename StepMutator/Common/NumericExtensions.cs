@@ -21,7 +21,13 @@ public static class NumericExtensions
         return (T)Convert.ChangeType(v ^ mask, typeof(T));
     }
 
-    // Existing methods...
+    // Helper: sichere Maske für 'bits' Bits (0 => 0, >=64 => ulong.MaxValue)
+    private static ulong Mask(int bits)
+    {
+        if (bits <= 0) return 0UL;
+        if (bits >= 64) return ulong.MaxValue;
+        return (1UL << bits) - 1UL;
+    }
 
     /// <summary>
     /// Inserts a bit at a random position. The inserted bit is randomly 0 or 1.
@@ -33,12 +39,18 @@ public static class NumericExtensions
         int pos = rand.Next(width + 1); // Insert at [0, width]
         ulong v = Convert.ToUInt64(value);
         ulong bit = (ulong)rand.Next(2);
-        ulong lower = v & ((1UL << pos) - 1);
-        ulong upper = v & ~((1UL << pos) - 1);
+
+        // lower = bits below pos
+        ulong lower = v & Mask(pos);
+
+        // upper = bits at/above pos
+        ulong upper = v & ~Mask(pos);
+        // shift upper left by 1 (inserting a hole)
         upper <<= 1;
+
         ulong result = lower | (bit << pos) | upper;
-        // Mask to width+1 bits, then truncate to width bits
-        result &= (1UL << width) - 1;
+        // Mask to width bits
+        result &= Mask(width);
         return (T)Convert.ChangeType(result, typeof(T));
     }
 
@@ -51,11 +63,11 @@ public static class NumericExtensions
         if (width <= 1) return value;
         int pos = rand.Next(width); // Delete at [0, width-1]
         ulong v = Convert.ToUInt64(value);
-        ulong lower = v & ((1UL << pos) - 1);
+        ulong lower = v & Mask(pos);
         ulong upper = (v >> (pos + 1)) << pos;
         ulong result = lower | upper;
-        // Mask to width-1 bits, then truncate to width bits
-        result &= (1UL << width) - 1;
+        // Mask to width bits
+        result &= Mask(width);
         return (T)Convert.ChangeType(result, typeof(T));
     }
 
@@ -94,8 +106,8 @@ public static class NumericExtensions
         int pos = rand.Next(1, width); // Crossover point [1, width-1]
         ulong v1 = Convert.ToUInt64(value);
         ulong v2 = Convert.ToUInt64(other);
-        ulong maskLower = (1UL << pos) - 1;
-        ulong maskUpper = ~maskLower & ((1UL << width) - 1);
+        ulong maskLower = Mask(pos);
+        ulong maskUpper = (~maskLower) & Mask(width);
         ulong result = (v1 & maskLower) | (v2 & maskUpper);
         return (T)Convert.ChangeType(result, typeof(T));
     }
@@ -115,7 +127,7 @@ public static class NumericExtensions
         ulong v = Convert.ToUInt64(value);
         int len = end - start + 1;
         // Extract segment
-        ulong segment = (v >> start) & ((1UL << len) - 1);
+        ulong segment = (v >> start) & Mask(len);
         // Reverse bits in segment
         ulong reversed = 0;
         for (int i = 0; i < len; i++)
@@ -123,7 +135,7 @@ public static class NumericExtensions
             reversed |= ((segment >> i) & 1UL) << (len - 1 - i);
         }
         // Clear original segment
-        ulong mask = ((1UL << len) - 1) << start;
+        ulong mask = Mask(len) << start;
         v &= ~mask;
         // Insert reversed segment
         v |= (reversed << start);
@@ -148,20 +160,20 @@ public static class NumericExtensions
         if (target >= start && target <= end) return value;
 
         ulong v = Convert.ToUInt64(value);
-        ulong segment = (v >> start) & ((1UL << len) - 1);
+        ulong segment = (v >> start) & Mask(len);
 
         // Remove segment
-        ulong lower = v & ((1UL << start) - 1);
+        ulong lower = v & Mask(start);
         ulong upper = v >> (end + 1);
         ulong withoutSegment = (upper << start) | lower;
 
         // Insert segment at target
-        ulong before = withoutSegment & ((1UL << target) - 1);
+        ulong before = withoutSegment & Mask(target);
         ulong after = withoutSegment >> target;
         ulong result = before | (segment << target) | (after << (target + len));
 
         // Mask to width bits
-        result &= (1UL << width) - 1;
+        result &= Mask(width);
         return (T)Convert.ChangeType(result, typeof(T));
     }
 

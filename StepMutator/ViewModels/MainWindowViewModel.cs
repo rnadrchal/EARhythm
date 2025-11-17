@@ -1,27 +1,19 @@
-﻿using System.Threading.Channels;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Egami.Rhythm.Midi;
-using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Prism.Events;
 using Prism.Mvvm;
-using StepMutator.Events;
 using StepMutator.Models;
+using StepMutator.Models.Evolution;
 using StepMutator.Services;
 
 namespace StepMutator.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
-        private readonly IEventAggregator _eventAggregator;
-        private readonly IEvolutionOptions _evolutionOptions;
-        private readonly IMutator<ulong> _mutator;
         private ulong _tick = 0;
-        private string _title = "Step Mutator";
-        private int _currentStep = 0;
-        private ulong _nextTick = 0;
-        private byte? _lastNote;
+        private string _title = "Helix";
 
         public string Title
         {
@@ -29,29 +21,9 @@ namespace StepMutator.ViewModels
             set { SetProperty(ref _title, value); }
         }
 
-        private int _divider = 16;
+        private readonly Sequence _sequence;
 
-        public int Divider
-        {
-            get => _divider;
-            set => SetProperty(ref _divider, value);
-        }
-
-        private byte _channel = 0;
-
-        public byte Channel
-        {
-            get => _channel;
-            set => SetProperty(ref _channel, value);
-        }
-
-        private Sequence _sequence;
-
-        public Sequence Sequence
-        {
-            get { return _sequence; }
-            set { SetProperty(ref _sequence, value); }
-        }
+        public Sequence Sequence => _sequence;
 
         private bool _ledOn = false;
         public bool LedOn
@@ -60,28 +32,10 @@ namespace StepMutator.ViewModels
             set => SetProperty(ref _ledOn, value);
         }
 
-        private bool _startStopPending;
-
-        private bool _isPlaying = false;
-        public bool IsPlaying
+        public MainWindowViewModel(Sequence sequence)
         {
-            get => _isPlaying;
-            set => SetProperty(ref _isPlaying, value);
-        }
-
-        public ICommand ToggleStartStopCommand { get; }
-
-        public MainWindowViewModel(IEventAggregator eventAggregator, IEvolutionOptions evolutionOptions, IMutator<ulong> mutator)
-        {
-            _eventAggregator = eventAggregator;
-            _evolutionOptions = evolutionOptions;
-            _mutator = mutator;
-            _sequence = new Sequence(evolutionOptions, mutator, 16);
+            _sequence = sequence;
             MidiDevices.Input.EventReceived += OnMidiEventReceived;
-            ToggleStartStopCommand = new Prism.Commands.DelegateCommand(() =>
-            {
-                _startStopPending = true;
-            });
         }
 
         private void OnMidiEventReceived(object? sender, MidiEventReceivedEventArgs e)

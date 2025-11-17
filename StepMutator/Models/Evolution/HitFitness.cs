@@ -1,16 +1,17 @@
-﻿using System;
+﻿using System.Windows.Input;
 using Prism.Mvvm;
+using Syncfusion.Windows.Shared;
 
 namespace StepMutator.Models.Evolution;
 
-public class VelocityFitness : BindableBase, IFitness
+public class HitFitness : BindableBase, IFitness
 {
-    private readonly byte _velocity;
+    private readonly bool _hit;
     private double _weight = 1.0;
 
-    public VelocityFitness(byte velocity)
+    public HitFitness(bool hit)
     {
-        _velocity = velocity;
+        _hit = hit;
     }
 
     public double Weight
@@ -18,10 +19,11 @@ public class VelocityFitness : BindableBase, IFitness
         get => _weight;
         set => SetProperty(ref _weight, value);
     }
+
+
     public double Evaluate(ulong individual)
     {
         var step = new Step(individual);
-        var result = Math.Max(0.0, 1.0 - Math.Abs(_velocity - step.Velocity) / 127.0);
-        return result * _weight;
+        return step.On == _hit ? 0.99 * _weight : 0.1 * _weight;
     }
 }

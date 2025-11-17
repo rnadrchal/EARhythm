@@ -1,22 +1,24 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace Egami.Sequencer.UI.Converters;
 
-public class BooleanToOpacityConverter : IValueConverter
+public class OnOffToColorConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (parameter == null || !double.TryParse(parameter.ToString(), CultureInfo.InvariantCulture, out var offValue))
+        var defaultBrush = "#222";
+        if (parameter != null)
         {
-            offValue = 0.1;
+            defaultBrush = parameter.ToString();
         }
-        if (value is bool b)
+        if (value is bool a)
         {
-            return b ? 1.0 : offValue;
+            return a ? "Red" : defaultBrush;
         }
 
-        return 0.0;
+        return Brushes.Transparent;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

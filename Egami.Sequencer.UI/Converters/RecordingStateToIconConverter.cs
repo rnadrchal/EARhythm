@@ -1,22 +1,18 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
+using Material.Icons;
 
 namespace Egami.Sequencer.UI.Converters;
 
-public class BooleanToOpacityConverter : IValueConverter
+public class RecordingStateToIconConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (parameter == null || !double.TryParse(parameter.ToString(), CultureInfo.InvariantCulture, out var offValue))
+        if (value is bool isRecording)
         {
-            offValue = 0.1;
+            return isRecording ? MaterialIconKind.Pause : MaterialIconKind.Record;
         }
-        if (value is bool b)
-        {
-            return b ? 1.0 : offValue;
-        }
-
-        return 0.0;
+        return MaterialIconKind.Record;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

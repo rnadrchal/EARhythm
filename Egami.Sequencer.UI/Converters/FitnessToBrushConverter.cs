@@ -7,8 +7,8 @@ namespace Egami.Sequencer.UI.Converters;
 public class FitnessToBrushConverter : IValueConverter
 {
     // Dunkelrot: #8B0000 (139,0,0), Hellgrün: #90EE90 (144,238,144)
-    private static readonly Color DarkRed = Color.FromRgb(139, 0, 0);
-    private static readonly Color LightGreen = Color.FromRgb(144, 238, 144);
+    private static readonly Color Yellow = Colors.Yellow;
+    private static readonly Color DarkRed = Colors.DarkRed;
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
@@ -16,9 +16,9 @@ public class FitnessToBrushConverter : IValueConverter
         {
             fitness = Math.Clamp(fitness, 0.0, 1.0);
 
-            byte r = (byte)(DarkRed.R + (LightGreen.R - DarkRed.R) * fitness);
-            byte g = (byte)(DarkRed.G + (LightGreen.G - DarkRed.G) * fitness);
-            byte b = (byte)(DarkRed.B + (LightGreen.B - DarkRed.B) * fitness);
+            byte r = (byte)(Yellow.R + (DarkRed.R - Yellow.R) * fitness);
+            byte g = (byte)(Yellow.G + (DarkRed.G - Yellow.G) * fitness);
+            byte b = (byte)(Yellow.B + (DarkRed.B - Yellow.B) * fitness);
 
             return new SolidColorBrush(Color.FromRgb(r, g, b));
         }

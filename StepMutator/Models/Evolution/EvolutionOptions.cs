@@ -81,7 +81,7 @@ public class EvolutionOptions : BindableBase, IEvolutionOptions
 
     public double InversionPercent
     {
-        get => _insertionRate * 100.0;
+        get => _inversionRate * 100.0;
         set
         {
             _inversionRate = value / 100.0;
@@ -122,6 +122,48 @@ public class EvolutionOptions : BindableBase, IEvolutionOptions
             _crossoverRate = value / 100.0;
             RaisePropertyChanged(nameof(CrossoverRate));
         }
+    }
+
+    private int _tournamentSize = 10;
+    public int TournamentSize
+    {
+        get => _tournamentSize;
+        set => SetProperty(ref _tournamentSize, value);
+    }
+
+    private double _extinctionRate = 0.25;
+    public double ExtinctionRate
+    {
+        get => _extinctionRate;
+        set => SetProperty(ref _extinctionRate, value);
+    }
+
+    public double ExtinctionPercent
+    {
+        get => _extinctionRate * 100.0;
+        set
+        {
+            if (SetProperty(ref _extinctionRate, value / 100.0))
+            {
+                RaisePropertyChanged(nameof(ExtinctionRate));
+            }
+        }
+    }
+
+    private double _extinctionThreshold = 0.1;
+
+    public double ExtinctionThreshold
+    {
+        get => _extinctionThreshold;
+        set => SetProperty(ref _extinctionThreshold, value);
+    }
+
+
+    private int _maxOffsprings = 10;
+    public int MaxOffsprings
+    {
+        get => _maxOffsprings;
+        set => SetProperty(ref _maxOffsprings, value);
     }
 
 }

@@ -11,5 +11,10 @@ public interface IEvolutionOptions
     double InversionRate { get; }
     double TranspositionRate { get; }
     double CrossoverRate { get; }
+    int TournamentSize { get; set; }
+    double ExtinctionRate { get; set; }
+    double ExtinctionThreshold { get; set; }
+    int MaxOffsprings { get; set; }
+
     int? Seed { get; }
 }

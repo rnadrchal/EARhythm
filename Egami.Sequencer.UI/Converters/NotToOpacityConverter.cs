@@ -3,17 +3,17 @@ using System.Windows.Data;
 
 namespace Egami.Sequencer.UI.Converters;
 
-public class BooleanToOpacityConverter : IValueConverter
+public class NotToOpacityConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (parameter == null || !double.TryParse(parameter.ToString(), CultureInfo.InvariantCulture, out var offValue))
+        if (parameter == null || !double.TryParse(parameter.ToString(), out var offValue))
         {
             offValue = 0.1;
         }
         if (value is bool b)
         {
-            return b ? 1.0 : offValue;
+            return b ? offValue : 1.0;
         }
 
         return 0.0;

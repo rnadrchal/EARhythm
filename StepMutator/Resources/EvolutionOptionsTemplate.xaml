@@ -4,185 +4,316 @@
                     xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
     <DataTemplate DataType="{x:Type models:EvolutionOptions}">
         <StackPanel Orientation="Horizontal">
-            <Separator />
+            <GroupBox Header="Population">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <syncfusion:SfRadialSlider Grid.Row="0" Grid.Column="0" Width="80" Height="80"
+                                               Minimum="20" Maximum="100"
+                                               Value="{Binding PopulationSize}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC"
+                                               ToolTip="Population Size">
+                        <TextBlock  FontSize="10">
+                            <Run Text="{Binding PopulationSize}" />
+                        </TextBlock>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Column="0" Grid.Row="1" Text="Size" HorizontalAlignment="Center" FontSize="10"
+                               Margin="0,-12,0,0"/>
+
+                    <syncfusion:SfRadialSlider Grid.Column="0" Grid.Row="2" 
+                                               Width="80" Height="80"
+                                               Minimum="10" Maximum="200"
+                                               Value="{Binding GenerationLength}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC"
+                                               ToolTip="Number of Steps / Generation">
+                        <TextBlock  FontSize="10">
+                            <Run Text="{Binding GenerationLength}" />
+                        </TextBlock>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Column="0" Grid.Row="3" Text="Generation" HorizontalAlignment="Center" FontSize="10"
+                               Margin="0,-12,0,0"/>
+
+
+
+
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Header="Tournament">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <syncfusion:SfRadialSlider Grid.Row="0" Grid.Column="0" Width="80" Height="80"
+                                               Minimum="2" Maximum="10"
+                                               Value="{Binding TournamentSize}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="11"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC"
+                                               ToolTip="Tournament Size">
+                        <TextBlock  FontSize="10">
+                            <Run Text="{Binding TournamentSize, Mode=OneWay}" />
+                        </TextBlock>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Column="0" Grid.Row="1" Text="Participants" HorizontalAlignment="Center" FontSize="10"
+                               Margin="0,-12,0,0"/>
+
+
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Header="Extinction">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <syncfusion:SfRadialSlider Grid.Row="0" Grid.Column="0" Width="80" Height="80"
+                                               Minimum="0" Maximum="50"
+                                               Value="{Binding ExtinctionPercent}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="10"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC"
+                                               ToolTip="Extinction Rate">
+                        <TextBlock  FontSize="10">
+                            <Run Text="{Binding ExtinctionRate, StringFormat=N2, Mode=OneWay}" />
+                        </TextBlock>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Column="0" Grid.Row="1" Text="Rate" HorizontalAlignment="Center" FontSize="10"
+                               Margin="0,-12,0,0"/>
+
+                    <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="0" Width="80" Height="80"
+                                               Minimum="0" Maximum="1"
+                                               Value="{Binding ExtinctionThreshold}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="10"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC"
+                                               ToolTip="Extinction Rate">
+                        <TextBlock  FontSize="10">
+                            <Run Text="{Binding ExtinctionThreshold, StringFormat=N1, Mode=OneWay}" />
+                        </TextBlock>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Column="0" Grid.Row="3" Text="Threshold" HorizontalAlignment="Center" FontSize="10"
+                               Margin="0,-12,0,0"/>
+
+
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Header="Mutation Rates">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <syncfusion:SfRadialSlider Grid.Row="0" Grid.Column="0" Width="80" Height="80"
+                                               Minimum="0" Maximum="100"
+                                               Value="{Binding DeletionPercent}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC">
+                        <TextBlock  FontSize="10">
+                            <Run Text="{Binding DeletionRate, Mode=OneWay, StringFormat=N2}" />
+                        </TextBlock>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Deletion" HorizontalAlignment="Center" FontSize="10"
+                               Margin="0,-12,0,0"/>
+
+                    <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="0" Width="80" Height="80"
+                                               Minimum="0" Maximum="100"
+                                               Value="{Binding InsertionPercent}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC">
+                        <TextBlock  FontSize="10">
+                            <Run Text="{Binding InsertionRate, Mode=OneWay, StringFormat=N2}" />
+                        </TextBlock>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Insertion" HorizontalAlignment="Center" FontSize="10"
+                               Margin="0,-12,0,0"/>
+
+                    <syncfusion:SfRadialSlider Grid.Row="0" Grid.Column="1" Width="80" Height="80"
+                                               Minimum="0" Maximum="100"
+                                               Value="{Binding SwapPercent}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC">
+                        <TextBlock  FontSize="10">
+                            <Run Text="{Binding SwapRate, Mode=OneWay, StringFormat=N2}" />
+                        </TextBlock>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Swap" HorizontalAlignment="Center" FontSize="10"
+                               Margin="0,-12,0,0"/>
+
+
+                    <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="1" Width="80" Height="80"
+                                               Minimum="0" Maximum="100"
+                                               Value="{Binding InversionPercent}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC">
+                        <TextBlock  FontSize="10">
+                            <Run Text="{Binding InversionRate, Mode=OneWay, StringFormat=N2}" />
+                        </TextBlock>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="Inversion" HorizontalAlignment="Center" FontSize="10"
+                               Margin="0,-12,0,0"/>
+
+                    <syncfusion:SfRadialSlider Grid.Row="0" Grid.Column="2" Width="80" Height="80"
+                                               Minimum="0" Maximum="100"
+                                               Value="{Binding TranspositionPercent}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC">
+                        <TextBlock  FontSize="10">
+                            <Run Text="{Binding TranspositionRate, Mode=OneWay, StringFormat=N2}" />
+                        </TextBlock>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Transp." HorizontalAlignment="Center" FontSize="10"
+                               Margin="0,-12,0,0"/>
+
+
+                    <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="2" Width="80" Height="80"
+                                               Minimum="0" Maximum="100"
+                                               Value="{Binding CrossoverPercent}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC">
+                        <TextBlock  FontSize="10">
+                            <Run Text="{Binding CrossoverRate, Mode=OneWay, StringFormat=N2}" />
+                        </TextBlock>
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Row="3" Grid.Column="2" Text="Crossover" HorizontalAlignment="Center" FontSize="10"
+                               Margin="0,-12,0,0"/>
+
+                </Grid>
+            </GroupBox>
             <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                <syncfusion:SfRadialSlider Width="80" Height="80" Margin="0,-10,0,-5"
-                                           Minimum="20" Maximum="100"
-                                           Value="{Binding PopulationSize}"
-                                           OuterRimRadiusFactor="0.6"
-                                           OuterRimStroke="#444"
-                                           OuterRimStrokeThickness="3"
-                                           InnerRimFill="#666"
-                                           InnerRimStroke="#444"
-                                           InnerRimRadiusFactor="0.4"
-                                           StartAngle="135" EndAngle="405"
-                                           TickFrequency="16"
-                                           TickVisibility="Visible"
-                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
-                                           LabelVisibility="Hidden"
-                                           FontFamily="Kristen ITC"
-                                           IsEnabled="{Binding IsRunning, Converter={StaticResource Not}}">
-                    <TextBlock  FontSize="10">
-                        <Run Text="{Binding PopulationSize}" />
-                    </TextBlock>
-                </syncfusion:SfRadialSlider>
-                <TextBlock Text="Pop. Size" HorizontalAlignment="Center" FontSize="10" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                <syncfusion:SfRadialSlider Width="80" Height="80" Margin="-10,-10,0,-5"
-                                           Minimum="10" Maximum="200"
-                                           Value="{Binding GenerationLength}"
-                                           OuterRimRadiusFactor="0.6"
-                                           OuterRimStroke="#444"
-                                           OuterRimStrokeThickness="3"
-                                           InnerRimFill="#666"
-                                           InnerRimStroke="#444"
-                                           InnerRimRadiusFactor="0.4"
-                                           StartAngle="135" EndAngle="405"
-                                           TickFrequency="16"
-                                           TickVisibility="Visible"
-                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
-                                           LabelVisibility="Hidden"
-                                           FontFamily="Kristen ITC"
-                                           IsEnabled="{Binding IsRunning, Converter={StaticResource Not}}">
-                    <TextBlock  FontSize="10">
-                        <Run Text="{Binding GenerationLength}" />
-                    </TextBlock>
-                </syncfusion:SfRadialSlider>
-                <TextBlock Text="Gen. L." HorizontalAlignment="Center" FontSize="10" />
-            </StackPanel>
-            <Separator />
-            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                <syncfusion:SfRadialSlider Width="80" Height="80" Margin="0,-10,0,-5"
-                                           Minimum="0" Maximum="100"
-                                           Value="{Binding DeletionPercent}"
-                                           OuterRimRadiusFactor="0.6"
-                                           OuterRimStroke="#444"
-                                           OuterRimStrokeThickness="3"
-                                           InnerRimFill="#666"
-                                           InnerRimStroke="#444"
-                                           InnerRimRadiusFactor="0.4"
-                                           StartAngle="135" EndAngle="405"
-                                           TickFrequency="16"
-                                           TickVisibility="Visible"
-                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
-                                           LabelVisibility="Hidden"
-                                           FontFamily="Kristen ITC">
-                    <TextBlock  FontSize="10">
-                        <Run Text="{Binding DeletionRate, Mode=OneWay, StringFormat=N2}" />
-                    </TextBlock>
-                </syncfusion:SfRadialSlider>
-                <TextBlock Text="Del.R." HorizontalAlignment="Center" FontSize="10" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                <syncfusion:SfRadialSlider Width="80" Height="80" Margin="-10,-10,0,-5"
-                                           Minimum="0" Maximum="100"
-                                           Value="{Binding InsertionPercent}"
-                                           OuterRimRadiusFactor="0.6"
-                                           OuterRimStroke="#444"
-                                           OuterRimStrokeThickness="3"
-                                           InnerRimFill="#666"
-                                           InnerRimStroke="#444"
-                                           InnerRimRadiusFactor="0.4"
-                                           StartAngle="135" EndAngle="405"
-                                           TickFrequency="16"
-                                           TickVisibility="Visible"
-                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
-                                           LabelVisibility="Hidden"
-                                           FontFamily="Kristen ITC">
-                    <TextBlock  FontSize="10">
-                        <Run Text="{Binding InsertionRate, Mode=OneWay, StringFormat=N2}" />
-                    </TextBlock>
-                </syncfusion:SfRadialSlider>
-                <TextBlock Text="Ins.R." HorizontalAlignment="Center" FontSize="10" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                <syncfusion:SfRadialSlider Width="80" Height="80" Margin="-10,-10,0,-5"
-                                           Minimum="0" Maximum="100"
-                                           Value="{Binding SwapPercent}"
-                                           OuterRimRadiusFactor="0.6"
-                                           OuterRimStroke="#444"
-                                           OuterRimStrokeThickness="3"
-                                           InnerRimFill="#666"
-                                           InnerRimStroke="#444"
-                                           InnerRimRadiusFactor="0.4"
-                                           StartAngle="135" EndAngle="405"
-                                           TickFrequency="16"
-                                           TickVisibility="Visible"
-                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
-                                           LabelVisibility="Hidden"
-                                           FontFamily="Kristen ITC">
-                    <TextBlock  FontSize="10">
-                        <Run Text="{Binding SwapRate, Mode=OneWay, StringFormat=N2}" />
-                    </TextBlock>
-                </syncfusion:SfRadialSlider>
-                <TextBlock Text="Swap R." HorizontalAlignment="Center" FontSize="10" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                <syncfusion:SfRadialSlider Width="80" Height="80" Margin="-10,-10,0,-5"
-                                           Minimum="0" Maximum="100"
-                                           Value="{Binding InversionPercent}"
-                                           OuterRimRadiusFactor="0.6"
-                                           OuterRimStroke="#444"
-                                           OuterRimStrokeThickness="3"
-                                           InnerRimFill="#666"
-                                           InnerRimStroke="#444"
-                                           InnerRimRadiusFactor="0.4"
-                                           StartAngle="135" EndAngle="405"
-                                           TickFrequency="16"
-                                           TickVisibility="Visible"
-                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
-                                           LabelVisibility="Hidden"
-                                           FontFamily="Kristen ITC">
-                    <TextBlock  FontSize="10">
-                        <Run Text="{Binding InversionRate, Mode=OneWay, StringFormat=N2}" />
-                    </TextBlock>
-                </syncfusion:SfRadialSlider>
-                <TextBlock Text="Inv.R." HorizontalAlignment="Center" FontSize="10" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                <syncfusion:SfRadialSlider Width="80" Height="80" Margin="-10,-10,0,-5"
-                                           Minimum="0" Maximum="100"
-                                           Value="{Binding TranspositionPercent}"
-                                           OuterRimRadiusFactor="0.6"
-                                           OuterRimStroke="#444"
-                                           OuterRimStrokeThickness="3"
-                                           InnerRimFill="#666"
-                                           InnerRimStroke="#444"
-                                           InnerRimRadiusFactor="0.4"
-                                           StartAngle="135" EndAngle="405"
-                                           TickFrequency="16"
-                                           TickVisibility="Visible"
-                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
-                                           LabelVisibility="Hidden"
-                                           FontFamily="Kristen ITC">
-                    <TextBlock  FontSize="10">
-                        <Run Text="{Binding TranspositionRate, Mode=OneWay, StringFormat=N2}" />
-                    </TextBlock>
-                </syncfusion:SfRadialSlider>
-                <TextBlock Text="Trans.R." HorizontalAlignment="Center" FontSize="10" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                <syncfusion:SfRadialSlider Width="80" Height="80" Margin="-10,-10,0,-5"
-                                           Minimum="0" Maximum="100"
-                                           Value="{Binding CrossoverPercent}"
-                                           OuterRimRadiusFactor="0.6"
-                                           OuterRimStroke="#444"
-                                           OuterRimStrokeThickness="3"
-                                           InnerRimFill="#666"
-                                           InnerRimStroke="#444"
-                                           InnerRimRadiusFactor="0.4"
-                                           StartAngle="135" EndAngle="405"
-                                           TickFrequency="16"
-                                           TickVisibility="Visible"
-                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
-                                           LabelVisibility="Hidden"
-                                           FontFamily="Kristen ITC">
-                    <TextBlock  FontSize="10">
-                        <Run Text="{Binding CrossoverRate, Mode=OneWay, StringFormat=N2}" />
-                    </TextBlock>
-                </syncfusion:SfRadialSlider>
-                <TextBlock Text="CO.R." HorizontalAlignment="Center" FontSize="10" />
             </StackPanel>
 
 

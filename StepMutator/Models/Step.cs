@@ -78,7 +78,7 @@ public class Step : BindableBase, IStep
         set => SetProperty(ref _fitness, value);
     }
 
-    private ulong Encode()
+    public ulong Encode()
     {
         ulong value = 0;
         value |= (On ? 1UL : 0UL) << 0;
