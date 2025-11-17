@@ -14,4 +14,11 @@ public static class MidiDevices
 
         Input?.StartEventsListening();
     }
+
+    public static void Initialize(string clockDeviceName, string outputDeviceName)
+    {
+        Input = InputDevice.GetByName(clockDeviceName);
+        Output = OutputDevice.GetByName(outputDeviceName);
+        Input?.StartEventsListening();
+    }
 }
