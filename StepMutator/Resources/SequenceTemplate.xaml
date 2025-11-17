@@ -249,7 +249,6 @@
 
             </StackPanel>
 
-
             <Grid Grid.Column="1" Grid.Row="1" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -293,6 +292,12 @@
                                     Height="16" Width="16">
                                 <wpf:MaterialIcon Kind="Undo" Width="12" Opacity="0.5" />
                             </Button>
+                            <Button Style="{StaticResource Round3DButton}" Command="{Binding PlaySequenceCommand}"
+                                    Background="{Binding PlaySequence, Converter={StaticResource BooleanToBrush}}"
+                                    Margin="5,0,0,0"
+                                    Height="16" Width="16">
+                                <wpf:MaterialIcon Kind="Play" Opacity="0.5" Height="12" />
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -331,6 +336,14 @@
                                                   Width="12" Opacity="0.5" />
                             </Button>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                            <Button Style="{StaticResource Round3DButton}" Command="{Binding PlayAttractorCommand}"
+                                    Background="{Binding PlayAttractor, Converter={StaticResource BooleanToBrush}}"
+                                    Height="16" Width="16">
+                                <wpf:MaterialIcon Kind="Play" Opacity="0.5" Height="12" />
+                            </Button>
+                        </StackPanel>
+
                     </Grid>
                 </Border>
 

@@ -212,6 +212,22 @@ public class Sequence : BindableBase, ISequence
         }
     }
 
+    private bool _playSequence = true;
+
+    public bool PlaySequence
+    {
+        get => _playSequence;
+        set
+        {
+            if (SetProperty(ref _playSequence, value))
+            {
+                RaisePropertyChanged(nameof(PlayAttractor));
+            }
+        }
+    }
+
+    public bool PlayAttractor => !_playSequence;
+
     public ICommand DyeCommand { get; }
     public ICommand DyeAttractorCommand { get; }
     public ICommand ToggleEvolutionCommand { get; }
@@ -219,6 +235,8 @@ public class Sequence : BindableBase, ISequence
     public ICommand ToggleViewCommand { get; }
     public ICommand ToggleSourceRecordingCommand { get; }
     public ICommand ToggleTargetRecordingCommand { get; }
+    public ICommand PlaySequenceCommand { get; }
+    public ICommand PlayAttractorCommand { get; }
     public ICommand RevertCommand { get; }
     public ICommand LoadPresetCommand { get; }
     public ICommand SavePresetCommand { get; }
@@ -254,6 +272,8 @@ public class Sequence : BindableBase, ISequence
         RevertCommand = new DelegateCommand(_ => RevertStepsAndAttractor());
         LoadPresetCommand = new DelegateCommand(_ => LoadPreset());
         SavePresetCommand = new DelegateCommand(_ => SavePreset());
+        PlaySequenceCommand = new DelegateCommand(_ => PlaySequence = true);
+        PlayAttractorCommand = new DelegateCommand(_ => PlaySequence = false);
         MidiDevices.Input.EventReceived += OnMidiEvent;
         // ±0,5 Halbton: semitones = 0, fraction = 64 (≈ 50 Cent)
         SetPitchBendRange(MidiDevices.Output, _channel, 0, 64);
@@ -314,9 +334,12 @@ public class Sequence : BindableBase, ISequence
             .ToArray();
         if (files == null || files.Length == 0)
         {
+            GenerateRandomSteps(16);
+            SetNotes();
+            RaisePropertyChanged(nameof(Steps));
             _attractor = Enumerable.Range(0, 16).Select(_ => GetRandomStep()).ToArray();
             SetAttractorNotes();
-            Dye(16);
+            RaisePropertyChanged(nameof(Attractor));
             return;
         }
 
@@ -440,12 +463,12 @@ public class Sequence : BindableBase, ISequence
 
     private void OnGLobalKeyEvent(GlobalKeyPayload payload)
     {
-        if ((payload.Key == Key.LeftShift || payload.Key == Key.RightShift))
+        if ((payload.Key == Key.LeftCtrl|| payload.Key == Key.RightCtrl))
         {
             _leftShiftDown = payload.IsDown;
         }
 
-        if (IsRecording && payload.Key == Key.P && payload.IsDown == false)
+        if (IsRecording && (payload.Key == Key.R || payload.Key == Key.Space) && payload.IsDown == false)
         {
             if (IsSourceRecording)
             {
@@ -683,6 +706,7 @@ public class Sequence : BindableBase, ISequence
 
         }
     }
+
     IEnumerable<int> Extinct(int stepIndex, double threshold = 0.1)
     {
         var target = new Step(_attractor[stepIndex]);
@@ -705,8 +729,6 @@ public class Sequence : BindableBase, ISequence
         {
             _steps[i] = CreateRandomPopulation();
         }
-        RaisePropertyChanged(nameof(Steps));
-        SetNotes();
     }
 
     private ulong GetRandomStep()
