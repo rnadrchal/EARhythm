@@ -3,11 +3,51 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+        xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
         syncfusion:SfSkinManager.Theme="{syncfusion:SkinManagerExtension ThemeName=FluentDark}"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Title="{Binding Title}" Height="350" Width="525" 
         WindowState="Maximized">
     <Grid>
-        <ContentControl prism:RegionManager.RegionName="ContentRegion" />
+        <Grid.Resources>
+            <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
+
+        </Grid.Resources>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Row="0" Grid.Column="0" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Button Grid.Row="0" Grid.Column="0"
+                    Style="{StaticResource Round3DButton}"
+                    Command="{Binding RefreshSensorsCommand}">
+                <wpf:MaterialIcon Grid.Row="0" Kind="Refresh" Height="24" Opacity="0.6" />
+            </Button>
+            <!--<TextBlock Grid.Row="1" Grid.Column="0" Text="Update Sensors"/>-->
+        </Grid>
+
+        <Grid Grid.Row="0" Grid.Column="2"
+              Margin="5">
+            <Ellipse Style="{StaticResource LedEllipseStyle}"
+                     Width="16" Height="16"
+                     Fill="{Binding LedBeat, ConverterParameter=Green, Converter={StaticResource BooleanToBrush}}"/>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" Grid.Column="1" 
+                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
+            <ItemsControl ItemsSource="{Binding Sensors}" />
+        </ScrollViewer>
     </Grid>
 </Window>

@@ -1,0 +1,54 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:models="clr-namespace:EnvironmentalSequencer.Models"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
+
+    <Style TargetType="TextBlock" x:Key="SensorHeader">
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="FontSize" Value="16" />
+    </Style>
+    <Style TargetType="TextBlock" x:Key="RadialSliderLabel">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,-10,0,0" />
+    </Style>
+
+    <DataTemplate DataType="{x:Type models:Sensor}">
+        <Border Padding="10" BorderBrush="#444" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
+                           Text="{Binding Name}"
+                           Style="{StaticResource SensorHeader}"/>
+                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Width="80" Height="80"
+                                           Minimum="1" Maximum="96"
+                                           Value="{Binding Divider}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#666"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="16"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden"
+                                           FontFamily="Kristen ITC"
+                                           ToolTip="Population Size">
+                    <TextBlock Text="{Binding Divider}"></TextBlock>
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Divider"
+                           Style="{StaticResource RadialSliderLabel}"/>
+            </Grid>
+        </Border>
+    </DataTemplate>
+    
+</ResourceDictionary>

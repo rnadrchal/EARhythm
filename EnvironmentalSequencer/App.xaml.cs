@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Prism.Ioc;
 using System.Windows;
 using Egami.Rhythm.Midi;
+using EnvironmentalSequencer.Services;
 
 namespace EnvironmentalSequencer
 {
@@ -32,7 +33,8 @@ namespace EnvironmentalSequencer
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-
+            containerRegistry.RegisterInstance(_config);
+            containerRegistry.RegisterSingleton<SensorService>();
         }
     }
 }
