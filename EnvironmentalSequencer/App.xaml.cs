@@ -34,7 +34,9 @@ namespace EnvironmentalSequencer
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterInstance(_config);
+            containerRegistry.RegisterSingleton<SensorDataFactory>();
             containerRegistry.RegisterSingleton<SensorService>();
+            
         }
     }
 }

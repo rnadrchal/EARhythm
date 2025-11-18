@@ -16,6 +16,7 @@ namespace EnvironmentalSequencer.ViewModels
     public class MainWindowViewModel : BindableBase
     {
         private readonly SensorService _sensorService;
+        private readonly SensorDataFactory _sensorDataFactory;
 
         private ulong _tickCount = 0;
 
@@ -38,9 +39,10 @@ namespace EnvironmentalSequencer.ViewModels
 
         public ICommand RefreshSensorsCommand { get; private set; }
 
-        public MainWindowViewModel(SensorService sensorService)
+        public MainWindowViewModel(SensorService sensorService, SensorDataFactory sensorDataFactory)
         {
             _sensorService = sensorService;
+            _sensorDataFactory = sensorDataFactory;
 
             _sensorService.DeviceAdded += OnDeviceAdded;
             MidiDevices.Input.EventReceived += OnClockEventReceived;
@@ -85,7 +87,7 @@ namespace EnvironmentalSequencer.ViewModels
             {
                 foreach (var device in _sensorService.GetKnownDevices().Where(d => Sensors.All(s => s.Id != d.Id)))
                 {
-                    var sensor = new Sensor(device.Id, device.Name, device.Capabilities, _sensorService);
+                    var sensor = new Sensor(device.Id, device.Name, device.Capabilities, _sensorService, _sensorDataFactory);
                     Sensors.Add(sensor);
                 }
             });
