@@ -24,6 +24,14 @@ public class SensorDataFactory
                 _sensorData[sensorName] = sensorData;
                 return sensorData;
             }
+
+            if (sensorName.Contains("BME680"))
+            {
+                var sensorData = new Bme680EnvironmentalSensorData(reading);
+                _sensorData[sensorName] = sensorData;
+                return sensorData;
+            }
+
         }
 
         throw new ArgumentException($"Unknown sensor '{sensorName}'.");
