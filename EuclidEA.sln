@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Egami.Imaging", "Egami.Imag
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnvironmentalSequencer", "EnvironmentalSequencer\EnvironmentalSequencer.csproj", "{18128FBF-BC9E-451A-8675-49259A6A8AC8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FourierSequencer", "FourierSequencer\FourierSequencer.csproj", "{1C953FEB-E76D-4EA1-9C51-8E2C93EFDC70}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{18128FBF-BC9E-451A-8675-49259A6A8AC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18128FBF-BC9E-451A-8675-49259A6A8AC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18128FBF-BC9E-451A-8675-49259A6A8AC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C953FEB-E76D-4EA1-9C51-8E2C93EFDC70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C953FEB-E76D-4EA1-9C51-8E2C93EFDC70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C953FEB-E76D-4EA1-9C51-8E2C93EFDC70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C953FEB-E76D-4EA1-9C51-8E2C93EFDC70}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
