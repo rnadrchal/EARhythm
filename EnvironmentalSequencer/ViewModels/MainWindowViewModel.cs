@@ -20,7 +20,7 @@ namespace EnvironmentalSequencer.ViewModels
 
         private ulong _tickCount = 0;
 
-        private string _title = "Environment";
+        private string _title = "Sensors";
         public string Title
         {
             get { return _title; }

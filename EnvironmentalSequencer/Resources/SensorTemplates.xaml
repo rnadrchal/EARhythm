@@ -371,6 +371,26 @@
         </Grid>
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type models:RmsMapping}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="{Binding Name}" TextAlignment="Center" FontWeight="Bold" />
+
+            <TextBlock Grid.Row="2" TextAlignment="Center">
+                <Run Text="{Binding Value, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="{Binding Unit, Mode=OneWay}" />
+            </TextBlock>
+
+
+        </Grid>
+    </DataTemplate>
+
     <DataTemplate DataType="{x:Type models:Tcs3472RgbSensorData}">
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
             <Grid>
@@ -450,6 +470,35 @@
                 </Grid>
             </GroupBox>
         </ScrollViewer>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:Sph0645MicrophoneData}">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <GroupBox Header="Level">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ContentControl Grid.Column="0" Content="{Binding Rms}" />
+                        <ContentControl Grid.Column="1" Content="{Binding Peak}" />
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </ScrollViewer>
+
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:Bh1750LightSensorData}">
+        <GroupBox Header="Light">
+            <ContentControl Content="{Binding Lux}" />
+        </GroupBox>
     </DataTemplate>
 
     <DataTemplate DataType="{x:Type models:Sensor}">
