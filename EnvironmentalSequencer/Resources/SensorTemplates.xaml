@@ -3,13 +3,19 @@
                     xmlns:models="clr-namespace:EnvironmentalSequencer.Models"
                     xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
                     xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
-                    xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF">
+                    xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+                    xmlns:converters1="clr-namespace:EnvironmentalSequencer.Converters">
 
     <converters:LuxToBrushConverter x:Key="LuxToBrush" />
     <converters:ColorTemperatureToBrushConverter x:Key="ColorTemperatureToBrush" />
     <converters:StringConverter x:Key="String" />
     <converters:AddConverter x:Key="Add" />
     <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
+    <converters1:TargetToBrushConverter x:Key="TargetToBrush" />
+    <converters:TemperatureToBrushConverter x:Key="TemperatureToBrush" />
+    <converters:PressureToBrushConverter x:Key="PressureToBrush" />
+    <converters:GasToBrushConverter x:Key="GasToBrush" />
+    <converters:MultConverter x:Key="Multiply" />
 
     <DataTemplate DataType="{x:Type models:PercentMapping}">
         <Grid>
@@ -23,7 +29,8 @@
             <TextBlock Grid.Row="0" Text="{Binding Name}" TextAlignment="Center" FontWeight="Bold" />
             <syncfusion:SfLinearGauge Grid.Row="1" Orientation="Vertical" Height="80">
                 <syncfusion:SfLinearGauge.MainScale>
-                    <syncfusion:LinearScale ScaleDirection="Backward" Interval="50" MajorTickSize="5" ScaleBarSize="11">
+                    <syncfusion:LinearScale ScaleDirection="Backward" Interval="50" MajorTickSize="5" ScaleBarSize="11"
+                                            ScaleBarStroke="#333">
                         <syncfusion:LinearScale.Pointers>
                             <syncfusion:LinearPointer Value="{Binding Value}" PointerType="BarPointer"
                                                       BarPointerStroke="Orange"
@@ -42,15 +49,14 @@
                                        OuterRimRadiusFactor="0.6"
                                        OuterRimStroke="#444"
                                        OuterRimStrokeThickness="3"
-                                       InnerRimFill="#666"
+                                       InnerRimFill="{Binding Target, Converter={StaticResource TargetToBrush}}"
                                        InnerRimStroke="#444"
                                        InnerRimRadiusFactor="0.4"
                                        StartAngle="135" EndAngle="405"
                                        TickFrequency="1"
                                        TickVisibility="Visible"
                                        TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
-                                       LabelVisibility="Hidden"
-                                       FontFamily="Kristen ITC">
+                                       LabelVisibility="Hidden">
             </syncfusion:SfRadialSlider>
             <TextBlock Grid.Row="4" Text="{Binding Target, Converter={StaticResource String}}"
                        Style="{StaticResource RadialSliderLabel}" />
@@ -70,7 +76,8 @@
             <syncfusion:SfLinearGauge Grid.Row="1" Orientation="Vertical" Height="80">
                 <syncfusion:SfLinearGauge.MainScale>
                     <syncfusion:LinearScale ScaleDirection="Backward" Interval="500" MajorTickSize="5" ScaleBarSize="11"
-                                            Minimum="0" Maximum="{Binding MaxValue}">
+                                            Minimum="0" Maximum="{Binding MaxValue}"
+                                            ScaleBarStroke="#333">
                         <syncfusion:LinearScale.Pointers>
                             <syncfusion:LinearPointer Value="{Binding Value}" PointerType="BarPointer"
                                                       BarPointerStroke="{Binding Value, Converter={StaticResource LuxToBrush}}" 
@@ -91,7 +98,7 @@
                                        OuterRimRadiusFactor="0.6"
                                        OuterRimStroke="#444"
                                        OuterRimStrokeThickness="3"
-                                       InnerRimFill="#666"
+                                       InnerRimFill="{Binding Target, Converter={StaticResource TargetToBrush}}"
                                        InnerRimStroke="#444"
                                        InnerRimRadiusFactor="0.4"
                                        StartAngle="135" EndAngle="405"
@@ -120,7 +127,8 @@
             <syncfusion:SfLinearGauge Grid.Row="1" Orientation="Vertical" Height="80">
                 <syncfusion:SfLinearGauge.MainScale>
                     <syncfusion:LinearScale ScaleDirection="Backward" Interval="2000" MajorTickSize="5" ScaleBarSize="11"
-                                            Minimum="0" Maximum="{Binding MaxValue}">
+                                            Minimum="0" Maximum="{Binding MaxValue}"
+                                            ScaleBarStroke="#333">
                         <syncfusion:LinearScale.Pointers>
                             <syncfusion:LinearPointer Value="{Binding Value}" PointerType="BarPointer"
                                                       BarPointerStroke="{Binding Value, Converter={StaticResource ColorTemperatureToBrush}}" 
@@ -142,7 +150,7 @@
                                        OuterRimRadiusFactor="0.6"
                                        OuterRimStroke="#444"
                                        OuterRimStrokeThickness="3"
-                                       InnerRimFill="#666"
+                                       InnerRimFill="{Binding Target, Converter={StaticResource TargetToBrush}}"
                                        InnerRimStroke="#444"
                                        InnerRimRadiusFactor="0.4"
                                        StartAngle="135" EndAngle="405"
@@ -154,6 +162,231 @@
             </syncfusion:SfRadialSlider>
             <TextBlock Grid.Row="4" Text="{Binding Target, Converter={StaticResource String}}"
                        Style="{StaticResource RadialSliderLabel}" />
+
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:TemperatureMapping}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="{Binding Name}" TextAlignment="Center" FontWeight="Bold" />
+            <syncfusion:SfLinearGauge Grid.Row="1" Orientation="Vertical" Height="80">
+                <syncfusion:SfLinearGauge.MainScale>
+                    <syncfusion:LinearScale ScaleDirection="Backward" Interval="20" MajorTickSize="5" ScaleBarSize="11"
+                                            Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}"
+                                            ScaleBarStroke="#333">
+                        <syncfusion:LinearScale.Pointers>
+                            <syncfusion:LinearPointer Value="{Binding Value}" PointerType="BarPointer"
+                                                      BarPointerStroke="{Binding Value, Converter={StaticResource TemperatureToBrush}}" 
+                                                      BarPointerStrokeThickness="10" />
+                        </syncfusion:LinearScale.Pointers>
+                    </syncfusion:LinearScale>
+                </syncfusion:SfLinearGauge.MainScale>
+            </syncfusion:SfLinearGauge>
+            <TextBlock Grid.Row="2" TextAlignment="Center">
+                <Run Text="{Binding Value, Mode=OneWay, StringFormat=N1}" />
+                <Run Text="{Binding Unit, Mode=OneWay}" />
+            </TextBlock>
+
+            <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="0" Width="60" Height="60"
+                                       Minimum="0" Maximum="4"
+                                       Value="{Binding TargetValue, Mode=TwoWay}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="{Binding Target, Converter={StaticResource TargetToBrush}}"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickFrequency="1"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                       LabelVisibility="Hidden"
+                                       FontFamily="Kristen ITC">
+            </syncfusion:SfRadialSlider>
+            <TextBlock Grid.Row="4" Text="{Binding Target, Converter={StaticResource String}}"
+                       Style="{StaticResource RadialSliderLabel}" />
+    </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:PressureMapping}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="{Binding Name}" TextAlignment="Center" FontWeight="Bold" />
+
+            <syncfusion:SfLinearGauge Grid.Row="1" Orientation="Vertical" Height="80">
+                <syncfusion:SfLinearGauge.MainScale>
+                    <syncfusion:LinearScale ScaleDirection="Backward" Interval="30" MajorTickSize="5" ScaleBarSize="11"
+                                            Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}"
+                                            ScaleBarStroke="#333">
+                        <syncfusion:LinearScale.Pointers>
+                            <syncfusion:LinearPointer Value="{Binding Value}" PointerType="BarPointer"
+                                                      BarPointerStroke="Orange" 
+                                                      BarPointerStrokeThickness="10" />
+                        </syncfusion:LinearScale.Pointers>
+                    </syncfusion:LinearScale>
+                </syncfusion:SfLinearGauge.MainScale>
+            </syncfusion:SfLinearGauge>
+            <TextBlock Grid.Row="2" TextAlignment="Center">
+                <Run Text="{Binding Value, Mode=OneWay, StringFormat=N1}" />
+                <Run Text="{Binding Unit, Mode=OneWay}" />
+            </TextBlock>
+
+
+            <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="0" Width="60" Height="60"
+                                       Minimum="0" Maximum="4"
+                                       Value="{Binding TargetValue, Mode=TwoWay}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="{Binding Target, Converter={StaticResource TargetToBrush}}"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickFrequency="1"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                       LabelVisibility="Hidden"
+                                       FontFamily="Kristen ITC">
+            </syncfusion:SfRadialSlider>
+            <TextBlock Grid.Row="4" Text="{Binding Target, Converter={StaticResource String}}"
+                       Style="{StaticResource RadialSliderLabel}" />
+
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:GasResistanceMapping}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="{Binding Name}" TextAlignment="Center" FontWeight="Bold" />
+
+            <syncfusion:SfLinearGauge Grid.Row="1" Orientation="Vertical" Height="80">
+                <syncfusion:SfLinearGauge.MainScale>
+                    <syncfusion:LinearScale ScaleDirection="Backward" Interval="500" MajorTickSize="5" ScaleBarSize="11"
+                                            Minimum="0" Maximum="1100"
+                                            ScaleBarStroke="#333">
+                        <syncfusion:LinearScale.Pointers>
+                            <syncfusion:LinearPointer Value="{Binding ScaledValue}" PointerType="BarPointer"
+                                                      BarPointerStroke="{Binding ScaledValue, Converter={StaticResource GasToBrush}}" 
+                                                      BarPointerStrokeThickness="10" />
+                        </syncfusion:LinearScale.Pointers>
+                    </syncfusion:LinearScale>
+                </syncfusion:SfLinearGauge.MainScale>
+            </syncfusion:SfLinearGauge>
+
+            <TextBlock Grid.Row="2" TextAlignment="Center">
+                <Run Text="{Binding ScaledValue, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="{Binding Unit, Mode=OneWay}" />
+            </TextBlock>
+
+            <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="0" Width="60" Height="60"
+                                       Minimum="0" Maximum="4"
+                                       Value="{Binding TargetValue, Mode=TwoWay}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="{Binding Target, Converter={StaticResource TargetToBrush}}"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickFrequency="1"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                       LabelVisibility="Hidden"
+                                       FontFamily="Kristen ITC">
+            </syncfusion:SfRadialSlider>
+            <TextBlock Grid.Row="4" Text="{Binding Target, Converter={StaticResource String}}"
+                       Style="{StaticResource RadialSliderLabel}" />
+
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:AltitudeMapping}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="{Binding Name}" TextAlignment="Center" FontWeight="Bold" />
+
+            <syncfusion:SfLinearGauge Grid.Row="1" Orientation="Vertical" Height="80">
+                <syncfusion:SfLinearGauge.MainScale>
+                    <syncfusion:LinearScale ScaleDirection="Backward" Interval="2500" MajorTickSize="5" ScaleBarSize="11"
+                                            Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}"
+                                            ScaleBarStroke="#333">
+                        <syncfusion:LinearScale.Pointers>
+                            <syncfusion:LinearPointer Value="{Binding Value}" PointerType="BarPointer"
+                                                      BarPointerStroke="Orange"
+                                                      BarPointerStrokeThickness="10"/>
+                        </syncfusion:LinearScale.Pointers>
+                    </syncfusion:LinearScale>
+                </syncfusion:SfLinearGauge.MainScale>
+            </syncfusion:SfLinearGauge>
+
+            <TextBlock Grid.Row="2" TextAlignment="Center">
+                <Run Text="{Binding Value, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="{Binding Unit, Mode=OneWay}" />
+            </TextBlock>
+
+            <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="0" Width="60" Height="60"
+                                       Minimum="0" Maximum="4"
+                                       Value="{Binding TargetValue, Mode=TwoWay}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="{Binding Target, Converter={StaticResource TargetToBrush}}"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickFrequency="1"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                       LabelVisibility="Hidden"
+                                       FontFamily="Kristen ITC">
+            </syncfusion:SfRadialSlider>
+            <TextBlock Grid.Row="4" Text="{Binding Target, Converter={StaticResource String}}"
+                       Style="{StaticResource RadialSliderLabel}" />
+
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:RmsMapping}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="{Binding Name}" TextAlignment="Center" FontWeight="Bold" />
+
+            <TextBlock Grid.Row="2" TextAlignment="Center">
+                <Run Text="{Binding Value, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="{Binding Unit, Mode=OneWay}" />
+            </TextBlock>
+
 
         </Grid>
     </DataTemplate>
@@ -218,6 +451,56 @@
 
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type models:Bme680EnvironmentalSensorData}">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
+            <GroupBox Header="Conditions">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <ContentControl Grid.Column="0" Content="{Binding Temperature}" />
+                    <ContentControl Grid.Column="1" Content="{Binding Humidity}" />
+                    <ContentControl Grid.Column="2" Content="{Binding Pressure}" />
+                    <ContentControl Grid.Column="3" Content="{Binding GasResistance}" />
+                    <ContentControl Grid.Column="4" Content="{Binding Altitude}" />
+                </Grid>
+            </GroupBox>
+        </ScrollViewer>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:Sph0645MicrophoneData}">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <GroupBox Header="Level">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ContentControl Grid.Column="0" Content="{Binding Rms}" />
+                        <ContentControl Grid.Column="1" Content="{Binding Peak}" />
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </ScrollViewer>
+
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:Bh1750LightSensorData}">
+        <GroupBox Header="Light">
+            <ContentControl Content="{Binding Lux}" />
+        </GroupBox>
+    </DataTemplate>
+
     <DataTemplate DataType="{x:Type models:Sensor}">
         <Border Padding="10" BorderBrush="#444" BorderThickness="1">
             <Grid>
@@ -230,6 +513,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
+
                 <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
                            Text="{Binding Name}"
                            Style="{StaticResource SensorHeader}"/>
@@ -254,6 +538,12 @@
                     </Button>
                 </StackPanel>
 
+                <Ellipse Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right"
+                         Style="{StaticResource LedEllipseStyle}"
+                         Width="16" Height="16" 
+                         Margin="0,10,10,0"
+                         Fill="{Binding LedPitch, Converter={StaticResource BooleanToBrush}, ConverterParameter=Green}"></Ellipse>
+
 
                 <Grid Grid.Row="2" Grid.Column="0">
                     <Grid.ColumnDefinitions>
@@ -270,7 +560,7 @@
 
                     <syncfusion:SfRadialSlider Grid.Column="0" Grid.Row="0" 
                                                Width="80" Height="80"
-                                               Minimum="0" Maximum="1"
+                                               Minimum="0" Maximum="15"
                                                Value="{Binding Channel}"
                                                OuterRimRadiusFactor="0.6"
                                                OuterRimStroke="#444"

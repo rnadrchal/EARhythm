@@ -79,6 +79,14 @@ public sealed class Sensor : BindableBase
         set => SetProperty(ref _sensorData, value);
     }
 
+    private bool _ledPitch;
+
+    public bool LedPitch
+    {
+        get => _ledPitch;
+        set => SetProperty(ref _ledPitch, value);
+    }
+
     public ICommand ToggleLegatoCommand { get; }
     public ICommand ResetOutputCommand { get; }
 
@@ -120,6 +128,14 @@ public sealed class Sensor : BindableBase
                 SendMidiEvents(SensorData.GetAllMappings());
             }
 
+            if (_tickCount % (ulong)(96 / _divider) == (ulong)Math.Max(1, 48 / _divider))
+            {
+                if (LedPitch)
+                {
+                    LedPitch = false;
+                }
+            }
+
             _tickCount++;
         }
     }
@@ -135,7 +151,7 @@ public sealed class Sensor : BindableBase
             TargetValue.PitchBend
         };
 
-        foreach (var mapping in mappings.Where(m => sendTypes.Contains(m.Target)))
+        foreach (var mapping in mappings.Where(m => sendTypes.Contains(m.Target)).OrderByDescending(m => m.Target))
         {
             switch (mapping.Target)
             {
@@ -171,6 +187,11 @@ public sealed class Sensor : BindableBase
         if (!_activeNotes.Contains(pitch))
         {
             _activeNotes.Add(pitch);
+            if (!LedPitch)
+            {
+                LedPitch = true;
+            }
+
         }
     }
 

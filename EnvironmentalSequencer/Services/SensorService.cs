@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Permissions;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -15,6 +14,12 @@ namespace EnvironmentalSequencer.Services;
 
 public record DeviceInfo(Guid Id, string Name, IPEndPoint EndPoint, string[] Capabilities, DateTime LastSeenUtc);
 public record SensorReading(string Key, double? Value, string Unit);
+
+public class DeviceEventArgs : EventArgs
+{
+    public DeviceInfo Device { get; }
+    public DeviceEventArgs(DeviceInfo device) => Device = device;
+}
 
 public class SensorService : IAsyncDisposable
 {
@@ -26,7 +31,10 @@ public class SensorService : IAsyncDisposable
     private readonly ConcurrentDictionary<Guid, DeviceInfo> _devices = new();
     private readonly ConcurrentDictionary<Guid, List<SensorReading>> _readings = new();
     private readonly TimeSpan _broadcastInterval;
+    private readonly TimeSpan _deviceTimeout;
 
+    // Event fired when a device is removed due to timeout
+    public EventHandler<DeviceEventArgs>? DeviceRemoved { get; set; }
 
     public SensorService(IConfigurationRoot config)
     {
@@ -34,11 +42,15 @@ public class SensorService : IAsyncDisposable
         _sensorPort = int.Parse(_config.GetSection("Sensor")["Port"] ?? "4210");
         _discoveryIntervalSeconds = int.Parse(_config.GetSection("Sensor")["DiscoveryIntervalSeconds"] ?? "60");
         _broadcastInterval = TimeSpan.FromSeconds(_discoveryIntervalSeconds);
+        // Timeout: z.B. 2x DiscoveryInterval
+        _deviceTimeout = TimeSpan.FromSeconds(Math.Max(1, _discoveryIntervalSeconds) * 2);
+
         _udp = new UdpClient(new IPEndPoint(IPAddress.Parse("192.168.99.50"), _sensorPort));
         _udp.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
         _udp.EnableBroadcast = true;
         _ = ReceiveLoop(_cts.Token);
         _ = BroadcastLoop(_cts.Token);
+        _ = CleanupLoop(_cts.Token);
     }
 
     public DeviceInfo[] GetKnownDevices() => _devices.Values.ToArray();
@@ -82,7 +94,7 @@ public class SensorService : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            // log error
+            System.Diagnostics.Debug.WriteLine($"DiscoverNodes send failed: {ex}");
         }
     }
 
@@ -102,6 +114,37 @@ public class SensorService : IAsyncDisposable
         }
     }
 
+    // Periodic cleanup: entfernt Geräte, deren LastSeenUtc älter als _deviceTimeout ist
+    private async Task CleanupLoop(CancellationToken ct)
+    {
+        var interval = TimeSpan.FromSeconds(Math.Max(5, _discoveryIntervalSeconds / 2.0));
+        while (!ct.IsCancellationRequested)
+        {
+            try
+            {
+                var cutoff = DateTime.UtcNow - _deviceTimeout;
+                foreach (var kv in _devices.ToArray())
+                {
+                    if (kv.Value.LastSeenUtc < cutoff)
+                    {
+                        if (_devices.TryRemove(kv.Key, out var removed))
+                        {
+                            _readings.TryRemove(kv.Key, out _);
+                            System.Diagnostics.Debug.WriteLine($"[{DateTime.UtcNow:O}] SensorService: removed device {removed.Id} ({removed.Name}) due timeout");
+                            DeviceRemoved?.Invoke(this, new DeviceEventArgs(removed));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CleanupLoop exception: {ex}");
+            }
+
+            await Task.Delay(interval, ct).ContinueWith(_ => { });
+        }
+    }
+
     private void ProcessMessage(UdpReceiveResult res)
     {
         try
@@ -112,19 +155,22 @@ public class SensorService : IAsyncDisposable
             var type = t.GetString();
             if (type == "discovery_response")
             {
-                var id = Guid.Parse(doc.RootElement.GetProperty("id").GetString());
-                var name = doc.RootElement.GetProperty("name").GetString();
+                if (!doc.RootElement.TryGetProperty("id", out var idEl)) return;
+                if (!Guid.TryParse(idEl.GetString(), out var id)) return;
+                var name = doc.RootElement.TryGetProperty("name", out var nameEl) ? nameEl.GetString() : string.Empty;
                 var caps = doc.RootElement.TryGetProperty("capabilities", out var c) && c.ValueKind == JsonValueKind.Array
                     ? c.EnumerateArray().Select(x => x.GetString() ?? string.Empty).ToArray()
                     : Array.Empty<string>();
 
-                var dev = new DeviceInfo(id, name, res.RemoteEndPoint, caps, DateTime.UtcNow);
+                var dev = new DeviceInfo(id, name ?? string.Empty, res.RemoteEndPoint, caps, DateTime.UtcNow);
                 var newDevice = !_devices.ContainsKey(id);
-                _devices.AddOrUpdate(id, dev, (_, __) => dev);
+                _devices.AddOrUpdate(id, dev, (_, old) => new DeviceInfo(old.Id, old.Name, res.RemoteEndPoint, old.Capabilities, DateTime.UtcNow));
                 if (newDevice)
                 {
                     DeviceAdded?.Invoke(this, EventArgs.Empty);
                 }
+
+                return;
             }
 
             if (type == "data_response")
@@ -132,82 +178,46 @@ public class SensorService : IAsyncDisposable
                 if (!doc.RootElement.TryGetProperty("id", out var idEl)) return;
                 if (!Guid.TryParse(idEl.GetString(), out var id)) return;
 
-                // Update last seen (keep existing name/caps if present)
+                // Update last seen / endpoint for device
                 _devices.AddOrUpdate(id,
                     (_) => new DeviceInfo(id, string.Empty, res.RemoteEndPoint, Array.Empty<string>(), DateTime.UtcNow),
                     (_, old) => new DeviceInfo(old.Id, old.Name, res.RemoteEndPoint, old.Capabilities, DateTime.UtcNow));
 
-                if (!doc.RootElement.TryGetProperty("payload", out var readingsEl) || readingsEl.ValueKind != JsonValueKind.Array)
+                if (doc.RootElement.TryGetProperty("payload", out var readingsEl) && readingsEl.ValueKind == JsonValueKind.Array)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[{DateTime.UtcNow:O}] ProcessMessage: no payload or not an array for {id}");
-                    return;
-                }
-
-                var readings = new List<SensorReading>();
-                foreach (var item in readingsEl.EnumerateArray())
-                {
-                    // skip non-object or empty objects
-                    if (item.ValueKind != JsonValueKind.Object || !item.EnumerateObject().Any())
+                    var readings = new List<SensorReading>();
+                    foreach (var reading in readingsEl.EnumerateArray())
                     {
-                        System.Diagnostics.Debug.WriteLine($"[{DateTime.UtcNow:O}] ProcessMessage: skipping empty/invalid payload item for {id}");
-                        continue;
-                    }
+                        // defensive parsing (skip empty/invalid objects)
+                        if (reading.ValueKind != JsonValueKind.Object || !reading.EnumerateObject().Any())
+                            continue;
 
-                    // key
-                    if (!item.TryGetProperty("key", out var keyEl) || keyEl.ValueKind != JsonValueKind.String)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[{DateTime.UtcNow:O}] ProcessMessage: payload item missing 'key' for {id}");
-                        continue;
-                    }
-                    var key = keyEl.GetString() ?? string.Empty;
-
-                    // unit (optional)
-                    var unit = item.TryGetProperty("unit", out var unitEl) && unitEl.ValueKind == JsonValueKind.String
-                        ? unitEl.GetString() ?? string.Empty
-                        : string.Empty;
-
-                    // value -> try parse to double, otherwise null
-                    double? value = null;
-                    if (item.TryGetProperty("value", out var valEl))
-                    {
-                        switch (valEl.ValueKind)
+                        var key = reading.TryGetProperty("key", out var keyEl) && keyEl.ValueKind == JsonValueKind.String ? keyEl.GetString() : null;
+                        double? value = null;
+                        if (reading.TryGetProperty("value", out var valEl))
                         {
-                            case JsonValueKind.Number:
-                                if (valEl.TryGetDouble(out var d)) value = d;
-                                break;
-                            case JsonValueKind.String:
-                                if (double.TryParse(valEl.GetString(), System.Globalization.NumberStyles.Float | System.Globalization.NumberStyles.AllowThousands, System.Globalization.CultureInfo.InvariantCulture, out var parsed))
-                                    value = parsed;
-                                break;
-                            case JsonValueKind.True:
-                                value = 1.0;
-                                break;
-                            case JsonValueKind.False:
-                                value = 0.0;
-                                break;
-                            default:
-                                // unsupported kinds -> keep null
-                                break;
+                            if (valEl.ValueKind == JsonValueKind.Number && valEl.TryGetDouble(out var d)) value = d;
+                            else if (valEl.ValueKind == JsonValueKind.String && double.TryParse(valEl.GetString(), System.Globalization.NumberStyles.Float | System.Globalization.NumberStyles.AllowThousands, System.Globalization.CultureInfo.InvariantCulture, out var parsed)) value = parsed;
+                            else if (valEl.ValueKind == JsonValueKind.True) value = 1.0;
+                            else if (valEl.ValueKind == JsonValueKind.False) value = 0.0;
                         }
+                        var unit = reading.TryGetProperty("unit", out var unitEl) && unitEl.ValueKind == JsonValueKind.String ? unitEl.GetString() : string.Empty;
+
+                        if (key != null)
+                            readings.Add(new SensorReading(key, value, unit ?? string.Empty));
                     }
 
-                    readings.Add(new SensorReading(key, value, unit));
-                }
-
-                if (readings.Count > 0)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[{DateTime.UtcNow:O}] ProcessMessage: updating readings for {id}, count={readings.Count}");
-                    _readings[id] = readings;
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"[{DateTime.UtcNow:O}] ProcessMessage: no valid readings parsed for {id}");
+                    if (readings.Count > 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[{DateTime.UtcNow:O}] ProcessMessage: updating readings for {id}, count={readings.Count}");
+                        _readings[id] = readings;
+                    }
                 }
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // ignore/ log
+            System.Diagnostics.Debug.WriteLine($"ProcessMessage exception: {ex}");
         }
     }
 

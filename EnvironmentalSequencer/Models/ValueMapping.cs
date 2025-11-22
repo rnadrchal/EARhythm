@@ -19,9 +19,9 @@ public abstract class ValueMapping
     public double MaxValue { get; private set; }
     public string Unit { get; private set; }
 
-    private double _value = 0;
+    protected double _value = 0;
 
-    public double Value
+    public virtual double Value
     {
         get => _value;
         set => SetProperty(ref _value, value);

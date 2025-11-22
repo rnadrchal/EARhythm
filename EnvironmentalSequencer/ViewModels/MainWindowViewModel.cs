@@ -20,7 +20,7 @@ namespace EnvironmentalSequencer.ViewModels
 
         private ulong _tickCount = 0;
 
-        private string _title = "Environment";
+        private string _title = "Sensors";
         public string Title
         {
             get { return _title; }
@@ -45,6 +45,9 @@ namespace EnvironmentalSequencer.ViewModels
             _sensorDataFactory = sensorDataFactory;
 
             _sensorService.DeviceAdded += OnDeviceAdded;
+            // subscribe DeviceRemoved to remove Sensor from collection
+            _sensorService.DeviceRemoved += OnDeviceRemoved;
+
             MidiDevices.Input.EventReceived += OnClockEventReceived;
             RefreshSensorsCommand = new DelegateCommand(_ => RefreshSensors());
         }
@@ -79,6 +82,18 @@ namespace EnvironmentalSequencer.ViewModels
         private void OnDeviceAdded(object? sender, EventArgs e)
         {
             RefreshSensors();
+        }
+
+        private void OnDeviceRemoved(object? sender, DeviceEventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var toRemove = Sensors.FirstOrDefault(s => s.Id == e.Device.Id);
+                if (toRemove != null)
+                {
+                    Sensors.Remove(toRemove);
+                }
+            });
         }
 
         private void RefreshSensors()
