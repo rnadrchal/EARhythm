@@ -1,0 +1,373 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:models="clr-namespace:EnvironmentalSequencer.Models"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+                    xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
+                    xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF">
+
+    <converters:LuxToBrushConverter x:Key="LuxToBrush" />
+    <converters:ColorTemperatureToBrushConverter x:Key="ColorTemperatureToBrush" />
+    <converters:StringConverter x:Key="String" />
+    <converters:AddConverter x:Key="Add" />
+    <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
+
+    <DataTemplate DataType="{x:Type models:PercentMapping}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="{Binding Name}" TextAlignment="Center" FontWeight="Bold" />
+            <syncfusion:SfLinearGauge Grid.Row="1" Orientation="Vertical" Height="80">
+                <syncfusion:SfLinearGauge.MainScale>
+                    <syncfusion:LinearScale ScaleDirection="Backward" Interval="50" MajorTickSize="5" ScaleBarSize="11">
+                        <syncfusion:LinearScale.Pointers>
+                            <syncfusion:LinearPointer Value="{Binding Value}" PointerType="BarPointer"
+                                                      BarPointerStroke="Orange"
+                                                      BarPointerStrokeThickness="10"/>
+                        </syncfusion:LinearScale.Pointers>
+                    </syncfusion:LinearScale>
+                </syncfusion:SfLinearGauge.MainScale>
+            </syncfusion:SfLinearGauge>
+            <TextBlock Grid.Row="2" TextAlignment="Center">
+                <Run Text="{Binding Value, Mode=OneWay, StringFormat=N1}" />
+                <Run Text="{Binding Unit, Mode=OneWay}" />
+            </TextBlock>
+            <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="0" Width="60" Height="60"
+                                       Minimum="0" Maximum="4"
+                                       Value="{Binding TargetValue, Mode=TwoWay}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickFrequency="1"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                       LabelVisibility="Hidden"
+                                       FontFamily="Kristen ITC">
+            </syncfusion:SfRadialSlider>
+            <TextBlock Grid.Row="4" Text="{Binding Target, Converter={StaticResource String}}"
+                       Style="{StaticResource RadialSliderLabel}" />
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:LuxMapping}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="{Binding Name}" TextAlignment="Center" FontWeight="Bold" />
+            <syncfusion:SfLinearGauge Grid.Row="1" Orientation="Vertical" Height="80">
+                <syncfusion:SfLinearGauge.MainScale>
+                    <syncfusion:LinearScale ScaleDirection="Backward" Interval="500" MajorTickSize="5" ScaleBarSize="11"
+                                            Minimum="0" Maximum="{Binding MaxValue}">
+                        <syncfusion:LinearScale.Pointers>
+                            <syncfusion:LinearPointer Value="{Binding Value}" PointerType="BarPointer"
+                                                      BarPointerStroke="{Binding Value, Converter={StaticResource LuxToBrush}}" 
+                                                      BarPointerStrokeThickness="10" />
+                        </syncfusion:LinearScale.Pointers>
+                    </syncfusion:LinearScale>
+                </syncfusion:SfLinearGauge.MainScale>
+            </syncfusion:SfLinearGauge>
+
+            <TextBlock Grid.Row="2" TextAlignment="Center">
+                <Run Text="{Binding Value, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="{Binding Unit, Mode=OneWay}" />
+            </TextBlock>
+
+            <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="0" Width="60" Height="60"
+                                       Minimum="0" Maximum="4"
+                                       Value="{Binding TargetValue, Mode=TwoWay}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickFrequency="1"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                       LabelVisibility="Hidden"
+                                       FontFamily="Kristen ITC">
+            </syncfusion:SfRadialSlider>
+            <TextBlock Grid.Row="4" Text="{Binding Target, Converter={StaticResource String}}"
+                       Style="{StaticResource RadialSliderLabel}" />
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:ColorTemperatureMapping}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="{Binding Name}" TextAlignment="Center" FontWeight="Bold" />
+
+            <syncfusion:SfLinearGauge Grid.Row="1" Orientation="Vertical" Height="80">
+                <syncfusion:SfLinearGauge.MainScale>
+                    <syncfusion:LinearScale ScaleDirection="Backward" Interval="2000" MajorTickSize="5" ScaleBarSize="11"
+                                            Minimum="0" Maximum="{Binding MaxValue}">
+                        <syncfusion:LinearScale.Pointers>
+                            <syncfusion:LinearPointer Value="{Binding Value}" PointerType="BarPointer"
+                                                      BarPointerStroke="{Binding Value, Converter={StaticResource ColorTemperatureToBrush}}" 
+                                                      BarPointerStrokeThickness="10" />
+                        </syncfusion:LinearScale.Pointers>
+                    </syncfusion:LinearScale>
+                </syncfusion:SfLinearGauge.MainScale>
+            </syncfusion:SfLinearGauge>
+
+
+            <TextBlock Grid.Row="2" TextAlignment="Center">
+                <Run Text="{Binding Value, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="{Binding Unit, Mode=OneWay}" />
+            </TextBlock>
+
+            <syncfusion:SfRadialSlider Grid.Row="3" Grid.Column="0" Width="60" Height="60"
+                                       Minimum="0" Maximum="4"
+                                       Value="{Binding TargetValue, Mode=TwoWay}"
+                                       OuterRimRadiusFactor="0.6"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#666"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.4"
+                                       StartAngle="135" EndAngle="405"
+                                       TickFrequency="1"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                       LabelVisibility="Hidden"
+                                       FontFamily="Kristen ITC">
+            </syncfusion:SfRadialSlider>
+            <TextBlock Grid.Row="4" Text="{Binding Target, Converter={StaticResource String}}"
+                       Style="{StaticResource RadialSliderLabel}" />
+
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:Tcs3472RgbSensorData}">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <GroupBox Grid.Column="0" Header="Raw">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ContentControl Grid.Column="0" Content="{Binding RRaw}" />
+                        <ContentControl Grid.Column="1" Content="{Binding GRaw}" />
+                        <ContentControl Grid.Column="2" Content="{Binding BRaw}" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Grid.Column="1" Header="Compensated">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ContentControl Grid.Column="0" Content="{Binding IR}" />
+                        <ContentControl Grid.Column="1" Content="{Binding RComp}" />
+                        <ContentControl Grid.Column="2" Content="{Binding GComp}" />
+                        <ContentControl Grid.Column="3" Content="{Binding BComp}" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Grid.Column="2" Header="Saturation">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ContentControl Grid.Column="0" Content="{Binding Saturation}" />
+                        <ContentControl Grid.Column="1" Content="{Binding Saturation75}" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Grid.Column="3" Header="Light">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ContentControl Grid.Column="0" Content="{Binding Lux}" />
+                        <ContentControl Grid.Column="1" Content="{Binding ColorTemperature}" />
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </ScrollViewer>
+
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:Sensor}">
+        <Border Padding="10" BorderBrush="#444" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
+                           Text="{Binding Name}"
+                           Style="{StaticResource SensorHeader}"/>
+
+                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal"
+                            HorizontalAlignment="Center" VerticalAlignment="Top"
+                            Margin="0,10,0,0">
+                    <Button Style="{StaticResource Round3DButton}"
+                            Width="18" Height="18"
+                            Background="{Binding Legato, Converter={StaticResource BooleanToBrush}, ConverterParameter=Green}"
+                            Command="{Binding ToggleLegatoCommand}"
+                            ToolTip="Legato on/off">
+                        <wpf:MaterialIcon Kind="Keep" Height="12" Opacity="0.6" />
+                    </Button>
+                    <Button Style="{StaticResource Round3DButton}"
+                            Width="18" Height="18"
+                            Margin="5,0"
+                            Background="DarkRed"
+                            Command="{Binding ResetOutputCommand}"
+                            ToolTip="Reset output">
+                        <wpf:MaterialIcon Kind="NoteOff" Height="12" Opacity="0.6" />
+                    </Button>
+                </StackPanel>
+
+
+                <Grid Grid.Row="2" Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition  />
+                        <ColumnDefinition  />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <syncfusion:SfRadialSlider Grid.Column="0" Grid.Row="0" 
+                                               Width="80" Height="80"
+                                               Minimum="0" Maximum="1"
+                                               Value="{Binding Channel}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="2"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC"
+                                               ToolTip="Population Size">
+                        <TextBlock Text="{Binding Channel, Converter={StaticResource Add}, ConverterParameter=1, Mode=OneWay}"
+                                   Style="{StaticResource RadialSliderValue}"/>
+                    </syncfusion:SfRadialSlider>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Channel"
+                               Style="{StaticResource RadialSliderLabel}"/>
+
+                    <syncfusion:SfRadialSlider Grid.Column="1" Grid.Row="0" 
+                                               Width="80" Height="Auto"
+                                               Minimum="0" Maximum="127"
+                                               Value="{Binding Velocity}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC"
+                                               ToolTip="Population Size">
+                        <TextBlock Text="{Binding Velocity, Mode=OneWay}"
+                                   Style="{StaticResource RadialSliderValue}"/>
+                    </syncfusion:SfRadialSlider>
+
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Velocity"
+                               Style="{StaticResource RadialSliderLabel}"/>
+
+                    <syncfusion:SfRadialSlider Grid.Column="0" Grid.Row="2" 
+                                               Width="80" Height="80"
+                                               Minimum="1" Maximum="96"
+                                               Value="{Binding Divider}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC"
+                                               ToolTip="Population Size">
+                        <TextBlock Text="{Binding Divider}"
+                                   Style="{StaticResource RadialSliderValue}"/>
+                    </syncfusion:SfRadialSlider>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Divider"
+                               Style="{StaticResource RadialSliderLabel}"/>
+
+                    <syncfusion:SfRadialSlider Grid.Column="1" Grid.Row="2" 
+                                               Width="80" Height="Auto"
+                                               Minimum="1" Maximum="8"
+                                               Value="{Binding MaxChordSize}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#666"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="1"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               FontFamily="Kristen ITC"
+                                               ToolTip="Population Size">
+                        <TextBlock Text="{Binding MaxChordSize}"
+                                   Style="{StaticResource RadialSliderValue}"/>
+                    </syncfusion:SfRadialSlider>
+
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="Chord"
+                               Style="{StaticResource RadialSliderLabel}"/>
+                </Grid>
+                <ContentControl Content="{Binding SensorData}"
+                                Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" />
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+</ResourceDictionary>
