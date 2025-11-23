@@ -500,7 +500,7 @@ public class FourierSequencerModel : BindableBase
         _activeValue = pitch;
     }
 
-    private void SendNoteOff()
+    public void SendNoteOff()
     {
         if (_activeValue.HasValue)
         {

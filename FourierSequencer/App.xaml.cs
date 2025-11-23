@@ -1,8 +1,10 @@
-﻿using Egami.Rhythm.Midi;
+﻿using System.ComponentModel;
+using Egami.Rhythm.Midi;
 using FourierSequencer.Views;
 using Microsoft.Extensions.Configuration;
 using Prism.Ioc;
 using System.Windows;
+using FourierSequencer.Models;
 
 namespace FourierSequencer
 {
@@ -33,6 +35,11 @@ namespace FourierSequencer
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterSingleton<Models.FourierSequencerModel>();
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            Container.Resolve<FourierSequencerModel>().SendNoteOff();
         }
     }
 }
