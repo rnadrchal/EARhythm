@@ -1,9 +1,17 @@
+using Egami.Rhythm.Midi;
+using Melanchall.DryWetMidi.Common;
+using Melanchall.DryWetMidi.Core;
+using Melanchall.DryWetMidi.Multimedia;
+using Prism.Mvvm;
+using Syncfusion.Windows.Shared;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
-using Prism.Mvvm;
+using System.Windows.Input;
+using Egami.Pitch;
 
 namespace FourierSequencer.Models;
 
@@ -40,6 +48,9 @@ public class FourierSequencerModel : BindableBase
 
         // generate initial curve (now always scaled to MIDI-range and consider min/max in mapping)
         Generate();
+
+        MidiDevices.Input.EventReceived += OnMidiEventReceived;
+        ToggleLegatoCommand = new DelegateCommand(_ => Legato = !Legato);
     }
 
     private int _harmonics = 1;
@@ -267,6 +278,59 @@ public class FourierSequencerModel : BindableBase
         }
     }
 
+    private bool _ledBeat;
+    
+    public bool LedBeat
+    {
+        get => _ledBeat;
+        set => SetProperty(ref _ledBeat, value);
+    }
+
+    private static int[] _dividers = [1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 96];
+    private int _divider = 8;
+    public int Divider
+    {
+        get => _divider;
+        set
+        {
+            if (_dividers.Contains(value))
+            {
+                SetProperty(ref _divider, value);
+            }
+        }
+    }
+
+    private int _channel = 0;
+
+    public int Channel
+    {
+        get => _channel;
+        set
+        {
+            if (value is >= 0 and < 16)
+            {
+                SetProperty(ref _channel, value);
+            }
+        }
+    }
+
+    private bool _legato;
+
+    public bool Legato
+    {
+        get => _legato;
+        set
+        {
+            if (SetProperty(ref _legato, value))
+            {
+                SendNoteOff();
+            }
+
+        }
+    }
+
+    public ICommand ToggleLegatoCommand { get; }
+
     public void Generate()
     {
         int totalPoints = _steps * _pointsPerStep;
@@ -375,66 +439,74 @@ public class FourierSequencerModel : BindableBase
         ThresholdUpperLine.Add(new Point(_steps, UpperThreshold));
     }
 
-    private int _pointsPer_step() => _pointsPerStep;
-
     private double GetA(int n) => FourierCoeffizients.Count > n ? FourierCoeffizients[n].A :0.0;
     private double GetB(int n) => FourierCoeffizients.Count > n ? FourierCoeffizients[n].B :0.0;
 
-    /// <summary>
-    /// Normalize the Fourier series so the peak amplitude of the dense curve equals targetPeak.
-    /// This scales all Fourier coefficients (A and B) by a uniform factor.
-    /// If current peak is zero, no change is made.
-    /// </summary>
-    public void Normalize(double targetPeak =1.0)
+    private ulong _tickCount = 0;
+    private int _step = 0;
+    private byte? _activeValue;
+    private void OnMidiEventReceived(object sender, MidiEventReceivedEventArgs e)
     {
-        if (targetPeak <=0) throw new ArgumentOutOfRangeException(nameof(targetPeak), "targetPeak must be positive");
-
-        // ensure curve is up-to-date
-        Generate();
-
-        // compute maximum absolute amplitude from the dense curve (best approximation)
-        double maxAbs =0.0;
-        foreach (var p in CurvePoints)
+        if (e.Event.EventType is MidiEventType.Start)
         {
-            var abs = Math.Abs(p.Y);
-            if (abs > maxAbs) maxAbs = abs;
+            _tickCount = 0;
         }
 
-        // also consider discrete samples (in case pointsPerStep is very low)
-        foreach (var v in Samples)
+        if (e.Event.EventType is MidiEventType.Stop)
         {
-            var abs = Math.Abs(v);
-            if (abs > maxAbs) maxAbs = abs;
+            LedBeat = false;
         }
 
-        if (maxAbs <= 0.0) return; // nothing to scale
-
-        double scale = targetPeak / maxAbs;
-
-        // scale all coefficients
-        for (int i =0; i < FourierCoeffizients.Count; i++)
+        if (e.Event.EventType is MidiEventType.TimingClock)
         {
-            FourierCoeffizients[i].A *= scale;
-            FourierCoeffizients[i].B *= scale;
-        }
+            if (_tickCount % 24 == 0)
+            {
+                LedBeat = true;
+            }
+            else if (_tickCount % 24 == 12)
+            {
+                LedBeat = false;
+            }
 
-        // regenerate with scaled coefficients
-        Generate();
+            if (_tickCount % (ulong)(96 / _divider) == 0)
+            {
+                var value = (byte)(MidiValues[_step++]);
+                if (value >= LowerThreshold && value <= UpperThreshold)
+                {
+                    SendNoteOn(value, 100);
+                }
+
+                if (_step >= MidiValues.Count)
+                {
+                    _step = 0;
+                }
+            }
+            _tickCount++;
+        }
     }
 
-    /// <summary>
-    /// Map current Samples to MIDI0..127 using current mapping (Samples already hold MIDI-scaled values).
-    /// </summary>
-    public void MapSamplesToMidi(int minMidi =0, int maxMidi =127)
-    {
-        MidiValues.Clear();
-        if (Samples == null || Samples.Count ==0) return;
 
-        foreach (var s in Samples)
+    public void SendNoteOn(byte pitch, byte velocity)
+    {
+        if (!Legato && _activeValue == pitch)
         {
-            // Samples are MIDI-scaled doubles in0..127, clamp and convert to int
-            var clamped = Math.Min(Math.Max(s,0.0),127.0);
-            MidiValues.Add((int)Math.Round(clamped));
+            SendNoteOff();
+        }
+        if (Legato && _activeValue == pitch)
+        {
+            return;
+        }
+        MidiDevices.Output.SendEvent(new NoteOnEvent((SevenBitNumber)pitch, (SevenBitNumber)velocity) { Channel = (FourBitNumber)_channel });
+        _activeValue = pitch;
+    }
+
+    private void SendNoteOff()
+    {
+        if (_activeValue.HasValue)
+        {
+            MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_activeValue.Value, (SevenBitNumber)0) { Channel = (FourBitNumber)_channel });
+            _activeValue = null;
         }
     }
+
 }

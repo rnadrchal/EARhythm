@@ -1,7 +1,13 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:models="clr-namespace:FourierSequencer.Models"
-                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+                    xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
+                    xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF">
+    <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
+    <converters:BooleanToOpacityConverter x:Key="BooleanToOpacity" />
+    <converters:AddConverter x:Key="Add" />
+
     <DataTemplate DataType="{x:Type models:FourierCoeffizients}">
         <GroupBox Margin="2">
             <GroupBox.Header>
@@ -62,10 +68,11 @@
             </Grid>
         </GroupBox>
     </DataTemplate>
+    
     <DataTemplate DataType="{x:Type models:FourierSequencerModel}">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="276" />
+                <RowDefinition Height="400" />
                 <RowDefinition />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -73,18 +80,96 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <GroupBox Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Header="Steps" Margin="2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+            <Grid Grid.Column="0" Grid.RowSpan="2">
 
-                    <syncfusion:SfRadialSlider Grid.Row="0"  Width="80" Height="80"
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <GroupBox Grid.Row="0" Header="Sync" Margin="2">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Ellipse Style="{StaticResource LedEllipseStyle}"
+                                 Opacity="{Binding LedBeat, Converter={StaticResource BooleanToOpacity}}"
+                                 Margin="0,0,0,-6"/>
+
+                        <syncfusion:SfRadialSlider Grid.Row="1"  Width="80" Height="80"
+                                                   Minimum="0" Maximum="15"
+                                                   Value="{Binding Channel, Mode=TwoWay}"
+                                                   OuterRimRadiusFactor="0.6"
+                                                   OuterRimStroke="#444"
+                                                   OuterRimStrokeThickness="3"
+                                                   InnerRimFill="#444"
+                                                   InnerRimStroke="#444"
+                                                   InnerRimRadiusFactor="0.4"
+                                                   StartAngle="135" EndAngle="405"
+                                                   TickFrequency="1"
+                                                   TickVisibility="Visible"
+                                                   TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                                   LabelVisibility="Hidden">
+                            <TextBlock Text="{Binding Channel, Mode=OneWay, Converter={StaticResource Add}, ConverterParameter=1}" />
+                        </syncfusion:SfRadialSlider>
+
+                        <TextBlock Grid.Row="2" Text="Channel" 
+                                   Style="{StaticResource RadialSliderLabel}"/>
+
+
+                        <syncfusion:SfRadialSlider Grid.Row="3"  Width="80" Height="80"
+                                                   Minimum="1" Maximum="96"
+                                                   Value="{Binding Divider, Mode=TwoWay}"
+                                                   OuterRimRadiusFactor="0.6"
+                                                   OuterRimStroke="#444"
+                                                   OuterRimStrokeThickness="3"
+                                                   InnerRimFill="#444"
+                                                   InnerRimStroke="#444"
+                                                   InnerRimRadiusFactor="0.4"
+                                                   StartAngle="135" EndAngle="405"
+                                                   TickFrequency="16"
+                                                   TickVisibility="Visible"
+                                                   TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                                   LabelVisibility="Hidden">
+                            <TextBlock Text="{Binding Divider, Mode=OneWay}" />
+                        </syncfusion:SfRadialSlider>
+
+                        <TextBlock Grid.Row="4" Text="Divider" 
+                                   Style="{StaticResource RadialSliderLabel}"/>
+
+                        <Button Grid.Row="5" Style="{StaticResource Round3DButton}"
+                                Margin="0,16,0,4"
+                                Command="{Binding ToggleLegatoCommand}">
+                            <wpf:MaterialIcon Kind="Circle" Foreground="LightGreen"
+                                              Height="16"
+                                              Opacity="{Binding Legato, Converter={StaticResource BooleanToOpacity}}"/>
+                        </Button>
+                        <TextBlock Grid.Row="6" Text="Legato" 
+                                   Style="{StaticResource LabelStyle}"
+                                   Margin="2"/>
+
+
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Grid.Row="1" Header="Steps" Margin="2">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <syncfusion:SfRadialSlider Grid.Row="0"  Width="80" Height="80"
                                                    Minimum="4" Maximum="128"
                                                    Value="{Binding Steps, Mode=TwoWay}"
                                                    OuterRimRadiusFactor="0.6"
@@ -98,13 +183,13 @@
                                                    TickVisibility="Visible"
                                                    TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                                    LabelVisibility="Hidden">
-                        <TextBlock Text="{Binding Steps, Mode=OneWay}" />
-                    </syncfusion:SfRadialSlider>
+                            <TextBlock Text="{Binding Steps, Mode=OneWay}" />
+                        </syncfusion:SfRadialSlider>
 
-                    <TextBlock Grid.Row="1" Text="Steps" 
+                        <TextBlock Grid.Row="1" Text="Steps" 
                                    Style="{StaticResource RadialSliderLabel}"/>
 
-                    <syncfusion:SfRadialSlider Grid.Row="2"  Width="80" Height="80"
+                        <syncfusion:SfRadialSlider Grid.Row="2"  Width="80" Height="80"
                                                    Minimum="0" Maximum="1"
                                                    Value="{Binding StepOffset, Mode=TwoWay}"
                                                    OuterRimRadiusFactor="0.6"
@@ -117,12 +202,12 @@
                                                    TickVisibility="Hidden"
                                                    TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                                    LabelVisibility="Hidden">
-                        <TextBlock Text="{Binding StepOffset, Mode=OneWay}" />
-                    </syncfusion:SfRadialSlider>
-                    <TextBlock Grid.Row="3" Text="Offset" 
+                            <TextBlock Text="{Binding StepOffset, Mode=OneWay}" />
+                        </syncfusion:SfRadialSlider>
+                        <TextBlock Grid.Row="3" Text="Offset" 
                                    Style="{StaticResource RadialSliderLabel}"/>
 
-                    <syncfusion:SfRadialSlider Grid.Row="4"  Width="80" Height="80"
+                        <syncfusion:SfRadialSlider Grid.Row="4"  Width="80" Height="80"
                                                    Minimum="0" Maximum="65"
                                                    Value="{Binding PointsPerStep, Mode=TwoWay}"
                                                    OuterRimRadiusFactor="0.6"
@@ -136,12 +221,14 @@
                                                    TickVisibility="Visible"
                                                    TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                                    LabelVisibility="Hidden">
-                        <TextBlock Text="{Binding PointsPerStep, Mode=OneWay}" />
-                    </syncfusion:SfRadialSlider>
-                    <TextBlock Grid.Row="5" Text="Points / Step" 
+                            <TextBlock Text="{Binding PointsPerStep, Mode=OneWay}" />
+                        </syncfusion:SfRadialSlider>
+                        <TextBlock Grid.Row="5" Text="Points / Step" 
                                    Style="{StaticResource RadialSliderLabel}"/>
-                </Grid>
-            </GroupBox>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+
             <syncfusion:SfChart x:Name="FourierChart" Grid.Row="0" Grid.Column="1" Margin="10">
                 <syncfusion:SfChart.PrimaryAxis>
                     <syncfusion:NumericalAxis Minimum="0" Maximum="{Binding Steps}" />
