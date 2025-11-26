@@ -6,11 +6,16 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using FourierSequencer.Services;
+using Prism.Commands;
+using Prism.Events;
+using Syncfusion.Windows.Shared;
 
 namespace FourierSequencer.ViewModels;
 
 public class MainWindowViewModel : BindableBase
 {
+    private readonly IEventAggregator _eventAggregator;
+
     private string _title = "Fourier";
 
     public string Title
@@ -19,15 +24,32 @@ public class MainWindowViewModel : BindableBase
         set { SetProperty(ref _title, value); }
     }
 
-    private readonly FourierSequencerModel _sequencer;
-    public FourierSequencerModel Sequencer => _sequencer;
+    private readonly FourierSequencerModel _pitchSequencer;
+    private readonly FourierSequencerModel _velocitySequencer;
+    private readonly FourierSequencerModel _pitchbendSequencer;
+    private readonly FourierSequencerModel _controlChangeSequencer;
+
+    public FourierSequencerModel PitchSequencer => _pitchSequencer;
+    public FourierSequencerModel VelocitySequencer => _velocitySequencer;
+    public FourierSequencerModel PitchbendSequencer => _pitchbendSequencer;
+    public FourierSequencerModel ControlChangeSequencer => _controlChangeSequencer;
 
     public ICommand SavePresetCommand { get; }
     public ICommand LoadPresetCommand { get; }
 
-    public MainWindowViewModel(FourierSequencerModel sequencer)
+    public MainWindowViewModel(IEventAggregator eventAggregator)
     {
-        _sequencer = sequencer;
+        _eventAggregator = eventAggregator;
+        _pitchSequencer = new FourierSequencerModel(SequencerTarget.Pitch, _eventAggregator);
+        _pitchSequencer.IsActive = true;
+        _velocitySequencer = new FourierSequencerModel(SequencerTarget.Velocity, eventAggregator);
+        _velocitySequencer.Harmonics = 0;
+        _velocitySequencer.IsActive = false;
+        _pitchbendSequencer = new FourierSequencerModel(SequencerTarget.Pitchbend, eventAggregator);
+        _pitchbendSequencer.IsActive = false;
+        _controlChangeSequencer = new FourierSequencerModel(SequencerTarget.ControlChange, eventAggregator);
+        _controlChangeSequencer.IsActive = false;
+
         SavePresetCommand = new Prism.Commands.DelegateCommand(SavePreset);
         LoadPresetCommand = new Prism.Commands.DelegateCommand(LoadPreset);
     }
@@ -47,7 +69,7 @@ public class MainWindowViewModel : BindableBase
         };
         if (dlg.ShowDialog() == true)
         {
-            await FourierSequencerStorage.SaveAsync(dlg.FileName, _sequencer);
+            await FourierSequencerStorage.SaveAsync(dlg.FileName, _pitchSequencer);
         }
     }
 
@@ -67,9 +89,17 @@ public class MainWindowViewModel : BindableBase
         {
             await Application.Current.Dispatcher.Invoke(async () =>
             {
-                await FourierSequencerStorage.LoadAsync(dlg.FileName, _sequencer);
+                await FourierSequencerStorage.LoadAsync(dlg.FileName, _pitchSequencer);
             });
         }
 
+    }
+
+    public void Cleanup()
+    {
+        _pitchbendSequencer.Cleanup();
+        _velocitySequencer.Cleanup();
+        _pitchbendSequencer.Cleanup();
+        _controlChangeSequencer.Cleanup();
     }
 }

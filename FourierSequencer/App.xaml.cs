@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Prism.Ioc;
 using System.Windows;
 using FourierSequencer.Models;
+using FourierSequencer.ViewModels;
 
 namespace FourierSequencer
 {
@@ -34,12 +35,11 @@ namespace FourierSequencer
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.RegisterSingleton<Models.FourierSequencerModel>();
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            Container.Resolve<FourierSequencerModel>().SendNoteOff();
+            Container.Resolve<MainWindowViewModel>()?.Cleanup();
         }
     }
 }

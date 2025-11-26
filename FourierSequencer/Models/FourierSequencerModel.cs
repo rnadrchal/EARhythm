@@ -12,6 +12,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using Egami.Pitch;
+using FourierSequencer.Events;
+using Prism.Events;
 
 namespace FourierSequencer.Models;
 
@@ -21,8 +23,13 @@ public class FourierSequencerModel : BindableBase
     private const double MaxMidiValue =127.0;
     private const double MinThresholdSeparation =12.0; // one octave
 
-    public FourierSequencerModel()
+    private readonly SequencerTarget _target;
+    private readonly IEventAggregator _eventAggregator;
+
+    public FourierSequencerModel(SequencerTarget target, IEventAggregator eventAggregator)
     {
+        _target = target;
+        _eventAggregator = eventAggregator;
         // initialize collections so Generate can populate them safely
         CurvePoints = new ObservableCollection<Point>();
         SamplePoints = new ObservableCollection<Point>();
@@ -51,7 +58,20 @@ public class FourierSequencerModel : BindableBase
 
         MidiDevices.Input.EventReceived += OnMidiEventReceived;
         ToggleLegatoCommand = new DelegateCommand(_ => Legato = !Legato);
+        ToggleActiveCommand = new DelegateCommand(_ => IsActive = !IsActive);
+
+        _eventAggregator.GetEvent<VelocityEvent>().Subscribe(v => _velocity = v);
     }
+
+    private bool _isActive = false;
+
+    public bool IsActive
+    {
+        get => _isActive;
+        set => SetProperty(ref _isActive, value);
+    }
+
+    private byte _velocity = 60;
 
     private int _harmonics = 1;
     public int Harmonics
@@ -122,8 +142,12 @@ public class FourierSequencerModel : BindableBase
         {
             if (value is >0 and <129)
             {
-                SetProperty(ref _steps, value);
-                Generate();
+                
+                if (SetProperty(ref _steps, value))
+                {
+                    if (_step >= value) _step = value - 1;
+                    Generate();
+                }
             }
         }
     }
@@ -331,6 +355,9 @@ public class FourierSequencerModel : BindableBase
 
     public ICommand ToggleLegatoCommand { get; }
 
+    public ICommand ToggleActiveCommand { get; }
+
+
     public void Generate()
     {
         int totalPoints = _steps * _pointsPerStep;
@@ -457,6 +484,13 @@ public class FourierSequencerModel : BindableBase
             LedBeat = false;
         }
 
+        if (_activeValue != null && _target == SequencerTarget.Pitch)
+        {
+            SendNoteOff();
+        }
+
+        if (!_isActive) return;
+
         if (e.Event.EventType is MidiEventType.TimingClock)
         {
             if (_tickCount % 24 == 0)
@@ -473,7 +507,21 @@ public class FourierSequencerModel : BindableBase
                 var value = (byte)(MidiValues[_step++]);
                 if (value >= LowerThreshold && value <= UpperThreshold)
                 {
-                    SendNoteOn(value, 100);
+                    switch (_target)
+                    {
+                        case SequencerTarget.Pitch:
+                            SendNoteOn(value, _velocity);
+                            break;
+                        case SequencerTarget.Velocity:
+                            SendVelocity(value);
+                            break;
+                        case SequencerTarget.Pitchbend:
+                            SendPitchbend(value);
+                            break;
+                        case SequencerTarget.ControlChange:
+                            SendCc1(value);
+                            break;
+                    }
                 }
 
                 if (_step >= MidiValues.Count)
@@ -506,6 +554,47 @@ public class FourierSequencerModel : BindableBase
         {
             MidiDevices.Output.SendEvent(new NoteOffEvent((SevenBitNumber)_activeValue.Value, (SevenBitNumber)0) { Channel = (FourBitNumber)_channel });
             _activeValue = null;
+        }
+    }
+
+    public void SendVelocity(byte velocity)
+    {
+        _activeValue = velocity;
+        _eventAggregator.GetEvent<VelocityEvent>().Publish(velocity);
+    }
+
+    public void SendPitchbend(byte pitchbend)
+    {
+        _activeValue = pitchbend;
+        ushort result = (ushort)Math.Min(16383, pitchbend * 128);
+        MidiDevices.Output.SendEvent(new PitchBendEvent(result) { Channel = (FourBitNumber)_channel});
+    }
+
+    public void SendCc1(byte value)
+    {
+        _activeValue = value;
+        MidiDevices.Output.SendEvent(new ControlChangeEvent((SevenBitNumber)1, (SevenBitNumber)value) { Channel = (FourBitNumber) _channel });
+    }
+
+    public void Cleanup()
+    {
+        if (_activeValue != null)
+        {
+            switch (_target)
+            {
+                case SequencerTarget.Pitch:
+                    SendNoteOff();
+                    break;
+                case SequencerTarget.Pitchbend:
+                    MidiDevices.Output.SendEvent(new PitchBendEvent((ushort)(16383 / 2)));
+                    break;
+                case SequencerTarget.ControlChange:
+                    MidiDevices.Output.SendEvent(new ControlChangeEvent((SevenBitNumber)1, (SevenBitNumber)0));
+                    break;
+                case SequencerTarget.Velocity:
+                    _eventAggregator.GetEvent<VelocityEvent>().Publish(0);
+                    break;
+            }
         }
     }
 

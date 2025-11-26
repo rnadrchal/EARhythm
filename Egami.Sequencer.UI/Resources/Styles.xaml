@@ -52,8 +52,8 @@
         <Setter Property="Height" Value="40"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="White"/>
-        <Setter Property="Background" Value="#666"/>
-        <Setter Property="BorderBrush" Value="#444"/>
+        <Setter Property="Background" Value="#444"/>
+        <Setter Property="BorderBrush" Value="#222"/>
         <Setter Property="BorderThickness" Value="4"/>
         <Setter Property="Template">
             <Setter.Value>

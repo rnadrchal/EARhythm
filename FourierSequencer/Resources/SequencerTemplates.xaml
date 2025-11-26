@@ -98,9 +98,26 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <Ellipse Style="{StaticResource LedEllipseStyle}"
-                                 Opacity="{Binding LedBeat, Converter={StaticResource BooleanToOpacity}}"
-                                 Margin="0,0,0,-6"/>
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Ellipse Grid.RowSpan="2" Grid.Column="1" Grid.Row="0" Style="{StaticResource LedEllipseStyle}"
+                                     Opacity="{Binding LedBeat, Converter={StaticResource BooleanToOpacity}}"
+                                     HorizontalAlignment="Right" VerticalAlignment="Top"
+                                     Margin="0,0,0,-6"/>
+                            <Button Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Style="{StaticResource Round3DButton}"
+                                    Height="24" Width="24" Margin="6,6,0,0"
+                                    Command="{Binding ToggleActiveCommand}"
+                                    Background="{Binding IsActive, Converter={StaticResource BooleanToBrush}}"></Button>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Active"></TextBlock>
+
+                        </Grid>
 
                         <syncfusion:SfRadialSlider Grid.Row="1"  Width="80" Height="80"
                                                    Minimum="0" Maximum="15"
