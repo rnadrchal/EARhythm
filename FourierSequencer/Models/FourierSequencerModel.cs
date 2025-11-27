@@ -63,6 +63,8 @@ public class FourierSequencerModel : BindableBase
         _eventAggregator.GetEvent<VelocityEvent>().Subscribe(v => _velocity = v);
     }
 
+    public SequencerTarget Target => _target;
+
     private bool _isActive = false;
 
     public bool IsActive

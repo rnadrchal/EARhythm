@@ -69,7 +69,8 @@ public class MainWindowViewModel : BindableBase
         };
         if (dlg.ShowDialog() == true)
         {
-            await FourierSequencerStorage.SaveAsync(dlg.FileName, _pitchSequencer);
+            // Save all four sequencers into one preset file
+            await FourierSequencerStorage.SaveAsync(dlg.FileName, new[] { _pitchSequencer, _velocitySequencer, _pitchbendSequencer, _controlChangeSequencer });
         }
     }
 
@@ -87,10 +88,8 @@ public class MainWindowViewModel : BindableBase
 
         if (dlg.ShowDialog() == true)
         {
-            await Application.Current.Dispatcher.Invoke(async () =>
-            {
-                await FourierSequencerStorage.LoadAsync(dlg.FileName, _pitchSequencer);
-            });
+            // Load into all sequencers; storage will match DTOs by Target and apply on UI dispatcher as needed
+            await FourierSequencerStorage.LoadAsync(dlg.FileName, new[] { _pitchSequencer, _velocitySequencer, _pitchbendSequencer, _controlChangeSequencer });
         }
 
     }

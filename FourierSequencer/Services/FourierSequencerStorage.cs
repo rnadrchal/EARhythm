@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -20,6 +21,12 @@ namespace FourierSequencer.Services
 
         public class ModelDto
         {
+            // identify which sequencer this DTO belongs to
+            public SequencerTarget Target { get; set; }
+
+            // UI/runtime state
+            public bool IsActive { get; set; }
+
             // basic settings
             public int Harmonics { get; set; }
             public int Periods { get; set; }
@@ -41,77 +48,141 @@ namespace FourierSequencer.Services
             public List<FourierCoeffDto> Coefficients { get; set; } = new();
         }
 
+        // top-level preset containing multiple sequencer models
+        public class PresetDto
+        {
+            public List<ModelDto> Sequencers { get; set; } = new();
+        }
+
         private static readonly JsonSerializerOptions DefaultOptions = new JsonSerializerOptions
         {
             WriteIndented = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public static async Task SaveAsync(string filePath, FourierSequencerModel model)
+        static FourierSequencerStorage()
+        {
+            // serialize enums as strings for readability and stability
+            DefaultOptions.Converters.Add(new JsonStringEnumConverter());
+        }
+
+        // Save a single model (backwards compatible)
+        public static Task SaveAsync(string filePath, FourierSequencerModel model)
         {
             if (filePath == null) throw new ArgumentNullException(nameof(filePath));
             if (model == null) throw new ArgumentNullException(nameof(model));
+            return SaveAsync(filePath, new[] { model });
+        }
 
-            var dto = new ModelDto
-            {
-                Harmonics = model.Harmonics,
-                Periods = model.Periods,
-                Steps = model.Steps,
-                PointsPerStep = model.PointsPerStep,
-                StepOffset = model.StepOffset,
-                MidiMin = model.MidiMin,
-                MidiMax = model.MidiMax,
-                LowerThreshold = model.LowerThreshold,
-                UpperThreshold = model.UpperThreshold,
-                Divider = model.Divider,
-                Channel = model.Channel,
-                Legato = model.Legato
-            };
+        // Save multiple sequencer models into a single preset file
+        public static async Task SaveAsync(string filePath, IEnumerable<FourierSequencerModel> models)
+        {
+            if (filePath == null) throw new ArgumentNullException(nameof(filePath));
+            if (models == null) throw new ArgumentNullException(nameof(models));
 
-            // coefficients
-            for (int i = 0; i < model.FourierCoeffizients.Count; i++)
+            var preset = new PresetDto();
+
+            foreach (var model in models)
             {
-                var c = model.FourierCoeffizients[i];
-                dto.Coefficients.Add(new FourierCoeffDto { Number = i, A = c.A, B = c.B });
+                var dto = new ModelDto
+                {
+                    Target = model.Target,
+                    IsActive = model.IsActive,
+                    Harmonics = model.Harmonics,
+                    Periods = model.Periods,
+                    Steps = model.Steps,
+                    PointsPerStep = model.PointsPerStep,
+                    StepOffset = model.StepOffset,
+                    MidiMin = model.MidiMin,
+                    MidiMax = model.MidiMax,
+                    LowerThreshold = model.LowerThreshold,
+                    UpperThreshold = model.UpperThreshold,
+                    Divider = model.Divider,
+                    Channel = model.Channel,
+                    Legato = model.Legato
+                };
+
+                // coefficients
+                for (int i = 0; i < model.FourierCoeffizients.Count; i++)
+                {
+                    var c = model.FourierCoeffizients[i];
+                    dto.Coefficients.Add(new FourierCoeffDto { Number = i, A = c.A, B = c.B });
+                }
+
+                preset.Sequencers.Add(dto);
             }
 
-            var json = JsonSerializer.Serialize(dto, DefaultOptions);
+            var json = JsonSerializer.Serialize(preset, DefaultOptions);
             await File.WriteAllTextAsync(filePath, json).ConfigureAwait(false);
         }
 
-        public static async Task<bool> LoadAsync(string filePath, FourierSequencerModel model)
+        // Load into a single model (backwards compatible) - will load the first matching sequencer found in file
+        public static Task<bool> LoadAsync(string filePath, FourierSequencerModel model)
         {
             if (filePath == null) throw new ArgumentNullException(nameof(filePath));
             if (model == null) throw new ArgumentNullException(nameof(model));
+            return LoadAsync(filePath, new[] { model });
+        }
+
+        // Load preset and apply DTOs to the provided models (matched by Target)
+        public static async Task<bool> LoadAsync(string filePath, IEnumerable<FourierSequencerModel> models)
+        {
+            if (filePath == null) throw new ArgumentNullException(nameof(filePath));
+            if (models == null) throw new ArgumentNullException(nameof(models));
             if (!File.Exists(filePath)) return false;
 
             // Read & deserialize off the UI thread
             string json = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
-            ModelDto? dto;
+            PresetDto? preset;
             try
             {
-                dto = JsonSerializer.Deserialize<ModelDto>(json, DefaultOptions);
+                preset = JsonSerializer.Deserialize<PresetDto>(json, DefaultOptions);
             }
             catch
             {
                 return false;
             }
 
-            if (dto == null) return false;
+            if (preset == null || preset.Sequencers == null || preset.Sequencers.Count == 0) return false;
 
             // Apply UI-affecting changes on the Dispatcher (or directly if no dispatcher available)
             var dispatcher = Application.Current?.Dispatcher;
             if (dispatcher == null || dispatcher.CheckAccess())
             {
-                ApplyDtoToModel(dto, model);
+                ApplyPresetToModels(preset, models);
             }
             else
             {
-                var op = dispatcher.InvokeAsync(() => ApplyDtoToModel(dto, model));
+                var op = dispatcher.InvokeAsync(() => ApplyPresetToModels(preset, models));
                 await op.Task.ConfigureAwait(false);
             }
 
             return true;
+        }
+
+        private static void ApplyPresetToModels(PresetDto preset, IEnumerable<FourierSequencerModel> models)
+        {
+            // for each dto find matching model by Target and apply
+            foreach (var dto in preset.Sequencers)
+            {
+                FourierSequencerModel? targetModel = null;
+                foreach (var m in models)
+                {
+                    if (m.Target == dto.Target)
+                    {
+                        targetModel = m;
+                        break;
+                    }
+                }
+
+                if (targetModel == null)
+                {
+                    Debug.WriteLine($"No model provided for target {dto.Target} - skipping");
+                    continue;
+                }
+
+                ApplyDtoToModel(dto, targetModel);
+            }
         }
 
         // Apply DTO to model must run on UI dispatcher (touches ObservableCollection and model properties)
@@ -169,6 +240,9 @@ namespace FourierSequencer.Services
             model.Divider = dto.Divider;
             model.Channel = dto.Channel;
             model.Legato = dto.Legato;
+
+            // set IsActive if provided
+            model.IsActive = dto.IsActive;
 
             // ensure final state is generated
             model.Generate();
