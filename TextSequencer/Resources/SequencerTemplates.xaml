@@ -1,0 +1,386 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+                    xmlns:viewModels="clr-namespace:TextSequencer.ViewModels"
+                    xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
+                    xmlns:services="clr-namespace:TextSequencer.Services"
+                    xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF">
+    <converters:AddConverter x:Key="Add" />
+    <converters:MultConverter x:Key="Multiply" />
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+
+    <Style TargetType="TextBlock" x:Key="BottomLabel">
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,0,0" />
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="LeftLabel">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Margin" Value="0,0,10,0" />
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="BoxLabelRight">
+        <Setter Property="Foreground" Value="Gray" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Margin" Value="0,5,5,0" />
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="BoxLabel">
+        <Setter Property="Foreground" Value="Gray" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="BoxLabelLeft">
+        <Setter Property="Foreground" Value="Gray" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Margin" Value="3,3,0,0" />
+    </Style>
+
+    <Style TargetType="Border" x:Key="ItemBorder">
+        <Setter Property="BorderBrush" Value="#444" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="3" />
+        <Setter Property="Width" Value="36" />
+        <Setter Property="TextBlock.FontSize" Value="18" />
+    </Style>
+
+    <Style TargetType="Border" x:Key="PropertyBorder">
+        <Setter Property="BorderBrush" Value="#444" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="3" />
+        <Setter Property="Width" Value="72" />
+        <Setter Property="Height" Value="64" />
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="PropertyText">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+    </Style>
+
+    <DataTemplate DataType="{x:Type viewModels:CharacterArray}" x:Key="CharacterArrayTemplate">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+
+            <ItemsControl Grid.Column="0" Grid.Row="0" ItemsSource="{Binding Characters}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource ItemBorder}">
+                            <TextBlock Text="{Binding }" 
+                                               TextAlignment="Center"/>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+            <ItemsControl Grid.Column="0" Grid.Row="1" ItemsSource="{Binding IndicesAlpha}"
+                                  ToolTip="Alphabetical Index">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource ItemBorder}">
+                            <TextBlock Text="{Binding }"
+                                               TextAlignment="Center"/>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+            <ItemsControl Grid.Column="0" Grid.Row="2" ItemsSource="{Binding CharCounts}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type services:NoteCount}">
+                        <Border Style="{StaticResource ItemBorder}"
+                                        Padding="2"
+                                        Height="40">
+                            <Border.ToolTip>
+                                <TextBlock FontSize="12">
+                                            <Run Text="Character Count (n" /><Run Text="α" BaselineAlignment="Subscript" FontSize="9" /><Run Text=")" />
+                                </TextBlock>
+                            </Border.ToolTip>
+                            <Grid>
+                                <TextBlock Text="{Binding Char }"
+                                                   Foreground="Yellow"
+                                                   FontWeight="Bold"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Bottom"
+                                                   FontSize="14"/>
+                                <TextBlock Text="{Binding Count}"
+                                                   VerticalAlignment="Top"
+                                                   HorizontalAlignment="Right"
+                                                   FontSize="12"></TextBlock>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+
+            <Grid x:Name="AlphaStatGrid" Grid.Column="0" Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Row="0" Grid.Column="0"
+                        Style="{StaticResource PropertyBorder}"
+                        ToolTip="Sum of character indices.">
+                    <Grid>
+                        <TextBlock Style="{StaticResource BoxLabel}">
+                            <Run Text="∑i" /><Run BaselineAlignment="Subscript" Text="α"></Run>
+                        </TextBlock>
+                        <TextBlock Text="{Binding SumAlpha}"
+                                   Style="{StaticResource PropertyText}" 
+                                   Foreground="Yellow" />
+                    </Grid>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="1"
+                        Style="{StaticResource PropertyBorder}"
+                        ToolTip="Median character indices.">
+                    <Grid>
+                        <TextBlock  Text="Med(i)" Style="{StaticResource BoxLabel}" />
+                        <TextBlock Text="{Binding MedianAlphaIndex}"
+                                   Style="{StaticResource PropertyText}" 
+                                   Foreground="Yellow" />
+                    </Grid>
+                </Border>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="⇒"
+                           FontSize="24" Foreground="White"
+                           Width="32" TextAlignment="Center" VerticalAlignment="Center" />
+                <Border Grid.Row="0" Grid.Column="3"
+                        Style="{StaticResource PropertyBorder}"
+                        ToolTip="Character corresponding to median character index.">
+                    <Grid>
+                        <TextBlock  Style="{StaticResource BoxLabel}">
+                            <Run Text="Med(i" /><Run BaselineAlignment="Subscript" Text="α" /><Run Text=")"></Run>
+                        </TextBlock>
+                        <TextBlock Text="{Binding MedianAlphaIndexChar}"
+                                   Style="{StaticResource PropertyText}" />
+                    </Grid>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="4"
+                        Style="{StaticResource PropertyBorder}"
+                        ToolTip="Pitch class corresponding to median character index.">
+                    <Grid>
+                        <TextBlock  Style="{StaticResource BoxLabel}">
+                            <Run Text="Med(i" /><Run BaselineAlignment="Subscript" Text="Π" /><Run Text=")"></Run>
+                        </TextBlock>
+                        <TextBlock Text="{Binding MedianAlphaIndexNoteName}"
+                                   Style="{StaticResource PropertyText}" />
+                    </Grid>
+                </Border>
+            </Grid>
+
+
+            <ItemsControl Grid.Column="0" Grid.Row="4" ItemsSource="{Binding NoteNames}">
+                <ItemsControl.ToolTip>
+                    <TextBlock FontSize="12">
+                                <Run Text="Pitch Class (PC) note name (C" /><Run BaselineAlignment="Subscript" FontSize="9" Text="Π" /><Run Text=")" />
+                    </TextBlock>
+                </ItemsControl.ToolTip>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource ItemBorder}">
+                            <TextBlock Text="{Binding }"
+                                               TextAlignment="Center"/>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+            <ItemsControl Grid.Column="0" Grid.Row="5" ItemsSource="{Binding IndicesPc}"
+                                  ToolTip="Pitch Class Set (PCS) Index">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource ItemBorder}">
+                            <TextBlock Text="{Binding }"
+                                               TextAlignment="Center"/>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+            <ItemsControl Grid.Column="0" Grid.Row="6" ItemsSource="{Binding NoteCounts}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type services:NoteCount}">
+                        <Border Style="{StaticResource ItemBorder}"
+                                        Padding="2"
+                                        Height="40">
+                            <Border.ToolTip>
+                                <TextBlock FontSize="12">
+                                            <Run Text="Pitch Class (PC) Count (n" /><Run Text="Π" BaselineAlignment="Subscript" FontSize="9" /><Run Text=")"></Run>
+                                </TextBlock>
+                            </Border.ToolTip>
+                            <Grid>
+                                <TextBlock Text="{Binding NoteName }"
+                                                   Foreground="Yellow"
+                                                   FontWeight="Bold"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Bottom"
+                                                   FontSize="14"/>
+                                <TextBlock Text="{Binding Count}"
+                                                    VerticalAlignment="Top"
+                                                    HorizontalAlignment="Right"
+                                                    FontSize="12"></TextBlock>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+
+            <Grid x:Name="PcStatGrid" Grid.Column="0" Grid.Row="7">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Row="0" Grid.Column="0"
+                        Style="{StaticResource PropertyBorder}"
+                        ToolTip="Sum of pitch classes.">
+                    <Grid>
+                        <TextBlock Style="{StaticResource BoxLabel}" Text="∑Π">
+                        </TextBlock>
+                        <TextBlock Text="{Binding SumPc}"
+                                   Style="{StaticResource PropertyText}"
+                                   Foreground="Yellow"/>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="1"
+                        Style="{StaticResource PropertyBorder}"
+                        ToolTip="Median pitch class indices (within PC set).">
+                    <Grid>
+                        <TextBlock  Text="Med(Π)" Style="{StaticResource BoxLabel}" />
+                        <TextBlock Text="{Binding MedianPc}"
+                                   Style="{StaticResource PropertyText}" 
+                                   Foreground="Yellow" />
+                    </Grid>
+                </Border>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="⇒"
+                           FontSize="24" Foreground="White"
+                           Width="32" TextAlignment="Center" VerticalAlignment="Center" />
+                <Border Grid.Row="0" Grid.Column="3"
+                        Style="{StaticResource PropertyBorder}"
+                        ToolTip="Pitch class corresponding to median index within the PC set.">
+                    <Grid>
+                        <TextBlock  Style="{StaticResource BoxLabel}">
+                            <Run Text="Med(i" /><Run BaselineAlignment="Subscript" Text="Π" /><Run Text=")"></Run>
+                        </TextBlock>
+                        <TextBlock Text="{Binding MedianPcNoteName}"
+                                   Style="{StaticResource PropertyText}" />
+                    </Grid>
+                </Border>
+            </Grid>
+
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type viewModels:TextSequencerViewModel}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <TextBox Grid.Row="0" Text="{Binding Text}" FontFamily="Book Antiqua"
+                     FontSize="32" Padding="5" Foreground="OrangeRed"
+                     Margin="5" BorderThickness="0"/>
+            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <ContentControl Grid.Row="0" Grid.Column="0" ContentTemplate="{StaticResource CharacterArrayTemplate}"
+                                    Content="{Binding }" />
+
+                    <Border Grid.Row="1" Grid.Column="0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="32" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock TextAlignment="Center"
+                                       Foreground="Red"
+                                       FontSize="24"
+                                       Margin="0,10,0,0">
+                                <Run Text="S" /><Run Text="{Binding SyllableIndex, Converter={StaticResource Add}, ConverterParameter=1}"/>
+                            </TextBlock>
+
+                            <Button Grid.Column="0" Background="Transparent" BorderBrush="{x:Null}"
+                                    Command="{Binding PrevCommand}">
+                                <wpf:MaterialIcon Kind="ArrowLeft" />
+                            </Button>
+                            <Border Grid.Column="1" BorderBrush="#FFF" BorderThickness="1">
+                                <ContentControl Grid.Column="1" Grid.ColumnSpan="2" ContentTemplate="{StaticResource CharacterArrayTemplate}"
+                                                Content="{Binding CurrentSyllable}"
+                                                Visibility="{Binding HasSyllables, Converter={StaticResource BooleanToVisibility}}" />
+                            </Border>
+                            <Button Grid.Column="2" Background="Transparent" BorderBrush="{x:Null}"
+                                    Command="{Binding NextCommand}">
+                                <wpf:MaterialIcon Kind="ArrowRight" />
+                            </Button>
+                        </Grid>
+                    </Border>
+
+
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+    </DataTemplate>
+</ResourceDictionary>

@@ -238,7 +238,7 @@
                                                    TickVisibility="Visible"
                                                    TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                                    LabelVisibility="Hidden">
-                            <TextBlock Text="{Binding PointsPerStep, Mode=OneWay}" />
+                            <TextBlock Text="{Binding PointsPerStep, Mode=OneWay, Converter={StaticResource Add}, ConverterParameter=}" />
                         </syncfusion:SfRadialSlider>
                         <TextBlock Grid.Row="5" Text="Points / Step" 
                                    Style="{StaticResource RadialSliderLabel}"/>
