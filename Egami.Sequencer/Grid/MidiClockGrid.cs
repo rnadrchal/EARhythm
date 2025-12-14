@@ -17,6 +17,7 @@ public sealed class MidiClockGrid
 
     public MidiClockGrid(GridDivision division)
     {
+        Division = division;
         _pulsesPerStep = division.GetPulsesPerStep();
         _pulseCounter = 0;
     }

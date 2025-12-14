@@ -41,10 +41,15 @@ public class CharacterArray : BindableBase, ICharacterArray
 
     public int[] IndicesPc => _text.Indices().ChromaticIndices().ToArray();
     public string[] NoteNames => _text.Indices().ChromaticNoteNames().ToArray();
+    public double MeanAlphaIndex => IndicesAlpha.Where(i => i >= 0).Select(i => (double)i).Average();
     public int MedianAlphaIndex => (int)IndicesAlpha.Median();
+    public char MeanAlphaIndexChar => ((int)Math.Round(MeanAlphaIndex)).IndexToChar();
+
     public char MedianAlphaIndexChar => MedianAlphaIndex.IndexToChar();
     public string MedianAlphaIndexNoteName => (MedianAlphaIndex % 12).ToNoteName();
+    public double MeanPc { get; }
     public int MedianPc => IndicesPc.Median();
+    public string MeanPcNoteName => ((int)Math.Round(MeanAlphaIndex) % 12).ToNoteName();
     public string MedianPcNoteName => MedianPc.ToNoteName();
 
     public CharCount[] CharCounts =>

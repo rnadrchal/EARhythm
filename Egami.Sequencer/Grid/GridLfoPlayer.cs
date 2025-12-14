@@ -1,9 +1,6 @@
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Egami.Sequencer.Grid;
 
@@ -57,8 +54,9 @@ public sealed class LfoDefinition
 
     /// <summary>
     /// Period length in whole notes. A single waveform cycle spans this many whole notes.
+    /// Can be fractional (e.g.0.5 = half a whole-note,4.0 = four whole-notes).
     /// </summary>
-    public int PeriodInWholeNotes { get; init; } = 1;
+    public double PeriodInWholeNotes { get; init; } = 1.0;
 
     public bool Enabled { get; init; } = true;
 }
@@ -86,13 +84,17 @@ public sealed class GridLfoPlayer : IDisposable
 
         // last sent CC value to avoid redundant sends
         public int? LastSentCc { get; set; }
+        // last sent raw pitchbend value (0..16383)
+        public int? LastSentPitch { get; set; }
 
         public ActiveLfo(LfoDefinition def)
         {
             Def = def;
             RemainingSteps = def.LengthInSteps;
-            ElapsedPulses = 0;
+            // start at -1 so that first pulse processed becomes index0 after pre-increment
+            ElapsedPulses = -1;
             LastSentCc = null;
+            LastSentPitch = null;
         }
     }
 
@@ -193,31 +195,48 @@ public sealed class GridLfoPlayer : IDisposable
         {
             var def = a.Def;
 
-            // total pulses since this LFO started (including current pulse index within step)
-            long totalPulseIndex = a.ElapsedPulses + pulseIndex;
+            // advance pulse counter first so totalPulseIndex refers to current pulse (0-based)
+            a.ElapsedPulses++;
 
-            // pulses per whole note for this clock is pulsesPerStep (clock is expected to be configured with Division.Whole for whole-note grid)
-            int pulsesPerWhole = pulsesPerStep;
+            // total pulses since this LFO started (count of pulses processed so far)
+            // Use the single monotonically increasing counter `ElapsedPulses` to compute phase.
+            // Including both `ElapsedPulses` and `pulseIndex` caused double-counting and uneven phase steps.
+            long totalPulseIndex = a.ElapsedPulses;
+
+            // pulses per whole note for this clock: pulsesPerStep is pulses per current step
+            // StepsPerWholeFraction returns how many steps correspond to one whole note (may be fractional for DoubleWhole)
+            double pulsesPerWholeDouble = pulsesPerStep * StepsPerWholeFraction(_clockGrid.Division);
 
             // compute pulses per waveform period (period spans PeriodInWholeNotes whole notes)
-            int periodInWhole = Math.Max(1, def.PeriodInWholeNotes);
-            long pulsesPerPeriod = (long)pulsesPerWhole * periodInWhole;
-            long posInPeriod = pulsesPerPeriod > 0 ? (totalPulseIndex % pulsesPerPeriod) : 0;
+            // allow fractional period lengths in whole notes
+            double periodInWhole = Math.Max(0.000001, def.PeriodInWholeNotes);
+            // pulsesPerPeriod may be fractional but we operate in pulses, so compute as double and then use modulo with long
+            double pulsesPerPeriodDouble = pulsesPerWholeDouble * periodInWhole;
+            long pulsesPerPeriod = pulsesPerPeriodDouble >0.0 ? (long)Math.Round(pulsesPerPeriodDouble) :0;
+            long posInPeriod = pulsesPerPeriod >0 ? (totalPulseIndex % pulsesPerPeriod) :0;
+
+            // apply phase in pulse units to avoid quantization artifacts when converting to normalized t
+            double pos = posInPeriod;
+            if (pulsesPerPeriod >0)
+            {
+                pos += def.Phase * (double)pulsesPerPeriod;
+                pos %= pulsesPerPeriod;
+            }
 
             // normalized phase within period [0..1)
-            double t = pulsesPerPeriod > 0 ? (posInPeriod / (double)pulsesPerPeriod) : 0.0;
-            t += def.Phase;
-            t %= 1.0;
+            double t = pulsesPerPeriod >0 ? (pos / (double)pulsesPerPeriod) :0.0;
+            t %=1.0;
 
-            // produce a positive waveform that starts at 0, peaks at t=0.5 and returns to0 at t=1.0
-            double p = WaveformPositive(def.Waveform, t, def.PulseWidth);
+            // clamp pulse width and produce a positive waveform that starts at0, peaks at t=0.5 and returns to0 at t=1.0
+            double pw = Math.Clamp(def.PulseWidth,0.0,1.0);
+            double p = WaveformPositive(def.Waveform, t, pw);
             // p in 0..1
 
             // pick amplitude from sequence (looped) at whole-note granularity; fallback to reasonable defaults
             int amp;
             if (def.Amplitudes != null && def.Amplitudes.Length > 0)
             {
-                long wholeIndex = pulsesPerWhole > 0 ? (totalPulseIndex / pulsesPerWhole) : totalPulseIndex;
+                long wholeIndex = pulsesPerWholeDouble >0.0 ? (long)(totalPulseIndex / pulsesPerWholeDouble) : totalPulseIndex;
                 int idx = (int)(wholeIndex % def.Amplitudes.Length);
                 amp = def.Amplitudes[Math.Max(0, idx)];
             }
@@ -247,24 +266,51 @@ public sealed class GridLfoPlayer : IDisposable
             else if (def.TargetType == LfoTargetType.PitchBend)
             {
                 // amp can be negative or positive; treat amp as signed target displacement from center
-                // map p (0..1) to signed displacement - at t=0 ->0, at t=0.5 -> sign(amp)*abs(amp), at t=1 ->0
-                int signedAmp = amp;
-                int displacement = (int)Math.Round(p * Math.Abs(signedAmp)) * Math.Sign(signedAmp);
-                displacement = Math.Clamp(displacement, -8192, 8191);
+                // compute double-valued displacement then convert to raw0..16383
+                double signedAmp = amp;
+                double displacementDouble = p * Math.Abs(signedAmp) * Math.Sign(signedAmp);
+                displacementDouble = Math.Clamp(displacementDouble, -8192.0,8191.0);
 
-                int raw = displacement + 8192; //0..16383
-                raw = Math.Clamp(raw, 0, 16383);
+                double rawDouble = displacementDouble +8192.0;
+                rawDouble = Math.Clamp(rawDouble,0.0,16383.0);
 
-                var ev = new PitchBendEvent((ushort)raw)
+                // round to nearest integer (away from zero on midpoint)
+                int raw = (int)Math.Round(rawDouble, MidpointRounding.AwayFromZero);
+
+                // only send if value changed since last sent
+                if (a.LastSentPitch == null || a.LastSentPitch.Value != raw)
                 {
-                    Channel = _channel
-                };
-                _outputDevice.SendEvent(ev);
+                    var ev = new PitchBendEvent((ushort)raw)
+                    {
+                        Channel = _channel
+                    };
+                    _outputDevice.SendEvent(ev);
+                    a.LastSentPitch = raw;
+                }
             }
 
-            // increment elapsed pulses for this active LFO
+            // increment elapsed pulses for this active LFO (advance to next pulse)
             a.ElapsedPulses++;
         }
+    }
+
+    private static double StepsPerWholeFraction(GridDivision division)
+    {
+        return division switch
+        {
+            GridDivision.ThirtySecond =>32.0,
+            GridDivision.SixteenthTriplet =>24.0,
+            GridDivision.Sixteenth =>16.0,
+            GridDivision.Eighth =>8.0,
+            GridDivision.EighthTriplet =>12.0,
+            GridDivision.Quarter =>4.0,
+            GridDivision.QuarterTriplet =>6.0,
+            GridDivision.Half =>2.0,
+            GridDivision.HalfTriplet =>3.0,
+            GridDivision.Whole =>1.0,
+            GridDivision.DoubleWhole =>0.5,
+            _ =>16.0
+        };
     }
 
     private static double WaveformPositive(LfoWaveform wf, double t, double pw)
@@ -283,8 +329,8 @@ public sealed class GridLfoPlayer : IDisposable
                 return t <= 0.5 ? (t / 0.5) : ((1.0 - t) / 0.5);
             case LfoWaveform.Square:
                 // centered pulse at0.5 with width pw (0..1)
-                double half = pw * 0.5;
-                return (Math.Abs(t - 0.5) <= half) ? 1.0 : 0.0;
+                double half = pw *0.5;
+                return (Math.Abs(t -0.5) <= half) ?1.0 :0.0;
             default:
                 return 0.0;
         }

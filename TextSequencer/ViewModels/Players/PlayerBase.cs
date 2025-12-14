@@ -21,12 +21,14 @@ public abstract class PlayerBase : BindableBase
         get => _characterArray;
         set
         {
-            if (SetProperty(ref value, _characterArray))
+            if (SetProperty(ref _characterArray, value))
             {
 
             }
         }
     }
+
+    public abstract string Title { get; }
 
     protected PlayerBase(GridDivision division, FourBitNumber channel)
     {
@@ -43,5 +45,8 @@ public abstract class PlayerBase : BindableBase
         }
     }
 
-    public abstract void SetCharacterArray(ICharacterArray characterArray);
+    public virtual void SetCharacterArray(ICharacterArray characterArray)
+    {
+        CharacterArray = (CharacterArray)characterArray;
+    }
 }

@@ -3,4 +3,7 @@
     <Style TargetType="Control">
         <Setter Property="FontFamily" Value="Book Antiqua" />
     </Style>
+    <Style TargetType="ComboBox">
+        <Setter Property="FontFamily" Value="Book Antiqua" />
+    </Style>
 </ResourceDictionary>

@@ -155,6 +155,9 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Border Grid.Row="0" Grid.Column="0"
                         Style="{StaticResource PropertyBorder}"
@@ -168,7 +171,7 @@
                                    Foreground="Yellow" />
                     </Grid>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="1"
+                <Border Grid.Row="0" Grid.Column="3"
                         Style="{StaticResource PropertyBorder}"
                         ToolTip="Median character indices.">
                     <Grid>
@@ -178,10 +181,10 @@
                                    Foreground="Yellow" />
                     </Grid>
                 </Border>
-                <TextBlock Grid.Row="0" Grid.Column="2" Text="⇒"
+                <TextBlock Grid.Row="0" Grid.Column="4" Text="⇒"
                            FontSize="24" Foreground="White"
                            Width="32" TextAlignment="Center" VerticalAlignment="Center" />
-                <Border Grid.Row="0" Grid.Column="3"
+                <Border Grid.Row="0" Grid.Column="6"
                         Style="{StaticResource PropertyBorder}"
                         ToolTip="Character corresponding to median character index.">
                     <Grid>
@@ -192,7 +195,7 @@
                                    Style="{StaticResource PropertyText}" />
                     </Grid>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="4"
+                <Border Grid.Row="0" Grid.Column="7"
                         Style="{StaticResource PropertyBorder}"
                         ToolTip="Pitch class corresponding to median character index.">
                     <Grid>
@@ -341,8 +344,8 @@
                     </Grid.RowDefinitions>
 
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
                     </Grid.ColumnDefinitions>
 
                     <ContentControl Grid.Row="0" Grid.Column="0" ContentTemplate="{StaticResource CharacterArrayTemplate}"
@@ -378,6 +381,12 @@
                         </Grid>
                     </Border>
 
+                    <Border Grid.Column="1" Grid.Row="0" Grid.RowSpan="2"
+                            Padding="5">
+                        <StackPanel  Orientation="Vertical">
+                            <ContentControl Content="{Binding BassPlayer}" />
+                        </StackPanel>
+                    </Border>
 
                 </Grid>
             </ScrollViewer>
