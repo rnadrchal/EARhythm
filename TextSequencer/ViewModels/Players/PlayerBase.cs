@@ -28,6 +28,19 @@ public abstract class PlayerBase : BindableBase
         }
     }
 
+    private bool _isSequenceMuted;
+    public bool IsSequenceMuted
+    {
+        get => _isSequenceMuted;
+        set
+        {
+            if (SetProperty(ref _isSequenceMuted, value))
+            {
+                
+            }
+        }
+    }
+
     public abstract string Title { get; }
 
     protected PlayerBase(GridDivision division, FourBitNumber channel)
@@ -39,6 +52,8 @@ public abstract class PlayerBase : BindableBase
 
     protected virtual void OnMidiClock(object sender, MidiEventReceivedEventArgs e)
     {
+        if (_isSequenceMuted) return;
+
         if (e.Event is TimingClockEvent)
         {
             _noteClock.OnClockPulse();

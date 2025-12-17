@@ -159,7 +159,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Border Grid.Row="0" Grid.Column="0"
+                <Border Grid.Row="0" Grid.Column="1"
                         Style="{StaticResource PropertyBorder}"
                         ToolTip="Sum of character indices.">
                     <Grid>
@@ -284,8 +284,24 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Border Grid.Row="0" Grid.Column="0"
+                        Style="{StaticResource PropertyBorder}">
+                    <Border.ToolTip>
+                        <TextBlock>
+                            <Run Text="Beats per Minute." />
+                        </TextBlock>
+                    </Border.ToolTip>
+                    <Grid>
+                        <TextBlock Style="{StaticResource BoxLabel}" Text="BPM">
+                        </TextBlock>
+                        <TextBlock Text="{Binding Tempo, StringFormat=N1}"
+                                   Style="{StaticResource PropertyText}"
+                                   Foreground="LightGreen"/>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="1"
                         Style="{StaticResource PropertyBorder}"
                         ToolTip="Sum of pitch classes.">
                     <Grid>
@@ -296,7 +312,7 @@
                                    Foreground="Yellow"/>
                     </Grid>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="1"
+                <Border Grid.Row="0" Grid.Column="2"
                         Style="{StaticResource PropertyBorder}"
                         ToolTip="Median pitch class indices (within PC set).">
                     <Grid>
@@ -306,10 +322,10 @@
                                    Foreground="Yellow" />
                     </Grid>
                 </Border>
-                <TextBlock Grid.Row="0" Grid.Column="2" Text="⇒"
+                <TextBlock Grid.Row="0" Grid.Column="3" Text="⇒"
                            FontSize="24" Foreground="White"
                            Width="32" TextAlignment="Center" VerticalAlignment="Center" />
-                <Border Grid.Row="0" Grid.Column="3"
+                <Border Grid.Row="0" Grid.Column="4"
                         Style="{StaticResource PropertyBorder}"
                         ToolTip="Pitch class corresponding to median index within the PC set.">
                     <Grid>
@@ -385,6 +401,9 @@
                             Padding="5">
                         <StackPanel  Orientation="Vertical">
                             <ContentControl Content="{Binding BassPlayer}" />
+                            <ContentControl Content="{Binding PadPlayer}" />
+                            <ContentControl Content="{Binding ArpPlayer}" />
+                            <ContentControl Content="{Binding PercussionPlayer}" />
                         </StackPanel>
                     </Border>
 

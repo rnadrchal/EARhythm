@@ -156,4 +156,10 @@ public static class StringExtensions
         // unknown character
         return (SevenBitNumber)0    ;
     }
+
+    public static IEnumerable<int> Orders(this IEnumerable<int> source)
+    {
+        var sourceOrdered = source.OrderBy(i => i).ToList();
+        return source.Select(i => sourceOrdered.IndexOf(i));
+    }
 }

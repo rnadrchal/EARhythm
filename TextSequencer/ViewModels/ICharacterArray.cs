@@ -31,4 +31,6 @@ public interface ICharacterArray
     NoteCount[] NoteCounts { get; }
     int SumAlpha { get; }
     int SumPc { get; }
+
+    double Tempo { get; }
 }

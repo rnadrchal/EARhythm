@@ -1,8 +1,16 @@
 using System;
 using System.Numerics;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TextSequencer.Services
 {
+    public enum MeanType
+            {
+        Arithmetic,
+        Geometric,
+        Harmonic
+    }
     /// <summary>
     /// Numeric helper utilities.
     /// </summary>
@@ -43,6 +51,58 @@ namespace TextSequencer.Services
                 return Math.Min(Math.Max(y, ymin), ymax);
             else
                 return Math.Min(Math.Max(y, ymax), ymin);
+        }
+
+        /// <summary>
+        /// Computes the geometric mean of a sequence of positive doubles.
+        /// Uses the log-sum-exp approach to avoid overflow/underflow: exp(average(log(x))).
+        /// Throws ArgumentException if sequence is empty or contains non-positive values.
+        /// </summary>
+        public static double GeometricMean(IEnumerable<double> values)
+        {
+            if (values == null) throw new ArgumentNullException(nameof(values));
+            // filter out NaN
+            var arr = values.Where(d => !double.IsNaN(d)).ToArray();
+            if (arr.Length == 0) throw new ArgumentException("Sequence contains no values", nameof(values));
+            // geometric mean defined for positive values only
+            if (arr.Any(d => d <= 0.0)) throw new ArgumentException("Geometric mean requires all values to be >0.", nameof(values));
+
+            double sumLog = 0.0;
+            foreach (var v in arr)
+            {
+                sumLog += Math.Log(v);
+            }
+            return Math.Exp(sumLog / arr.Length);
+        }
+
+        /// <summary>
+        /// Computes the harmonic mean of a sequence of positive doubles.
+        /// Harmonic mean = n / sum(1/x). Throws ArgumentException if sequence is empty or contains non-positive values.
+        /// </summary>
+        public static double HarmonicMean(IEnumerable<double> values)
+        {
+            if (values == null) throw new ArgumentNullException(nameof(values));
+            var arr = values.Where(d => !double.IsNaN(d)).ToArray();
+            if (arr.Length == 0) throw new ArgumentException("Sequence contains no values", nameof(values));
+            if (arr.Any(d => d <= 0.0)) throw new ArgumentException("Harmonic mean requires all values to be >0.", nameof(values));
+
+            double sumRecip = 0.0;
+            foreach (var v in arr)
+            {
+                sumRecip += 1.0 / v;
+            }
+            return arr.Length / sumRecip;
+        }
+
+        public static double Mean(this IEnumerable<double> values, MeanType meanType)
+        {
+            return meanType switch
+            {
+                MeanType.Arithmetic => values.Average(),
+                MeanType.Geometric => GeometricMean(values),
+                MeanType.Harmonic => HarmonicMean(values),
+                _ => throw new ArgumentOutOfRangeException(nameof(meanType), "Unknown mean type.")
+            };
         }
     }
 }

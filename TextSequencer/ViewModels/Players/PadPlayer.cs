@@ -15,7 +15,7 @@ public class PadPlayer : PlayerBase
 
     private MusicalSequence _padSequence = MusicalSequence.Empty;
 
-    public override string Title => "Pad/Harmony";
+    public override string Title => "Pad - Harmony";
 
     public PadPlayer(GridDivision division, FourBitNumber channel) : base(division, channel)
     {
@@ -25,6 +25,10 @@ public class PadPlayer : PlayerBase
             channel,
             NoteClock);
     }
+
+    public string PitchClassSet => string.Join(", ", CharacterArray.NoteNames);
+
+    public string Lengths => string.Join(", ", CharacterArray.IndicesAlpha);
 
     public override void SetCharacterArray(ICharacterArray characterArray)
     {
@@ -37,6 +41,9 @@ public class PadPlayer : PlayerBase
     {
         _padSequence = _padPlayerSequenceGenerator.Generate(characterArray);
         _padPlayer.SetSequence(_padSequence);
+
+        RaisePropertyChanged(nameof(PitchClassSet));
+        RaisePropertyChanged(nameof(Lengths));
     }
 
     protected override void OnMidiClock(object sender, MidiEventReceivedEventArgs e)

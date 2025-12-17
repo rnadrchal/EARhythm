@@ -21,9 +21,14 @@ public sealed class TextSequencerViewModel : CharacterArray
 
     private readonly BassPlayer _bassPlayer;
     private readonly PadPlayer _padPlayer;
+    private readonly ArpeggioPlayer _arpPlayer;
+    private readonly PercussionPlayer _percussionPlayer;
 
     public BassPlayer BassPlayer => _bassPlayer;
     public PadPlayer PadPlayer => _padPlayer;
+    public ArpeggioPlayer ArpPlayer => _arpPlayer;
+    public PercussionPlayer PercussionPlayer => _percussionPlayer;
+
 
     public ICommand NextCommand { get; }
     public ICommand PrevCommand { get; }
@@ -32,6 +37,8 @@ public sealed class TextSequencerViewModel : CharacterArray
     {
         FourBitNumber bassChannel = (FourBitNumber)0;
         FourBitNumber padChannel = (FourBitNumber)1;
+        FourBitNumber arpChannel = (FourBitNumber)2;
+        FourBitNumber percussionChannel = (FourBitNumber)9;
 
         Text = "WORT-KLAU-BE-REI";
 
@@ -39,8 +46,11 @@ public sealed class TextSequencerViewModel : CharacterArray
 
         _bassPlayer = new BassPlayer(GridDivision.Sixteenth, bassChannel);
         _padPlayer = new PadPlayer(GridDivision.Sixteenth, padChannel);
-        _bassPlayer.SetCharacterArray(CurrentSyllable);
-        _padPlayer.SetCharacterArray(CurrentSyllable);
+        _arpPlayer = new ArpeggioPlayer(GridDivision.Eighth, arpChannel);
+        _percussionPlayer = new PercussionPlayer(GridDivision.Sixteenth, percussionChannel);
+        
+        UpdatePlayers();
+
 
 
         PropertyChanged += (sender, args) =>
@@ -48,8 +58,7 @@ public sealed class TextSequencerViewModel : CharacterArray
             if (args.PropertyName == nameof(Text))
             {
                 SetSyllables();
-                _bassPlayer.SetCharacterArray(CurrentSyllable);
-                _padPlayer.SetCharacterArray(CurrentSyllable);
+                UpdatePlayers();
             }
         };
 
@@ -61,7 +70,6 @@ public sealed class TextSequencerViewModel : CharacterArray
     }
 
 
-
     private int _syllableIndex;
     public int SyllableIndex
     {
@@ -71,7 +79,7 @@ public sealed class TextSequencerViewModel : CharacterArray
             if (SetProperty(ref _syllableIndex, value))
             {
                 RaisePropertyChanged(nameof(CurrentSyllable));
-                _bassPlayer.SetCharacterArray(CurrentSyllable);
+                UpdatePlayers();
             }
         }
     }
@@ -102,5 +110,14 @@ public sealed class TextSequencerViewModel : CharacterArray
     public ObservableCollection<CharacterArray> Syllables { get; } = new();
 
     public int SyllableCount => Syllables.Count;
+
+    private void UpdatePlayers()
+    {
+        _bassPlayer.SetCharacterArray(CurrentSyllable);
+        _padPlayer.SetCharacterArray(CurrentSyllable);
+        _arpPlayer.SetCharacterArray(CurrentSyllable);
+        _percussionPlayer.SetCharacterArray(CurrentSyllable);
+    }
+
 
 }
