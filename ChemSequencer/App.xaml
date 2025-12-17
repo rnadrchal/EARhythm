@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:ChemSequencer"
              xmlns:prism="http://prismlibrary.com/" >
     <Application.Resources>
-        <!--<ResourceDictionary Source="pack://application:,,,/Egami.Sequencer.UI;component/Resources/Styles.xaml" />-->
+        <ResourceDictionary Source="pack://application:,,,/Egami.Sequencer.UI;component/Resources/Styles.xaml" />
     </Application.Resources>
 </prism:PrismApplication>
