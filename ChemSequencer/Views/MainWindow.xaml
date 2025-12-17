@@ -9,6 +9,14 @@
         Title="{Binding Title}" Height="350" Width="525"
         WindowState="Maximized">
     <Grid>
-        <ContentControl prism:RegionManager.RegionName="ContentRegion" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Button Grid.Row="0" HorizontalAlignment="Left" 
+                Style="{StaticResource Round3DButton}"
+                Command="{Binding FindMoleculeCommand}"/>
+        <ContentControl Grid.Row="1" prism:RegionManager.RegionName="ContentRegion" />
     </Grid>
 </Window>

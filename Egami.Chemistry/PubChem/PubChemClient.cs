@@ -99,7 +99,7 @@ public sealed class PubChemClient
         public string? MolecularFormula { get; init; }
         public double? MolecularWeight { get; init; }
         public double? ExactMass { get; init; }
-        public double? MonoIsotopicMass { get; init; } // sometimes capitalization differs; handle both if needed
+        //public double? MonoIsotopicMass { get; init; } // sometimes capitalization differs; handle both if needed
         public double? MonoisotopicMass { get; init; }
 
         public string? CanonicalSMILES { get; init; }

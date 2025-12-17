@@ -3,6 +3,7 @@ using Egami.Rhythm.Midi;
 using Microsoft.Extensions.Configuration;
 using Prism.Ioc;
 using System.Windows;
+using ChemSequencer.ViewModels;
 using Egami.Chemistry.PubChem;
 
 namespace ChemSequencer
@@ -38,6 +39,8 @@ namespace ChemSequencer
         {
             containerRegistry.RegisterInstance(_config);
             containerRegistry.RegisterInstance(_pubChemClient);
+
+            containerRegistry.RegisterDialog<MoleculeSelectionDialog, MoleculeSelectionViewModel>("SelectMolecule");
         }
     }
 }
