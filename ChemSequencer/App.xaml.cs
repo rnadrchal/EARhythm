@@ -5,6 +5,7 @@ using Prism.Ioc;
 using System.Windows;
 using ChemSequencer.ViewModels;
 using Egami.Chemistry.PubChem;
+using Egami.Chemistry.Services;
 
 namespace ChemSequencer
 {
@@ -28,7 +29,7 @@ namespace ChemSequencer
             MidiDevices.Initialize(dawName);
             MidiDevices.Input.StartEventsListening();
 
-            _pubChemClient = new PubChemClient(new System.Net.Http.HttpClient());
+            _pubChemClient = new PubChemClient(new System.Net.Http.HttpClient(), new MoleculeModelBuilder(new DefaultElementPropertyProvider()));
         }
         protected override Window CreateShell()
         {

@@ -1,4 +1,7 @@
-﻿using Egami.Chemistry.Model;
+﻿using System.Diagnostics;
+using Egami.Chemistry.Model;
+using Egami.Chemistry.Services;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 
@@ -7,9 +10,13 @@ namespace Egami.Chemistry.PubChem;
 public sealed class PubChemClient
 {
     private readonly HttpClient _http;
+    private readonly MoleculeModelBuilder _modelBuilder;
 
-    public PubChemClient(HttpClient http)
-        => _http = http;
+    public PubChemClient(HttpClient http, MoleculeModelBuilder modelBuilder)
+    {
+        _http = http;
+        _modelBuilder = modelBuilder;
+    }
 
     public async Task<IReadOnlyList<int>> SearchCidsByNameAsync(string name, CancellationToken ct = default)
     {
@@ -18,28 +25,50 @@ public sealed class PubChemClient
         return dto?.IdentifierList?.CID ?? Array.Empty<int>();
     }
 
-    public async Task<Molecule> GetMoleculeAsync(int cid, CancellationToken ct = default)
+    public async Task<MoleculeModel> GetMoleculeModelAsync(int cid, CancellationToken ct = default)
     {
-        // properties block (keep it small and stable)
         var propsUrl =
             "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/" + cid +
             "/property/MolecularFormula,MolecularWeight,ExactMass,MonoisotopicMass," +
             "CanonicalSMILES,IsomericSMILES,InChI,InChIKey,IUPACName,XLogP,TPSA," +
             "HBondDonorCount,HBondAcceptorCount,RotatableBondCount,Charge/JSON";
 
+        //var raw = await _http.GetStringAsync(propsUrl, ct);
+        //Debug.WriteLine(raw);
         var props = await _http.GetFromJsonAsync<PropertyTableDto>(propsUrl, ct);
         var p = props?.PropertyTable?.Properties?.FirstOrDefault()
             ?? throw new InvalidOperationException($"No properties returned for CID {cid}.");
 
-        var depiction = new Uri($"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/PNG");
+        var smiles = p.ConnectivitySMILES ?? p.IsomericSMILES ?? p.CanonicalSMILES ?? p.SMILES;
+        if (string.IsNullOrWhiteSpace(smiles))
+            throw new InvalidOperationException($"No SMILES returned for CID {cid}.");
 
-        // Optional: Synonyms (kann groß werden) – ggf. limitieren
-        // /rest/pug/compound/cid/{cid}/synonyms/JSON  (in Doku beschrieben)
-        // Für MVP: weglassen oder später hinzufügen.
+        var graph = _modelBuilder.BuildGraphFromSmiles(smiles);
 
-        return new Molecule
+        var depictionUri = new Uri($"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/PNG");
+
+        byte[]? depictionPng = null;
+        try
+        {
+            using var resp = await _http.GetAsync(depictionUri, ct);
+            if (resp.IsSuccessStatusCode)
+            {
+                depictionPng = await resp.Content.ReadAsByteArrayAsync(ct);
+            }
+            else
+            {
+                Debug.WriteLine($"Warning: PubChem PNG request for CID {cid} returned status {resp.StatusCode}.");
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            Debug.WriteLine($"Warning: failed to download depiction PNG for CID {cid}: {ex.Message}");
+        }
+
+        return new MoleculeModel
         {
             PreferredName = p.IUPACName ?? $"CID {cid}",
+
             Ids = new MoleculeIdentifiers
             {
                 PubChemCid = cid,
@@ -52,11 +81,12 @@ public sealed class PubChemClient
                 IsomericSmiles = p.IsomericSMILES,
                 IupacName = p.IUPACName
             },
+
             Properties = new ChemicalProperties
             {
                 MolecularWeight = p.MolecularWeight,
                 ExactMass = p.ExactMass,
-                MonoisotopicMass = p.MonoisotopicMass,
+                MonoisotopicMass = p.MonoIsotopicMass ?? p.MonoisotopicMass ?? p.MonoisotopicMassFallback,
                 HydrogenBondDonorCount = p.HBondDonorCount,
                 HydrogenBondAcceptorCount = p.HBondAcceptorCount,
                 RotatableBondCount = p.RotatableBondCount,
@@ -64,15 +94,18 @@ public sealed class PubChemClient
                 TopologicalPolarSurfaceArea = p.TPSA,
                 Charge = p.Charge
             },
-            Structure2D = new Structure2D
-            {
-                Smiles = p.IsomericSMILES ?? p.CanonicalSMILES,
-                InChI = p.InChI,
-                DepictionPngUrl = depiction
-                // Atoms/Bonds: später per SDF Parser befüllen
-            }
+
+            Graph = graph,
+
+            // PNG bytes (optional, kann null sein wenn Download fehlschlägt)
+            DepictionPng = depictionPng,
+
+            // Optional extras (Synonyms/Taxonomy/MeSH SCR) kannst du später per weiteren Endpoints ergänzen
+            Synonyms = Array.Empty<string>()
         };
     }
+
+    // --- DTOs ---
 
     private sealed class CidListDto
     {
@@ -96,24 +129,41 @@ public sealed class PubChemClient
 
     private sealed class PropertyRowDto
     {
-        public string? MolecularFormula { get; init; }
-        public double? MolecularWeight { get; init; }
-        public double? ExactMass { get; init; }
-        //public double? MonoIsotopicMass { get; init; } // sometimes capitalization differs; handle both if needed
-        public double? MonoisotopicMass { get; init; }
+        // Einige Felder im PubChem-JSON kommen mit anderen Keys (z.B. "SMILES"), deshalb explizit mappen.
+        [JsonPropertyName("CID")] public int? CID { get; init; }
 
-        public string? CanonicalSMILES { get; init; }
-        public string? IsomericSMILES { get; init; }
-        public string? InChI { get; init; }
-        public string? InChIKey { get; init; }
-        public string? IUPACName { get; init; }
+        [JsonPropertyName("MolecularFormula")] public string? MolecularFormula { get; init; }
 
-        public double? XLogP { get; init; }
-        public double? TPSA { get; init; }
+        // PubChem kann Zahlen als Strings liefern; für Robustheit als double? belassen (bei Bedarf string->double parsen).
+        [JsonPropertyName("MolecularWeight")] public double? MolecularWeight { get; init; }
+        [JsonPropertyName("ExactMass")] public double? ExactMass { get; init; }
 
-        public int? HBondDonorCount { get; init; }
-        public int? HBondAcceptorCount { get; init; }
-        public int? RotatableBondCount { get; init; }
-        public int? Charge { get; init; }
+        // PubChem key: "MonoisotopicMass"
+        [JsonPropertyName("MonoisotopicMass")] public double? MonoisotopicMass { get; init; }
+        [JsonIgnore]
+        public double? MonoIsotopicMass => MonoisotopicMass;
+        [JsonIgnore]
+        public double? monoIsotopicMass => MonoisotopicMass; // zusätzliche alias-Form (falls irgendwo klein geschrieben referenziert)
+
+        // SMILES-Felder (PubChem liefert "SMILES" und "ConnectivitySMILES")
+        [JsonPropertyName("CanonicalSMILES")] public string? CanonicalSMILES { get; init; }
+        [JsonPropertyName("IsomericSMILES")] public string? IsomericSMILES { get; init; }
+        [JsonPropertyName("SMILES")] public string? SMILES { get; init; }
+        [JsonPropertyName("ConnectivitySMILES")] public string? ConnectivitySMILES { get; init; }
+
+        [JsonPropertyName("InChI")] public string? InChI { get; init; }
+        [JsonPropertyName("InChIKey")] public string? InChIKey { get; init; }
+        [JsonPropertyName("IUPACName")] public string? IUPACName { get; init; }
+
+        [JsonPropertyName("XLogP")] public double? XLogP { get; init; }
+        [JsonPropertyName("TPSA")] public double? TPSA { get; init; }
+
+        [JsonPropertyName("HBondDonorCount")] public int? HBondDonorCount { get; init; }
+        [JsonPropertyName("HBondAcceptorCount")] public int? HBondAcceptorCount { get; init; }
+        [JsonPropertyName("RotatableBondCount")] public int? RotatableBondCount { get; init; }
+        [JsonPropertyName("Charge")] public int? Charge { get; init; }
+
+        // Fallback für MonoisotopicMass falls PubChem in Zukunft andere Schreibweise nutzt (nur defensive Ergänzung)
+        [JsonIgnore] public double? MonoisotopicMassFallback => MonoisotopicMass;
     }
 }

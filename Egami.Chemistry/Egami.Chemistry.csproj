@@ -10,4 +10,8 @@
     <Folder Include="PubChem\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NCDK" Version="1.6.1" />
+  </ItemGroup>
+
 </Project>

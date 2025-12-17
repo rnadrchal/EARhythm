@@ -13,10 +13,26 @@
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                Padding="5" BorderBrush="#444" BorderThickness="1">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="/Resources/Images/Boltzmann.png" Width="250"
+                       Margin="0,0,10,0"></Image>
+                <Button Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" 
+                        Style="{StaticResource Round3DButton}"
+                        Command="{Binding FindMoleculeCommand}"
+                        Background="DarkRed">
+                    <wpf:MaterialIcon Kind="Download" Width="24" Opacity="0.5" />
+                </Button>
+            </StackPanel>
+        </Border>
 
-        <Button Grid.Row="0" HorizontalAlignment="Left" 
-                Style="{StaticResource Round3DButton}"
-                Command="{Binding FindMoleculeCommand}"/>
-        <ContentControl Grid.Row="1" prism:RegionManager.RegionName="ContentRegion" />
+        <ContentControl Grid.Column="0" Grid.Row="1" Content="{Binding Molecule}" ContentTemplate="{StaticResource MoleculeDisplayTemplate}" />
+
     </Grid>
 </Window>

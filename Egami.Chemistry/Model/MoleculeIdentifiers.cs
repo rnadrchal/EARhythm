@@ -1,6 +1,6 @@
 ﻿namespace Egami.Chemistry.Model;
 
-public record MoleculeIdentifiers
+public sealed record MoleculeIdentifiers
 {
     public int? PubChemCid { get; init; }
     public int? PubChemSid { get; init; }
@@ -16,7 +16,6 @@ public record MoleculeIdentifiers
     public string? MolecularFormula { get; init; }
     public string? IupacName { get; init; }
 
-    // Optional – je nach Datenlage
     public string? Cas { get; init; }
     public string? Unii { get; init; }
-};
+}

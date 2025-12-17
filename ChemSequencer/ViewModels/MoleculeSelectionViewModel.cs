@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Mime;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using Egami.Chemistry.Model;
 using Egami.Chemistry.PubChem;
@@ -46,7 +42,7 @@ public class MoleculeSelectionViewModel : BindableBase, IDialogAware
         set => SetProperty(ref _cid, value);
     }
 
-    private Molecule? _molecule;
+    private MoleculeModel? _molecule;
 
     public MoleculeSelectionViewModel(PubChemClient pubChemClient)
     {
@@ -55,6 +51,13 @@ public class MoleculeSelectionViewModel : BindableBase, IDialogAware
         CancelCommand = new DelegateCommand(Cancel);
         SearchCommand = new DelegateCommand(async () => await Search());
         AcceptCommand = new DelegateCommand(Accept);
+    }
+
+    private string _message;
+    public string Message
+    {
+        get => _message;
+        set => SetProperty(ref _message, value);
     }
 
     public bool CanCloseDialog()
@@ -95,17 +98,24 @@ public class MoleculeSelectionViewModel : BindableBase, IDialogAware
         Cids.Clear();
         try
         {
+            Message = "Searching...";
             var result = await _pubChemClient.SearchCidsByNameAsync(Query);
             Cids = result.ToList();
             if (result.Count > 0)
             {
                 var cid = result.First();
-                _molecule = await _pubChemClient.GetMoleculeAsync(cid);
+                _molecule = await _pubChemClient.GetMoleculeModelAsync(cid);
+                Message = $"The search resulted in the following hit: \"{_molecule.PreferredName}\" (CID = {cid})";
+            }
+            else
+            {
+                Message = "No results found.";
             }
         }
         catch (HttpRequestException e)
         {
             Cids = new();
+            Message = $"Error fetching data: {e.Message}";
         }
     }
 

@@ -37,14 +37,16 @@
                 Width="24" Height="24" Command="{Binding SearchCommand}">
             <wpf:MaterialIcon Kind="Search" Width="16" Opacity="0.5" />
         </Button>
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Background="#222">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
+                <TextBlock Text="{Binding Message}" Foreground="#FFF" 
+                           Width="350"
+                           TextWrapping="Wrap"
+                           FontSize="16"/>
+            </ScrollViewer>
+        </Border>
 
-        <ListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" ItemsSource="{Binding Cids}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding}" Foreground="White" />
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+
         <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" 
                     Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Style="{StaticResource Round3DButton}" Command="{Binding AcceptCommand}" CommandParameter="true"

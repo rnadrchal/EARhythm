@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Windows.Input;
+using Egami.Chemistry.Model;
 using Egami.Chemistry.PubChem;
 using Prism.Commands;
 using Prism.Dialogs;
@@ -16,8 +17,15 @@ namespace ChemSequencer.ViewModels
         private string _title = "Boltzmann";
         public string Title
         {
-            get { return _title; }
-            set { SetProperty(ref _title, value); }
+            get => _title;
+            set => SetProperty(ref _title, value);
+        }
+
+        private MoleculeModel _molecule;
+        public MoleculeModel Molecule
+        {
+            get => _molecule;
+            set => SetProperty(ref _molecule, value);
         }
 
         public ICommand FindMoleculeCommand { get; }
@@ -36,7 +44,7 @@ namespace ChemSequencer.ViewModels
             {
                 if (r.Result == ButtonResult.OK)
                 {
-                    var molecule = r.Parameters["Molecule"] as Egami.Chemistry.Model.Molecule;
+                    Molecule = r.Parameters["Molecule"] as Egami.Chemistry.Model.MoleculeModel;
                 }
             });
 
