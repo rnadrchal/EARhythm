@@ -1,0 +1,82 @@
+﻿<Window x:Class="FourierSequencer.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+        syncfusion:SfSkinManager.Theme="{syncfusion:SkinManagerExtension ThemeName=FluentDark}"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        Title="{Binding Title}" Height="350" Width="525" 
+        WindowState="Maximized">
+    <Grid>
+        <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Top" HorizontalAlignment="Right"
+                    Margin="10">
+            <Button Style="{StaticResource Round3DButton}" 
+                    Height="32" Width="32"
+                    Command="{Binding SavePresetCommand}">
+                <wpf:MaterialIcon Height="18" Kind="ContentSave" />
+            </Button>
+            <Button Style="{StaticResource Round3DButton}" 
+                    Height="32" Width="32"
+                    Margin="10,0,0,0"
+                    Command="{Binding LoadPresetCommand}">
+                <wpf:MaterialIcon Height="18" Kind="Folder" />
+            </Button>
+        </StackPanel>
+        <syncfusion:TabControlExt Margin="0,40,0,0">
+            <syncfusion:TabItemExt>
+                <syncfusion:TabItemExt.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Style="{StaticResource LedEllipseStyle}"
+                                 Height="12" Width="12"
+                                 Fill="OrangeRed" Stroke="Red"
+                                Opacity="{Binding PitchSequencer.IsActive, Converter={StaticResource BooleanToOpacity}}"
+                                Margin="0,0,6,0"/>
+                        <TextBlock Text="Pitch" FontSize="16" />
+                    </StackPanel>
+                </syncfusion:TabItemExt.Header>
+                <ContentControl Content="{Binding PitchSequencer}" />
+            </syncfusion:TabItemExt>
+            <syncfusion:TabItemExt>
+                <syncfusion:TabItemExt.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Style="{StaticResource LedEllipseStyle}"
+                                Height="12" Width="12"
+                                Fill="OrangeRed" Stroke="Red"
+                                Opacity="{Binding VelocitySequencer.IsActive, Converter={StaticResource BooleanToOpacity}}"
+                                Margin="0,0,6,0"/>
+                        <TextBlock Text="Velocity" FontSize="16" />
+                    </StackPanel>
+                </syncfusion:TabItemExt.Header>
+                <ContentControl Content="{Binding VelocitySequencer}" />
+            </syncfusion:TabItemExt>
+            <syncfusion:TabItemExt>
+                <syncfusion:TabItemExt.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Style="{StaticResource LedEllipseStyle}"
+                                Height="12" Width="12"
+                                Fill="OrangeRed" Stroke="Red"
+                                Opacity="{Binding PitchbendSequencer.IsActive, Converter={StaticResource BooleanToOpacity}}"
+                                Margin="0,0,6,0"/>
+                        <TextBlock Text="Pitchbend" FontSize="16" />
+                    </StackPanel>
+                </syncfusion:TabItemExt.Header>
+                <ContentControl Content="{Binding PitchbendSequencer}" />
+            </syncfusion:TabItemExt>
+            <syncfusion:TabItemExt>
+                <syncfusion:TabItemExt.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Style="{StaticResource LedEllipseStyle}"
+                                Height="12" Width="12"
+                                Fill="OrangeRed" Stroke="Red"
+                                Opacity="{Binding ControlChangeSequencer.IsActive, Converter={StaticResource BooleanToOpacity}}"
+                                Margin="0,0,6,0"/>
+                        <TextBlock Text="CC1" FontSize="16" />
+                    </StackPanel>
+                </syncfusion:TabItemExt.Header>
+                <ContentControl Content="{Binding ControlChangeSequencer}" />
+            </syncfusion:TabItemExt>
+        </syncfusion:TabControlExt>
+    </Grid>
+</Window>
