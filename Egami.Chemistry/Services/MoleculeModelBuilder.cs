@@ -1,4 +1,5 @@
 ﻿using Egami.Chemistry.Model;
+using Egami.Chemistry.Spectrum;
 using NCDK.Smiles;
 
 namespace Egami.Chemistry.Services;
@@ -9,10 +10,10 @@ public sealed class MoleculeModelBuilder
     private readonly AtomGraphBuilder _atomBuilder;
     private readonly BondEdgeEnricher _bondEnricher;
 
-    public MoleculeModelBuilder(IElementPropertyProvider elements)
+    public MoleculeModelBuilder(IElementPropertyProvider elements, ISpectralLineProvider spectralLineProvider)
     {
         _smilesParser = new SmilesParser(NCDK.Silent.ChemObjectBuilder.Instance);
-        _atomBuilder = new AtomGraphBuilder(elements);
+        _atomBuilder = new AtomGraphBuilder(elements, spectralLineProvider);
         _bondEnricher = new BondEdgeEnricher(elements);
     }
 

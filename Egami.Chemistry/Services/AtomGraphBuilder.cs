@@ -1,4 +1,5 @@
 ﻿using Egami.Chemistry.Model;
+using Egami.Chemistry.Spectrum;
 using NCDK;
 using NCDK.RingSearches;
 
@@ -7,9 +8,13 @@ namespace Egami.Chemistry.Services;
 public sealed class AtomGraphBuilder
 {
     private readonly IElementPropertyProvider _elements;
+    private readonly ISpectralLineProvider _spectralLineProvider;
 
-    public AtomGraphBuilder(IElementPropertyProvider elements)
-        => _elements = elements;
+    public AtomGraphBuilder(IElementPropertyProvider elements, ISpectralLineProvider spectralLineProvider)
+    {
+        _elements = elements;
+        _spectralLineProvider = spectralLineProvider;
+    }
 
     public IReadOnlyList<AtomNode> BuildAtoms(IAtomContainer mol)
     {
@@ -72,7 +77,8 @@ public sealed class AtomGraphBuilder
                     IsHBondAcceptor = isAcceptor,
                     IsHeteroAtom = isHetero
                 },
-                NeighborAtomIndices = neighbors
+                NeighborAtomIndices = neighbors,
+                EmissionLines = _spectralLineProvider.GetDominentSpectralLines(elem).ToList()
             });
         }
 

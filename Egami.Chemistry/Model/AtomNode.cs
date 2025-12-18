@@ -1,4 +1,6 @@
-﻿namespace Egami.Chemistry.Model;
+﻿using Egami.Chemistry.Spectrum;
+
+namespace Egami.Chemistry.Model;
 
 public sealed record AtomNode
 {
@@ -9,4 +11,5 @@ public sealed record AtomNode
     public required AtomProperties AtomProps { get; init; }
 
     public IReadOnlyList<int> NeighborAtomIndices { get; init; } = Array.Empty<int>();
+    public IReadOnlyList<SpectralLine> EmissionLines { get; init; } = Array.Empty<SpectralLine>();
 }

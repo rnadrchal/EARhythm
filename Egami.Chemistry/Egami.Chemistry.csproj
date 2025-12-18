@@ -7,6 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="element_top3_visible_lines.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="element_top3_visible_lines.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="PubChem\" />
   </ItemGroup>
 

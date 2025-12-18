@@ -6,6 +6,7 @@ using System.Windows;
 using ChemSequencer.ViewModels;
 using Egami.Chemistry.PubChem;
 using Egami.Chemistry.Services;
+using Egami.Chemistry.Spectrum;
 
 namespace ChemSequencer
 {
@@ -29,7 +30,7 @@ namespace ChemSequencer
             MidiDevices.Initialize(dawName);
             MidiDevices.Input.StartEventsListening();
 
-            _pubChemClient = new PubChemClient(new System.Net.Http.HttpClient(), new MoleculeModelBuilder(new DefaultElementPropertyProvider()));
+            _pubChemClient = new PubChemClient(new System.Net.Http.HttpClient(), new MoleculeModelBuilder(new DefaultElementPropertyProvider(), new SpectralLineProvider()));
         }
         protected override Window CreateShell()
         {
@@ -39,6 +40,7 @@ namespace ChemSequencer
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterInstance(_config);
+            containerRegistry.RegisterSingleton<ISpectralLineProvider, SpectralLineProvider>();
             containerRegistry.RegisterInstance(_pubChemClient);
 
             containerRegistry.RegisterDialog<MoleculeSelectionDialog, MoleculeSelectionViewModel>("SelectMolecule");
