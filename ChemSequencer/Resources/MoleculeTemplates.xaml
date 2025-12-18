@@ -26,17 +26,6 @@
         <Setter Property="Margin" Value="0,3"></Setter>
     </Style>
 
-    <Style TargetType="TextBlock" x:Key="SectionHeaderStyle">
-        <Setter Property="FontWeight" Value="Bold" />
-    </Style>
-
-    <Style TargetType="Border" x:Key="SectionHeaderBorderStyle">
-        <Setter Property="Background" Value="#444" />
-        <Setter Property="BorderBrush" Value="#666" />
-        <Setter Property="BorderThickness" Value="0,0,0,1" />
-        <Setter Property="Padding" Value="5" />
-    </Style>
-
     <DataTemplate DataType="{x:Type chem:AtomProperties}" x:Key="AtomPropTemplate">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
             <TextBlock Text="H" VerticalAlignment="Center" />
@@ -267,10 +256,12 @@
     </DataTemplate>
 
     <DataTemplate DataType="{x:Type chem:MoleculeModel}" x:Key="MoleculeDisplayTemplate">
-        <GroupBox Style="{StaticResource ChemGroupBoxStyle}"
-                  Visibility="{Binding Converter={StaticResource NotNullToVisibility}}">
+        <GroupBox Style="{StaticResource GroupBoxStyle}"
+                  Visibility="{Binding Converter={StaticResource NotNullToVisibility}}"
+                  MaxWidth="330">
             <GroupBox.Header>
-                <TextBlock FontWeight="Bold" FontSize="24" Text="{Binding PreferredName}"></TextBlock>
+                <TextBlock FontWeight="Bold" FontSize="24" Text="{Binding PreferredName}"
+                           TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
             </GroupBox.Header>
             <ScrollViewer HorizontalScrollBarVisibility="Hidden" 
                           VerticalScrollBarVisibility="Auto">
@@ -302,4 +293,5 @@
             </ScrollViewer>
         </GroupBox>
     </DataTemplate>
+
 </ResourceDictionary>

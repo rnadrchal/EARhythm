@@ -7,7 +7,7 @@
         <Setter Property="Margin" Value="6,0,6,6"/>
     </Style>
 
-    <Style TargetType="{x:Type GroupBox}" x:Key="ChemGroupBoxStyle">
+    <Style TargetType="{x:Type GroupBox}" x:Key="GroupBoxStyle">
         <!--<Setter Property="Background" Value="#222"/>-->
         <Setter Property="BorderBrush" Value="#444"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -43,4 +43,16 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style TargetType="TextBlock" x:Key="SectionHeaderStyle">
+        <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+
+    <Style TargetType="Border" x:Key="SectionHeaderBorderStyle">
+        <Setter Property="Background" Value="#444" />
+        <Setter Property="BorderBrush" Value="#666" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Setter Property="Padding" Value="5" />
+    </Style>
+
 </ResourceDictionary>

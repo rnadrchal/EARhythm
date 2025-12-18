@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Egami.Chemistry.Model;
 using Egami.Chemistry.PubChem;
 using Prism.Commands;
@@ -12,7 +11,9 @@ namespace ChemSequencer.ViewModels
     {
         private readonly PubChemClient _pubChemClient;
         private readonly IDialogService _dialogService;
+        private readonly MoleculePlayer _sequencePlayer;
 
+        public MoleculePlayer SequencePlayer => _sequencePlayer;
 
         private string _title = "Boltzmann";
         public string Title
@@ -34,6 +35,7 @@ namespace ChemSequencer.ViewModels
         {
             _pubChemClient = pubChemClient;
             _dialogService = dialogService;
+            _sequencePlayer = new MoleculePlayer();
 
             FindMoleculeCommand = new DelegateCommand(async () => FindMolecule());
         }
@@ -44,7 +46,8 @@ namespace ChemSequencer.ViewModels
             {
                 if (r.Result == ButtonResult.OK)
                 {
-                    Molecule = r.Parameters["Molecule"] as Egami.Chemistry.Model.MoleculeModel;
+                    Molecule = r.Parameters["Molecule"] as MoleculeModel;
+                    _sequencePlayer.UpdateSequence(Molecule);
                 }
             });
 

@@ -24,4 +24,8 @@
     <PackageReference Include="NCDK" Version="1.6.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Egami.Sequencer\Egami.Sequencer.csproj" />
+  </ItemGroup>
+
 </Project>

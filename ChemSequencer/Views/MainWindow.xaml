@@ -9,6 +9,9 @@
         Title="{Binding Title}" Height="350" Width="525"
         WindowState="Maximized">
     <Grid>
+        <Grid.Resources>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
@@ -29,10 +32,15 @@
                         Background="DarkRed">
                     <wpf:MaterialIcon Kind="Download" Width="24" Opacity="0.5" />
                 </Button>
+                <Separator Margin="10,0"/>
+                <ContentControl Content="{Binding SequencePlayer}"
+                                VerticalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <ContentControl Grid.Column="0" Grid.Row="1" Content="{Binding Molecule}" ContentTemplate="{StaticResource MoleculeDisplayTemplate}" />
+        <ContentControl Grid.Column="1" Grid.Row="1" 
+                        Content="{Binding SequencePlayer.Settings}"  />
 
     </Grid>
 </Window>
