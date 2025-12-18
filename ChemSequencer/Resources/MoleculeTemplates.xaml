@@ -3,7 +3,8 @@
                     xmlns:chem="clr-namespace:Egami.Chemistry.Model;assembly=Egami.Chemistry"
                     xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
                     xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
-                    xmlns:viewModels="clr-namespace:ChemSequencer.ViewModels">
+                    xmlns:viewModels="clr-namespace:ChemSequencer.ViewModels"
+                    xmlns:spectrum="clr-namespace:Egami.Chemistry.Spectrum;assembly=Egami.Chemistry">
 
     <converters:ByteArrayToImageSourceConverter x:Key="ByteArrayToImageSource" />
     <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibility" />
@@ -58,7 +59,7 @@
                            VerticalAlignment="Bottom" Margin="10,2,0,0"
                            ToolTip="Valence: number of bonds that can be formed." />
             </StackPanel>
-            <Border BorderBrush="#666" BorderThickness="1"
+            <Border BorderBrush="#444" BorderThickness="1"
                     Margin="5,0,0,0" Padding="5" 
                     MaxWidth="150"
                     Visibility="{Binding HasTags, Converter={StaticResource BooleanToVisibility}}">
@@ -66,8 +67,8 @@
                               VerticalAlignment="Center">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock FontSize="10">
-                                <Run Text=" • " Foreground="#888" /><Run  Text="{Binding Mode=OneWay}"/>
+                            <TextBlock FontSize="8">
+                                <Run Text=" • " Foreground="#888" /><Run  Text="{Binding Mode=OneWay}" Foreground="#AAA"/>
                             </TextBlock>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -165,6 +166,17 @@
                                    ToolTip="Formal charge"/>
                     </Grid>
                 </Border>
+                <ItemsControl ItemsSource="{Binding EmissionLines}" 
+                              VerticalAlignment="Center"
+                              Margin="5,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type spectrum:SpectralLine}">
+                            <TextBlock FontSize="10" Foreground="#AAA">
+                                <Run Text="{Binding WavelengthNm, Mode=OneWay, StringFormat=N1}" /><Run Text="nm" />
+                            </TextBlock>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
                 <ContentControl Content="{Binding AtomProps}" ContentTemplate="{StaticResource AtomPropTemplate}"
                                 VerticalAlignment="Center" Margin="5,0,0,0"/>
 
