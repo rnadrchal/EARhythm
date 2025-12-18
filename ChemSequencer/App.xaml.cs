@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Prism.Ioc;
 using System.Windows;
 using ChemSequencer.ViewModels;
+using Egami.Chemistry.Model;
 using Egami.Chemistry.PubChem;
 using Egami.Chemistry.Services;
 using Egami.Chemistry.Spectrum;

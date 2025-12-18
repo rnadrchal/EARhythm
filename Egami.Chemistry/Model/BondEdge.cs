@@ -33,7 +33,7 @@ public sealed record BondEdge
             if (IsConjugated) yield return "conjugated";
             if (IsRotatable) yield return "rotatable";
             if (Length2D.HasValue) yield return $"Length 2D:{Length2D}";
-            if (Length3D.HasValue) yield return $"Length 3D-{Length3D}";
+            if (Length3D.HasValue) yield return $"Length 3D-{Length3D:N2}";
             if (!String.IsNullOrWhiteSpace(BondClass)) yield return $"class: {BondClass}";
             if (PolarityProxy.HasValue) yield return $"polarity: {PolarityProxy:N2}";
         }

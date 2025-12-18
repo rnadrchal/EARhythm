@@ -1,9 +1,11 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
+using System.Collections.Concurrent;
 using Egami.Chemistry.Model;
-using Egami.Chemistry.Services;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
+using NCDK;
+using NCDK.IO;
+using NCDK.Silent;
 
 namespace Egami.Chemistry.PubChem;
 
@@ -11,6 +13,10 @@ public sealed class PubChemClient
 {
     private readonly HttpClient _http;
     private readonly MoleculeModelBuilder _modelBuilder;
+
+    // einfacher in-memory cache, reduziert Netzlast
+    private readonly ConcurrentDictionary<int, string?> _sdf3dTextCache = new();
+    private readonly ConcurrentDictionary<int, IAtomContainer?> _sdf3dContainerCache = new();
 
     public PubChemClient(HttpClient http, MoleculeModelBuilder modelBuilder)
     {
@@ -33,8 +39,6 @@ public sealed class PubChemClient
             "CanonicalSMILES,IsomericSMILES,InChI,InChIKey,IUPACName,XLogP,TPSA," +
             "HBondDonorCount,HBondAcceptorCount,RotatableBondCount,Charge/JSON";
 
-        //var raw = await _http.GetStringAsync(propsUrl, ct);
-        //Debug.WriteLine(raw);
         var props = await _http.GetFromJsonAsync<PropertyTableDto>(propsUrl, ct);
         var p = props?.PropertyTable?.Properties?.FirstOrDefault()
             ?? throw new InvalidOperationException($"No properties returned for CID {cid}.");
@@ -43,7 +47,31 @@ public sealed class PubChemClient
         if (string.IsNullOrWhiteSpace(smiles))
             throw new InvalidOperationException($"No SMILES returned for CID {cid}.");
 
+        // Standard: Graph aus SMILES (Fallback)
         var graph = _modelBuilder.BuildGraphFromSmiles(smiles);
+
+        // Versuche 3D-SDF zu holen und zu parsen. Falls vorhanden und wirklich 3D-Koordinaten enth�lt,
+        // baue den Graph direkt aus dem IAtomContainer (dann liefert BondEdgeEnricher Length3D).
+        try
+        {
+            var mol3d = await Fetch3dAtomContainerAsync(cid, ct);
+            if (mol3d != null)
+            {
+                if (Has3DCoordinates(mol3d))
+                {
+                    graph = _modelBuilder.BuildGraphFromAtomContainer(mol3d);
+                    Debug.WriteLine($"PubChemClient: used 3D SDF for CID {cid}, atoms with Point3D: {mol3d.Atoms.Count(a => a.Point3D != null)}");
+                }
+                else
+                {
+                    Debug.WriteLine($"PubChemClient: 3D SDF for CID {cid} parsed but contains no Point3D. Falling back to SMILES graph.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Warning: failed to fetch/parse 3D SDF for CID {cid}: {ex.Message}");
+        }
 
         var depictionUri = new Uri($"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/PNG");
 
@@ -97,12 +125,77 @@ public sealed class PubChemClient
 
             Graph = graph,
 
-            // PNG bytes (optional, kann null sein wenn Download fehlschlägt)
+            // PNG bytes (optional, kann null sein wenn Download fehlschl�gt)
             DepictionPng = depictionPng,
 
-            // Optional extras (Synonyms/Taxonomy/MeSH SCR) kannst du später per weiteren Endpoints ergänzen
             Synonyms = Array.Empty<string>()
         };
+    }
+
+    /// <summary>
+    /// L�dt das 3D-SDF (text) f�r eine CID und cached es in-memory.
+    /// Endpoint: /SDF?record_type=3d
+    /// </summary>
+    public async Task<string?> Fetch3dSdfAsync(int cid, CancellationToken ct = default)
+    {
+        if (_sdf3dTextCache.TryGetValue(cid, out var cached)) return cached;
+
+        var url = $"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/SDF?record_type=3d";
+        string? text = null;
+        try
+        {
+            text = await _http.GetStringAsync(url, ct);
+            if (string.IsNullOrWhiteSpace(text)) text = null;
+        }
+        catch (HttpRequestException ex)
+        {
+            Debug.WriteLine($"Warning: failed to download 3D SDF for CID {cid}: {ex.Message}");
+            text = null;
+        }
+
+        _sdf3dTextCache[cid] = text;
+        return text;
+    }
+
+    /// <summary>
+    /// Parsed den SDF-Text mit NCDK (MDLV2000Reader) in ein IAtomContainer und cached das Ergebnis.
+    /// </summary>
+    public async Task<IAtomContainer?> Fetch3dAtomContainerAsync(int cid, CancellationToken ct = default)
+    {
+        if (_sdf3dContainerCache.TryGetValue(cid, out var cached)) return cached;
+
+        var txt = await Fetch3dSdfAsync(cid, ct);
+        if (string.IsNullOrWhiteSpace(txt))
+        {
+            _sdf3dContainerCache[cid] = null;
+            return null;
+        }
+
+        try
+        {
+            using var sr = new StringReader(txt);
+            using var reader = new MDLV2000Reader(sr);
+            var builder = ChemObjectBuilder.Instance;
+            var mol = reader.Read(builder.NewAtomContainer()) as IAtomContainer;
+            _sdf3dContainerCache[cid] = mol;
+            return mol;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Warning: parsing 3D SDF for CID {cid} failed: {ex.Message}");
+            _sdf3dContainerCache[cid] = null;
+            return null;
+        }
+    }
+
+    private static bool Has3DCoordinates(IAtomContainer mol)
+    {
+        if (mol is null) return false;
+        foreach (var a in mol.Atoms)
+        {
+            if (a.Point3D != null) return true;
+        }
+        return false;
     }
 
     // --- DTOs ---
@@ -129,41 +222,26 @@ public sealed class PubChemClient
 
     private sealed class PropertyRowDto
     {
-        // Einige Felder im PubChem-JSON kommen mit anderen Keys (z.B. "SMILES"), deshalb explizit mappen.
         [JsonPropertyName("CID")] public int? CID { get; init; }
-
         [JsonPropertyName("MolecularFormula")] public string? MolecularFormula { get; init; }
-
-        // PubChem kann Zahlen als Strings liefern; für Robustheit als double? belassen (bei Bedarf string->double parsen).
         [JsonPropertyName("MolecularWeight")] public double? MolecularWeight { get; init; }
         [JsonPropertyName("ExactMass")] public double? ExactMass { get; init; }
-
-        // PubChem key: "MonoisotopicMass"
         [JsonPropertyName("MonoisotopicMass")] public double? MonoisotopicMass { get; init; }
-        [JsonIgnore]
-        public double? MonoIsotopicMass => MonoisotopicMass;
-        [JsonIgnore]
-        public double? monoIsotopicMass => MonoisotopicMass; // zusätzliche alias-Form (falls irgendwo klein geschrieben referenziert)
-
-        // SMILES-Felder (PubChem liefert "SMILES" und "ConnectivitySMILES")
+        [JsonIgnore] public double? MonoIsotopicMass => MonoisotopicMass;
+        [JsonIgnore] public double? monoIsotopicMass => MonoisotopicMass;
         [JsonPropertyName("CanonicalSMILES")] public string? CanonicalSMILES { get; init; }
         [JsonPropertyName("IsomericSMILES")] public string? IsomericSMILES { get; init; }
         [JsonPropertyName("SMILES")] public string? SMILES { get; init; }
         [JsonPropertyName("ConnectivitySMILES")] public string? ConnectivitySMILES { get; init; }
-
         [JsonPropertyName("InChI")] public string? InChI { get; init; }
         [JsonPropertyName("InChIKey")] public string? InChIKey { get; init; }
         [JsonPropertyName("IUPACName")] public string? IUPACName { get; init; }
-
         [JsonPropertyName("XLogP")] public double? XLogP { get; init; }
         [JsonPropertyName("TPSA")] public double? TPSA { get; init; }
-
         [JsonPropertyName("HBondDonorCount")] public int? HBondDonorCount { get; init; }
         [JsonPropertyName("HBondAcceptorCount")] public int? HBondAcceptorCount { get; init; }
         [JsonPropertyName("RotatableBondCount")] public int? RotatableBondCount { get; init; }
         [JsonPropertyName("Charge")] public int? Charge { get; init; }
-
-        // Fallback für MonoisotopicMass falls PubChem in Zukunft andere Schreibweise nutzt (nur defensive Ergänzung)
         [JsonIgnore] public double? MonoisotopicMassFallback => MonoisotopicMass;
     }
 }
