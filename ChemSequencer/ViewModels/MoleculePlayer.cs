@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Documents;
-using System.Windows.Input;
 using Egami.Chemistry.Graph;
 using Egami.Chemistry.Model;
 using Egami.Chemistry.Sequencer;
@@ -11,7 +9,6 @@ using Egami.Sequencer.Grid;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
-using Prism.Commands;
 using Prism.Mvvm;
 
 namespace ChemSequencer.ViewModels;
@@ -24,10 +21,13 @@ public class MoleculePlayer : BindableBase
     private MusicalSequence _sequence;
     private long _tickCount = 0;
     private MoleculeModel _model;
+    private readonly MoleculePlaybackViewModel _moleculePlayback;
 
     private readonly MoleculeSequenceBuildOptions _buildOptions;
     private readonly TraversalOptions _traversalOptions;
     private readonly PacketSettings _packetSettings;
+
+    public MoleculePlaybackViewModel MoleculePlayback => _moleculePlayback;
 
     internal MoleculeModel Model => _model;
 
@@ -62,7 +62,8 @@ public class MoleculePlayer : BindableBase
         _clock = new MidiClockGrid(PlayerSettings.DefaultDivision);
         _settings = new PlayerSettings(_clock, this, _traversalOptions, _buildOptions);
         _player = new GridSequencePlayerV2(MidiDevices.Output, (FourBitNumber)0, _clock);
-
+        _moleculePlayback = new MoleculePlaybackViewModel();
+        _moleculePlayback.BaseTicPixel = 28.0;
 
         MidiDevices.Input.EventReceived += OnMidiEventReceived;
         _clock.Pulse += OnClockPulse;
@@ -135,6 +136,8 @@ public class MoleculePlayer : BindableBase
         _sequence = builder.Build(_buildOptions);
         StepLeds = _sequence.Steps.Select(s => s.StepIndex).Distinct().Select((s, i) => new StepLed(i)).ToList();
         _player.SetSequence(_sequence);
+
+        _moleculePlayback.UpdateFromSequence(_model.Graph, [0], [0]);
 
         RaisePropertyChanged(nameof(HasSequence));
     }

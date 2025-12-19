@@ -39,8 +39,15 @@
         </Border>
 
         <ContentControl Grid.Column="0" Grid.Row="1" Content="{Binding Molecule}" ContentTemplate="{StaticResource MoleculeDisplayTemplate}" />
-        <ContentControl Grid.Column="1" Grid.Row="1" 
-                        Content="{Binding SequencePlayer.Settings}"  />
+        <Grid Grid.Column="1" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <ContentControl Grid.Row="0" 
+                            Content="{Binding SequencePlayer.Settings}"  />
+            <ContentControl Grid.Row="1" Content="{Binding SequencePlayer.MoleculePlayback}" />
+        </Grid>
 
     </Grid>
 </Window>
