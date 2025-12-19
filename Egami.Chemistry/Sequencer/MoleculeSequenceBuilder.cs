@@ -26,6 +26,7 @@ public sealed record MoleculeSequenceBuildOptions(
     public bool Polyphonic { get; set; }
     public bool MarkBacktracking { get; set; }
     public double BacktrackVelocityScale { get; set; }
+    public int BacktrackMarkerCcNumber { get; set; }
     public SevenBitNumber BacktrackMarkerCcValue { get; set; }
     public bool BacktrackInvertPitchbend { get; set; }
     public int BacktrackPitchbendOffset { get; set; }

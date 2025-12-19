@@ -41,6 +41,18 @@
     <ProjectReference Include="..\Egami.Sequencer\Egami.Sequencer.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\Fonts\LEDREALI.TTF">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Fonts\LED_REAL.TTF">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Fonts\LED_REAL.TXT">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Fonts\LED_SAS.TTF">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\Images\aromatic.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>

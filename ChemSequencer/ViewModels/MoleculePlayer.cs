@@ -62,7 +62,7 @@ public class MoleculePlayer : BindableBase
             Mode: TraversalMode.DfsEdgeVisited,
             TraversalOptions: _traversalOptions);
         _clock = new MidiClockGrid(PlayerSettings.DefaultDivision);
-        _settings = new PlayerSettings(_clock, this, _traversalOptions, _buildOptions);
+        _settings = new PlayerSettings(_clock, this, _traversalOptions, _buildOptions, _packetSettings);
         _player = new GridSequencePlayerV2(MidiDevices.Output, (FourBitNumber)0, _clock);
         _moleculePlayback = new MoleculePlaybackViewModel();
         _moleculePlayback.BaseTicPixel = 28.0;

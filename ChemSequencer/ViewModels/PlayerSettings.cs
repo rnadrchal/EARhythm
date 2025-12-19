@@ -16,16 +16,19 @@ public class PlayerSettings : BindableBase
     private readonly MidiClockGrid _clock;
     private readonly TraversalOptions _traversalOptions;
     private readonly MoleculeSequenceBuildOptions _buildOptions;
+    private readonly PacketSettings _packetSettings;
 
     private int _divisionAsIntAsInt = (int)DefaultDivision;
 
 
-    public PlayerSettings(MidiClockGrid clock, MoleculePlayer player, TraversalOptions traversalOptions, MoleculeSequenceBuildOptions buildOptions)
+    public PlayerSettings(MidiClockGrid clock, MoleculePlayer player, TraversalOptions traversalOptions,
+        MoleculeSequenceBuildOptions buildOptions, PacketSettings packetSettings)
     {
         _clock = clock;
         _player = player;
         _traversalOptions = traversalOptions;
         _buildOptions = buildOptions;
+        _packetSettings = packetSettings;
         ToggleCompressedCommand = new DelegateCommand(() => Compressed = !Compressed);
         ToggleQuantizeCommand = new DelegateCommand(() => Quantize = !Quantize);
         TogglePolyphonicCommand = new DelegateCommand(() => Polyphonic = !Polyphonic);
@@ -49,7 +52,41 @@ public class PlayerSettings : BindableBase
         }
     }
 
-    #region Duratioin
+    public PitchSelect PitchSelect => (PitchSelect)_pitchSelectInt;
+
+    private int _pitchSelectInt = (int)PitchSelect.Wavelength1;
+    public int PitchSelectInt
+    {
+        get => _pitchSelectInt;
+        set
+        {
+            if (SetProperty(ref _pitchSelectInt, value))
+            {
+                _packetSettings.PitchSelect = (PitchSelect)value;
+                RaisePropertyChanged(nameof(PitchSelect));
+                _player.UpdateSequence();
+            }
+        }
+    }
+
+    public PitchRange PitchRange => (PitchRange)_pitchRangeInt;
+    private int _pitchRangeInt = (int)PitchRange.Piano;
+
+    public int PitchRangeInt
+    {
+        get => _pitchRangeInt;
+        set
+        {
+            if (SetProperty(ref _pitchRangeInt, value))
+            {
+                _packetSettings.PitchRange = (PitchRange)value;
+                RaisePropertyChanged(nameof(PitchRange));
+                _player.UpdateSequence();
+            }
+        }
+    }
+
+    #region Duration
 
     private bool _compressed = true;
     public bool Compressed
@@ -164,6 +201,7 @@ public class PlayerSettings : BindableBase
 
     public ICommand TogglePolyphonicCommand { get; }
 
+
     #endregion
 
     #region Backtracking
@@ -194,6 +232,21 @@ public class PlayerSettings : BindableBase
                 _buildOptions.BacktrackVelocityScale = value;
                 _player.UpdateSequence();
                 RaisePropertyChanged(nameof(BacktrackVelocityScale));
+            }
+        }
+    }
+
+    public int BacktrackMarkerCcNumber
+    {
+        get => _buildOptions.BacktrackMarkerCcNumber;
+        set
+        {
+            var newValue = (SevenBitNumber)value;
+            if (newValue != _buildOptions.BacktrackMarkerCcNumber)
+            {
+                _buildOptions.BacktrackMarkerCcNumber = newValue;
+                _player.UpdateSequence();
+                RaisePropertyChanged(nameof(BacktrackMarkerCcNumber));
             }
         }
     }
