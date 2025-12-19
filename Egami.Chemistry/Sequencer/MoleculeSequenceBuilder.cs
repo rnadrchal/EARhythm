@@ -1,4 +1,5 @@
 ﻿using Egami.Chemistry.Graph;
+using Egami.Chemistry.Model;
 using Egami.Sequencer;
 using Melanchall.DryWetMidi.Common;
 using NCDK.AtomTypes;
@@ -34,11 +35,13 @@ public sealed class MoleculeSequenceBuilder
 {
     private readonly IMoleculeGraph _graph;
     private readonly IBondDurationMapper _durationMapper;
+    private readonly MoleculeModel _model;
 
-    public MoleculeSequenceBuilder(IMoleculeGraph graph, IBondDurationMapper durationMapper)
+    public MoleculeSequenceBuilder(IMoleculeGraph graph, IBondDurationMapper durationMapper, MoleculeModel model)
     {
         _graph = graph ?? throw new ArgumentNullException(nameof(graph));
         _durationMapper = durationMapper ?? throw new ArgumentNullException(nameof(durationMapper));
+        _model = model ?? throw new ArgumentNullException(nameof(model));
     }
 
     public MusicalSequence Build(MoleculeSequenceBuildOptions opt)
@@ -66,7 +69,10 @@ public sealed class MoleculeSequenceBuilder
         if (opt.InitialHoldSteps > 0)
         {
             var startPacket = _graph.GetAtomPacket(_graph.StartAtom);
-            steps.Add(CreateStep(stepIndex, opt.InitialHoldSteps, startPacket, isBacktrack: false, opt));
+            var step = CreateStep(stepIndex, opt.InitialHoldSteps, startPacket, isBacktrack: false, opt);
+            var atom = _model.GetAtomNode(_graph.StartAtom);
+            if (atom != null) step.Atoms = [atom];
+            steps.Add(step);
             stepIndex += opt.InitialHoldSteps;
         }
 
@@ -75,8 +81,13 @@ public sealed class MoleculeSequenceBuilder
         {
             var duration = _durationMapper.GetDurationInSteps(seg.BondLength3D);
             var packet = _graph.GetAtomPacket(seg.From);
-
-            steps.Add(CreateStep(stepIndex, duration, packet, seg.IsBacktrack, opt));
+            var step = CreateStep(stepIndex, duration, packet, seg.IsBacktrack, opt);
+            var atoms = new List<AtomNode>();
+            var atomFrom = _model.GetAtomNode(seg.From);
+            var atomTo = _model.GetAtomNode(seg.To);
+            if (atomFrom != null && atomTo != null)
+                step.Atoms = [atomFrom, atomTo];
+            steps.Add(step);
             stepIndex += duration;
         }
 
@@ -153,7 +164,10 @@ public sealed class MoleculeSequenceBuilder
             foreach (var node in layer)
             {
                 var packet = _graph.GetAtomPacket(node);
-                steps.Add(CreateStep(stepIndex, layerDuration, packet, isBacktrack: false, opt));
+                var step = CreateStep(stepIndex, layerDuration, packet, isBacktrack: false, opt);
+                var atom = _model.GetAtomNode(node);
+                if (atom != null) step.Atoms = [atom];
+                steps.Add(step);
             }
 
             stepIndex += layerDuration;
@@ -250,7 +264,7 @@ public sealed class MoleculeSequenceBuilder
 
         IReadOnlyList<GridCcRamp>? ccRamps = packet.CcRamps; // unverändert (Backtrack könnte man später auch einfärben)
 
-        return new AtomSequenceStep(
+        var step = new AtomSequenceStep(
             stepIndex: stepIndex,
             lengthInSteps: lengthInSteps,
             pitch: (SevenBitNumber)packet.Pitch,
@@ -262,5 +276,7 @@ public sealed class MoleculeSequenceBuilder
             ignoreCc: packet.IgnoreCc,
             pitchbendRamp: pbRamp,
             ccRamps: ccRamps);
+
+        return step;
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Egami.Chemistry.Model;
+﻿using Egami.Chemistry.Graph;
+
+namespace Egami.Chemistry.Model;
 
 public sealed record MoleculeModel
 {
@@ -15,4 +17,7 @@ public sealed record MoleculeModel
 
     public IReadOnlyList<TaxonomyLink> Taxonomy { get; init; } = Array.Empty<TaxonomyLink>();
     public MeshScrLink? MeshScr { get; init; }
+
+    public AtomNode? GetAtomNode(AtomId id) => Graph.Atoms.SingleOrDefault(a => a.Index == id.Value);
+
 }

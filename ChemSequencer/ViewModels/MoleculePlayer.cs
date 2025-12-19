@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
+using System.Windows;
 using Egami.Chemistry.Graph;
 using Egami.Chemistry.Model;
 using Egami.Chemistry.Sequencer;
@@ -67,6 +69,15 @@ public class MoleculePlayer : BindableBase
 
         MidiDevices.Input.EventReceived += OnMidiEventReceived;
         _clock.Pulse += OnClockPulse;
+        _player.ActivationChanged += OnActiveStepChanged;
+    }
+
+    private void OnActiveStepChanged(object sender, SequenceActivationChangedEventArgs e)
+    {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            _moleculePlayback.UpdateFromSequence(_model.Graph, e.ActiveAtoms.Select(a => a.Index));
+        });
     }
 
 
@@ -132,12 +143,13 @@ public class MoleculePlayer : BindableBase
         if (_model == null) return;
         var graph = new MoleculeGraphAdapter(_model.Graph, _packetSettings);
         var builder = new MoleculeSequenceBuilder(graph,
-            new BondDurationMapper { Compressed = _settings.Compressed, Quantize = _settings.Quantize });
+            new BondDurationMapper { Compressed = _settings.Compressed, Quantize = _settings.Quantize },
+            _model);
         _sequence = builder.Build(_buildOptions);
         StepLeds = _sequence.Steps.Select(s => s.StepIndex).Distinct().Select((s, i) => new StepLed(i)).ToList();
         _player.SetSequence(_sequence);
 
-        _moleculePlayback.UpdateFromSequence(_model.Graph, [0], [0]);
+        _moleculePlayback.UpdateFromSequence(_model.Graph);
 
         RaisePropertyChanged(nameof(HasSequence));
     }

@@ -1,10 +1,23 @@
-﻿using Egami.Sequencer;
+﻿using Egami.Chemistry.Model;
+using Egami.Sequencer;
 using Egami.Sequencer.Grid;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 
 namespace Egami.Chemistry.Sequencer;
+
+public sealed class SequenceActivationChangedEventArgs : EventArgs
+{
+    public IReadOnlyList<AtomNode> ActiveAtoms { get; }
+    public IReadOnlyList<BondEdge> ActiveBonds { get; }
+
+    public SequenceActivationChangedEventArgs(IReadOnlyList<AtomNode> atoms, IReadOnlyList<BondEdge> bonds)
+    {
+        ActiveAtoms = atoms ?? Array.Empty<AtomNode>();
+        ActiveBonds = bonds ?? Array.Empty<BondEdge>();
+    }
+}
 
 public sealed class GridSequencePlayerV2 : IDisposable
 {
@@ -25,6 +38,8 @@ public sealed class GridSequencePlayerV2 : IDisposable
 
     private int _transposeSemitones; // -48..+48
     private bool _legato;
+
+    public event EventHandler<SequenceActivationChangedEventArgs>? ActivationChanged;
 
     public GridSequencePlayerV2(OutputDevice outputDevice, FourBitNumber channel, MidiClockGrid clockGrid)
     {
@@ -128,6 +143,9 @@ public sealed class GridSequencePlayerV2 : IDisposable
 
     private void OnGridTick()
     {
+        IReadOnlyList<AtomNode> atomsToNotify = Array.Empty<AtomNode>();
+        IReadOnlyList<BondEdge> bondsToNotify = Array.Empty<BondEdge>();
+
         lock (_sync)
         {
             if (!_isPlaying) return;
@@ -159,10 +177,38 @@ public sealed class GridSequencePlayerV2 : IDisposable
             _currentStepIndex++;
             if (_currentStepIndex >= _sequence.LengthInSteps)
                 _currentStepIndex = 0;
+
+            // Kopiere aktuelle aktive Atom/Bond-Referenzen für Benachrichtigung
+            (atomsToNotify, bondsToNotify) = GetActiveEntities_Copied_NoLock();
         }
+
+        // Event außerhalb des Locks feuern
+        RaiseActivationChanged(atomsToNotify, bondsToNotify);
     }
 
-    // -------------------- Step start --------------------
+    // Neue Hilfsmethode: sammelt AtomNode/BondEdge aus den aktiven Noten (nur wenn die Steps
+    // AtomSequenceStep-Referenzen besitzen). Muss mit Lock aufgerufen werden (wir rufen sie aus Lock).
+    private (IReadOnlyList<AtomNode> atoms, IReadOnlyList<BondEdge> bonds) GetActiveEntities_Copied_NoLock()
+    {
+        var atomSet = new HashSet<AtomNode>();
+        var bondSet = new HashSet<BondEdge>();
+
+        foreach (var an in _activeNotes)
+        {
+            if (an.Step is AtomSequenceStep ast)
+            {
+                if (ast.Atoms is { })
+                {
+                    foreach (var atom in ast.Atoms)
+                        atomSet.Add(atom);
+                }
+                ;
+                if (ast.Bond is { }) bondSet.Add(ast.Bond);
+            }
+        }
+
+        return (atomSet.ToList(), bondSet.ToList());
+    }
 
     private void StartStep(SequenceStep step)
     {
@@ -205,7 +251,7 @@ public sealed class GridSequencePlayerV2 : IDisposable
             }
 
             SendNoteOn(effPitch, step.Velocity);
-            _activeNotes.Add(new ActiveNote(step.LengthInSteps, effPitch, effPb));
+            _activeNotes.Add(new ActiveNote(step, step.LengthInSteps, effPitch, effPb));
         }
     }
 
@@ -307,7 +353,7 @@ public sealed class GridSequencePlayerV2 : IDisposable
         _outputDevice.SendEvent(ev);
     }
 
-    private void StopAllNotes_NoLock()
+    private (IReadOnlyList<AtomNode> atoms, IReadOnlyList<BondEdge> bonds) StopAllNotes_NoLock()
     {
         // NoteOff für alle aktiven Noten
         for (int i = _activeNotes.Count - 1; i >= 0; i--)
@@ -322,19 +368,28 @@ public sealed class GridSequencePlayerV2 : IDisposable
             Channel = _channel
         };
         _outputDevice.SendEvent(allNotesOff);
+
+        // keine aktiven Graph-Entities mehr
+        return (Array.Empty<AtomNode>(), Array.Empty<BondEdge>());
     }
+
+    private void RaiseActivationChanged(IReadOnlyList<AtomNode> atoms, IReadOnlyList<BondEdge> bonds)
+        => ActivationChanged?.Invoke(this, new SequenceActivationChangedEventArgs(atoms, bonds));
+
+
 
     // -------------------- internal state --------------------
 
     private sealed class ActiveNote
     {
+        public SequenceStep Step { get; }
         public int RemainingSteps { get; set; }
         public int EffectivePitch { get; }
         public int EffectivePitchBend { get; }
 
-        public ActiveNote(int lengthInSteps, int effectivePitch, int effectivePitchBend)
+        public ActiveNote(SequenceStep step, int lengthInSteps, int effectivePitch, int effectivePitchBend)
         {
-            RemainingSteps = lengthInSteps;
+            Step = step; RemainingSteps = lengthInSteps;
             EffectivePitch = effectivePitch;
             EffectivePitchBend = effectivePitchBend;
         }

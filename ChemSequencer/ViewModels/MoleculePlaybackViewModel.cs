@@ -88,6 +88,17 @@ public sealed class MoleculePlaybackViewModel : INotifyPropertyChanged
             }
         }
 
+        // --- Ring-Erkennung & polygonale Initialpositionierung ---
+        var cycles = FindSimpleCycles(graph, maxCycleLength: 12);
+        var isCycleAtom = new bool[atomCount];
+        foreach (var cycle in cycles)
+        {
+            // mark atoms in cycle
+            foreach (var idx in cycle) isCycleAtom[idx] = true;
+            // place ring and radial substituents
+            PlaceCycleAndSubstituents(graph, positions, cycle, desiredLengths);
+        }
+
         // Relaxation: spring forces to match desiredLengths + small repulsion
         var rand = new Random(1234);
         for (int iter = 0; iter < LayoutIterations; iter++)
@@ -112,8 +123,8 @@ public sealed class MoleculePlaybackViewModel : INotifyPropertyChanged
                 }
                 double target = desiredLengths[ei];
                 double diff = dist - target;
-                // spring constant scaled
-                double k = 0.2;
+                // spring constant scaled; increase for cycle edges to better preserve polygon shape
+                double k = (isCycleAtom[u] && isCycleAtom[v]) ? 0.45 : 0.20;
                 double fx = (diff / dist) * k * vx;
                 double fy = (diff / dist) * k * vy;
                 disp[u].dx += fx;
@@ -135,7 +146,6 @@ public sealed class MoleculePlaybackViewModel : INotifyPropertyChanged
                         double ry = pj.y - pi.y;
                         double d2 = rx * rx + ry * ry;
                         double d = Math.Sqrt(Math.Max(d2, 1e-6));
-                        double minDist = 10.0;
                         double rep = 2000.0 / (d2 + 1.0); // tunable
                         double fx = rep * (rx / d);
                         double fy = rep * (ry / d);
@@ -151,8 +161,10 @@ public sealed class MoleculePlaybackViewModel : INotifyPropertyChanged
             double damping = 0.65 * (1.0 - (double)iter / LayoutIterations);
             for (int i = 0; i < atomCount; i++)
             {
-                positions[i].x += disp[i].dx * damping;
-                positions[i].y += disp[i].dy * damping;
+                // reduce movement for atoms that belong to detected rings to preserve polygonal shape
+                double preserveFactor = isCycleAtom[i] ? 0.12 : 1.0;
+                positions[i].x += disp[i].dx * damping * preserveFactor;
+                positions[i].y += disp[i].dy * damping * preserveFactor;
             }
         }
 
@@ -202,7 +214,6 @@ public sealed class MoleculePlaybackViewModel : INotifyPropertyChanged
         Raise(nameof(Atoms));
         Raise(nameof(Bonds));
     }
-
     private void EnsureAtomVisuals(int count, StructureGraph graph)
     {
         while (Atoms.Count < count)
@@ -235,6 +246,208 @@ public sealed class MoleculePlaybackViewModel : INotifyPropertyChanged
             bv.Order = e.Order;
             bv.LengthTics = Math.Max(1, bondTicProvider(e));
         }
+    }
+
+    // Hilfsmethode: Platziert einen erkannten Ring als regelmäßiges Polygon und richtet
+    // direkt an den Ring gebundene Substituenten radial aus (bessere Darstellung z.B. für Phenol).
+    private void PlaceCycleAndSubstituents(StructureGraph graph, (double x, double y)[] positions, List<int> cycle, double[] desiredLengths)
+    {
+        int n = cycle.Count;
+        if (n < 3) return;
+
+        // mittlere Kantenlänge im Ring
+        double avgS = 0; int edgesOnCycle = 0;
+        for (int i = 0; i < n; i++)
+        {
+            int a = cycle[i], b = cycle[(i + 1) % n];
+            var bond = graph.Bonds.FirstOrDefault(be => (be.From == a && be.To == b) || (be.From == b && be.To == a));
+            if (bond is not null)
+            {
+                int bi = FindBondIndex(graph, bond);
+                if (bi >= 0) { avgS += desiredLengths[bi]; edgesOnCycle++; }
+            }
+        }
+        if (edgesOnCycle == 0) return;
+        avgS /= edgesOnCycle;
+
+        // regulärer Polygon-Radius
+        double R = avgS / (2.0 * Math.Sin(Math.PI / n));
+
+        // center (mittlerer Ort der aktuellen Ring-Positionen)
+        double cx = 0, cy = 0;
+        foreach (var idx in cycle) { cx += positions[idx].x; cy += positions[idx].y; }
+        cx /= n; cy /= n;
+
+        // optional: bestimme Rotation so dass Substituent (falls vorhanden) zeigt
+        // Suche zuerst einen Ring-Vertex mit Substituent (Nachbar, der nicht im Ring ist)
+        int rotIndex = 0;
+        double rotAngle = 0.0;
+        for (int i = 0; i < n; i++)
+        {
+            int v = cycle[i];
+            var neighbors = graph.Bonds
+                .Where(b => b.From == v || b.To == v)
+                .Select(b => b.From == v ? b.To : b.From)
+                .Distinct()
+                .Where(nb => !cycle.Contains(nb))
+                .ToArray();
+            if (neighbors.Length > 0)
+            {
+                // orientiere Polygon so, dass die erste Substituentenrichtung nach "oben" zeigt
+                rotIndex = i;
+                // berechne Zielwinkel (up = -PI/2)
+                rotAngle = -Math.PI / 2.0;
+                break;
+            }
+        }
+
+        // setze Eckpunkte des Polygons; rotiere so rotIndex auf rotAngle steht
+        for (int i = 0; i < n; i++)
+        {
+            double baseAngle = 2 * Math.PI * i / n;
+            // rotate so that rotIndex aligns to rotAngle
+            double angle = baseAngle - (2 * Math.PI * rotIndex / n) + rotAngle;
+            positions[cycle[i]].x = cx + Math.Cos(angle) * R;
+            positions[cycle[i]].y = cy + Math.Sin(angle) * R;
+        }
+
+        // Platziere direkte Substituenten radial außerhalb des Ring-Vertex
+        for (int i = 0; i < n; i++)
+        {
+            int v = cycle[i];
+            // outward unit vector from center to vertex
+            double ux = positions[v].x - cx;
+            double uy = positions[v].y - cy;
+            var norm = Math.Sqrt(ux * ux + uy * uy);
+            if (norm < 1e-6) continue;
+            ux /= norm; uy /= norm;
+
+            // finde Nachbarn, die nicht im Ring sind
+            var externNeighbors = graph.Bonds
+                .Where(b => b.From == v || b.To == v)
+                .Select(b => b.From == v ? b.To : b.From)
+                .Distinct()
+                .Where(nb => !cycle.Contains(nb))
+                .ToArray();
+
+            foreach (var nb in externNeighbors)
+            {
+                var bond = graph.Bonds.FirstOrDefault(be => (be.From == v && be.To == nb) || (be.From == nb && be.To == v));
+                double bondLen = avgS;
+                if (bond is not null)
+                {
+                    int bi = FindBondIndex(graph, bond);
+                    if (bi >= 0) bondLen = desiredLengths[bi];
+                }
+                double offset = bondLen + 6.0;
+                positions[nb].x = positions[v].x + ux * offset;
+                positions[nb].y = positions[v].y + uy * offset;
+            }
+        }
+    }
+
+    // Neue Hilfsmethode: findet einfache Zyklen (Ringe) im StructureGraph
+    private static List<List<int>> FindSimpleCycles(StructureGraph graph, int maxCycleLength = 12)
+    {
+        var cycles = new List<List<int>>();
+        if (graph == null) return cycles;
+
+        int atomCount = graph.Atoms?.Count ?? 0;
+        var bonds = graph.Bonds;
+        int bondCount = bonds?.Count ?? 0;
+
+        // adjacency für Suche
+        var adjacency = new List<int>[atomCount];
+        for (int i = 0; i < atomCount; i++) adjacency[i] = new List<int>();
+        for (int i = 0; i < bondCount; i++)
+        {
+            var e = bonds[i];
+            adjacency[e.From].Add(e.To);
+            adjacency[e.To].Add(e.From);
+        }
+
+        var seenKeys = new HashSet<string>();
+
+        // Für jede Kante: entferne virtuell die Kante und suche kürzesten Pfad zwischen Endpunkten
+        for (int bi = 0; bi < bondCount; bi++)
+        {
+            var e = bonds[bi];
+            int u = e.From, v = e.To;
+
+            // BFS von u nach v, Kante (u,v) überspringen
+            var prev = new int[atomCount];
+            for (int i = 0; i < atomCount; i++) prev[i] = -1;
+            var q = new Queue<int>();
+            q.Enqueue(u);
+            prev[u] = u;
+            bool found = false;
+
+            while (q.Count > 0 && !found)
+            {
+                var x = q.Dequeue();
+                foreach (var nb in adjacency[x])
+                {
+                    if ((x == u && nb == v) || (x == v && nb == u)) continue; // skip test-edge
+                    if (prev[nb] != -1) continue;
+                    prev[nb] = x;
+                    if (nb == v) { found = true; break; }
+                    q.Enqueue(nb);
+                }
+            }
+
+            if (!found) continue;
+
+            // rekonstruiere Pfad u -> v
+            var path = new List<int>();
+            int cur = v;
+            while (cur != prev[cur])
+            {
+                path.Add(cur);
+                cur = prev[cur];
+            }
+            path.Add(u);
+            path.Reverse();
+
+            // Ring = Pfad + Kante (u,v). Mindestens 3 Knoten
+            if (path.Count < 3 || path.Count > maxCycleLength) continue;
+
+            // Normalisiere Drehung/Richtung um Duplikate zu vermeiden
+            int n = path.Count;
+            int minPos = 0;
+            for (int i = 1; i < n; i++) if (path[i] < path[minPos]) minPos = i;
+
+            var norm = new List<int>(n);
+            for (int i = 0; i < n; i++) norm.Add(path[(minPos + i) % n]);
+
+            var rev = new List<int>(norm);
+            rev.Reverse();
+
+            string k1 = string.Join(",", norm);
+            string k2 = string.Join(",", rev);
+            if (seenKeys.Contains(k1) || seenKeys.Contains(k2)) continue;
+
+            seenKeys.Add(k1);
+            cycles.Add(norm);
+        }
+
+        return cycles;
+    }
+
+    // Neue Hilfsmethode: findet Bond-Index in IReadOnlyList<BondEdge>
+    private static int FindBondIndex(StructureGraph graph, BondEdge? bond)
+    {
+        if (bond is null) return -1;
+        var bonds = graph.Bonds;
+        for (int i = 0; i < bonds.Count; i++)
+        {
+            var b = bonds[i];
+            if (ReferenceEquals(b, bond)) return i;
+            // match endpoints (beide Richtungen) und Order als Fallback
+            if ((b.From == bond.From && b.To == bond.To && b.Order == bond.Order) ||
+                (b.From == bond.To && b.To == bond.From && b.Order == bond.Order))
+                return i;
+        }
+        return -1;
     }
 
     private static Brush CpkColor(string element)

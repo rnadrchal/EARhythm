@@ -68,18 +68,24 @@
                         </ItemsControl.ItemContainerStyle>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid>
+                                <Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
                                     <Ellipse Width="{Binding Radius, Converter={StaticResource DoubleToDiameter}}"
                                              Height="{Binding Radius, Converter={StaticResource DoubleToDiameter}}"
                                              Fill="{Binding Fill}"
                                              Stroke="{Binding IsActive, Converter={StaticResource BoolToStroke}}"
                                              StrokeThickness="{Binding IsActive, Converter={StaticResource BoolToStrokeThickness}}"
-                                             SnapsToDevicePixels="True" />
-                                    <TextBlock Text="{Binding Label}" Foreground="Black" FontWeight="Bold"
-                                               FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                               Width="{Binding Radius, Converter={StaticResource DoubleToDiameter}}"
-                                               Height="{Binding Radius, Converter={StaticResource DoubleToDiameter}}"
-                                               TextAlignment="Center" />
+                                             SnapsToDevicePixels="True"
+                                             Style="{StaticResource LedEllipseStyle}"/>
+                                    <Label Content="{Binding Label}" Foreground="Black" FontWeight="Bold"
+                                           FontSize="12"
+                                           HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                           Width="{Binding Radius, Converter={StaticResource DoubleToDiameter}}"
+                                           Height="{Binding Radius, Converter={StaticResource DoubleToDiameter}}"
+                                           Padding="0"
+                                           Background="Transparent"
+                                           BorderThickness="0"
+                                           IsHitTestVisible="False"
+                                           Margin="0,0,2,8"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
