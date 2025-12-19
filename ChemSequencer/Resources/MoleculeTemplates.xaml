@@ -11,6 +11,7 @@
     <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     <viewModels:BondToStringConverter x:Key="BondToString" />
     <viewModels:ByteArrayToCroppedImageConverter x:Key="CroppedImage" />
+    <converters:WavelengthToBrushConverter x:Key="WavelengthToBrush" />
 
     <Style TargetType="TextBlock" x:Key="PropertyLabelStyle">
         <Setter Property="Foreground" Value="#AAA" />
@@ -27,56 +28,86 @@
     </Style>
 
     <DataTemplate DataType="{x:Type chem:AtomProperties}" x:Key="AtomPropTemplate">
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <TextBlock Text="H" VerticalAlignment="Center" />
-            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                <TextBlock Text="↗" Foreground="#AAA" VerticalAlignment="Bottom"/>
-                <TextBlock Text="↘" Foreground="#AAA" VerticalAlignment="Top" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                <TextBlock Text="{Binding ImplicitHydrogenCount}" FontSize="10" VerticalAlignment="Top" Margin="0,0,0,2"
-                           ToolTip="Number of hydrogen atoms assumed to be attached."/>
-                <TextBlock Text="{Binding TotalHydrogenCount}" FontSize="10" VerticalAlignment="Bottom" Margin="0,2,0,0"
-                           ToolTip="Total hydrogen count"/>
-            </StackPanel>
-            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Degree}"
-                           Margin="10,0,0,2"
-                           FontSize="10"
-                           ToolTip="Degree: the number of other atoms directly bonded."/>
-                <TextBlock Text="{Binding Valence}" FontSize="10"
-                           VerticalAlignment="Bottom" Margin="10,2,0,0"
-                           ToolTip="Valence: number of bonds that can be formed." />
-            </StackPanel>
-            <Border BorderBrush="#444" BorderThickness="1"
-                    Margin="5,0,0,0" Padding="5" 
-                    MaxWidth="150"
-                    Visibility="{Binding HasTags, Converter={StaticResource BooleanToVisibility}}">
-                <ItemsControl ItemsSource="{Binding Tags}"
-                              VerticalAlignment="Center">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock FontSize="8">
-                                <Run Text=" • " Foreground="#888" /><Run  Text="{Binding Mode=OneWay}" Foreground="#AAA"/>
-                            </TextBlock>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Border BorderBrush="#444" BorderThickness="1" Padding="5"
+                    Background="#AAA" Grid.Column="0">
+                <Grid TextBlock.FontSize="10" TextBlock.Foreground="#222">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right">
+                        <Run Text="n" /><Run Text="H" BaselineAlignment="Subscript" FontSize="8" /><Run Text=" = "></Run>
+                    </TextBlock>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TotalHydrogenCount}" 
+                               FontSize="10"
+                               ToolTip="Total hydrogen count"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="CN = " HorizontalAlignment="Right" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Degree}"
+                               FontSize="10"
+                               ToolTip="Coordination number: the number of other atoms directly bonded."/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Val = " HorizontalAlignment="Right" />
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Valence}" FontSize="10"
+                               ToolTip="Valence: number of bonds that can be formed." />
 
+                </Grid>
             </Border>
-        </StackPanel>
+            <Border Grid.Column="1" Margin="2,0" Padding="5">
+                <WrapPanel Orientation="Vertical" MaxWidth="50" MaxHeight="50" TextBlock.FontSize="10"
+                           VerticalAlignment="Center">
+                    <TextBlock Text="⇐" Foreground="LightGreen" Margin="3,0"
+                               Visibility="{Binding IsHBondAcceptor, Converter={StaticResource BooleanToVisibility}}"
+                               ToolTip="H-Bond acceptor" />
+                    <TextBlock Text="⇒" Foreground="OrangeRed" Margin="3,0"
+                               Visibility="{Binding IsHBondDonor, Converter={StaticResource BooleanToVisibility}}" 
+                               ToolTip="H-Bond donor"/>
+                    <TextBlock Text="◉" Foreground="Yellow" Margin="3,0"
+                               Visibility="{Binding IsHeteroAtom, Converter={ StaticResource BooleanToVisibility}}" 
+                               ToolTip="Hetero atom" />
+                    <TextBlock Foreground="LightSkyBlue" Margin="3,0"
+                               Visibility="{Binding IsInRing, Converter={StaticResource BooleanToVisibility}}" 
+                               ToolTip="Ring atom">
+                        <Image Source="/Resources/Images/aromatic.png" Width="16" Height="16" />
+
+                        <Run Text="{Binding SmallestRingSize}" />
+                    </TextBlock>
+                    <TextBlock Margin="3,0"
+                               Visibility="{Binding IsAromatic, Converter={StaticResource BooleanToVisibility}}" 
+                               ToolTip="aromatic">
+                        <Run Text="◯" Foreground="Orange" /><Run Text="{Binding SmallestRingSize}" />
+                    </TextBlock>
+                    <TextBlock Visibility="{Binding Hybridization, Converter={StaticResource NotNullToVisibility}}"
+                               Foreground="Aqua"
+                               ToolTip="Hybridization">
+                        <Run Text="∷" /><Run Text="{Binding Hybridization}" />
+                    </TextBlock>
+                    <TextBlock Foreground="Red" 
+                               Visibility="{Binding PartialCharge, Converter={StaticResource NotNullToVisibility}}"
+                               ToolTip="Partial charge">
+                        <Run Text="±" /><Run Text="{Binding PartialCharge}" />
+                    </TextBlock>
+                </WrapPanel>
+            </Border>
+
+        </Grid>
     </DataTemplate>
 
     <DataTemplate DataType="{x:Type chem:BondEdge}">
         <StackPanel Orientation="Horizontal">
-            <Border Width="30" Height="30" 
+            <Border Width="40" Height="40" 
                     Margin="5,2,0,2"
-                    Background="White">
+                    Background="White"
+                    VerticalAlignment="Center">
                 <TextBlock Text="{Binding From}" Foreground="Black" 
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            FontSize="16"/>
@@ -85,32 +116,50 @@
             <TextBlock Text="{Binding Order, Converter={StaticResource BondToString}}"
                        FontSize="24" Width="40" TextAlignment="Center"
                        VerticalAlignment="Center"/>
-            <Border Width="30" Height="30" 
+            <Border Width="40" Height="40" 
                     Background="White">
                 <TextBlock Text="{Binding To}" Foreground="Black" 
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            FontSize="16"/>
 
             </Border>
-            <Border BorderBrush="#666" BorderThickness="1"
-                    Margin="5,2,0,2" Padding="5" 
-                    MaxWidth="150"
-                    Visibility="{Binding HasTags, Converter={StaticResource BooleanToVisibility}}">
-                <ItemsControl ItemsSource="{Binding Tags}"
-                              VerticalAlignment="Center">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock FontSize="10">
-                                <Run Text=" • " Foreground="#888" /><Run  Text="{Binding Mode=OneWay}"/>
-                            </TextBlock>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+            <Border Margin="2" Padding="5" Height="40"
+                    TextBlock.FontSize="10">
+                <WrapPanel Orientation="Vertical">
+                    <TextBlock Visibility="{Binding Length3D, Converter={StaticResource NotNullToVisibility}}"
+                               Margin="5,0,0,0">
+                        <Run Text="⇿ " /><Run Text="{Binding Length3D, StringFormat=N2}" />
+                    </TextBlock>
+                    <TextBlock Visibility="{Binding PolarityProxy, Converter={StaticResource NotNullToVisibility}}" 
+                               Foreground="LightGreen" Margin="5,0,0,0"
+                               ToolTip="electronegativity difference" >
+                        <Run Text="ΛEN" FontStyle="Italic" />     
+                        <Run Text="{Binding PolarityProxy, StringFormat=N2}"></Run>
+                    </TextBlock>
+                    <TextBlock Visibility="{Binding IsConjugated, Converter={StaticResource BooleanToVisibility}}" Text="∷" 
+                               Margin="5,0,0,0" ToolTip="conjugated"/>
+                    <TextBlock Visibility="{Binding IsRotatable, Converter={StaticResource BooleanToVisibility}}" Text="↷" FontSize="12" Margin="5,0,0,0"
+                               ToolTip="rotable"></TextBlock>
+                    <Image Visibility="{Binding IsAromatic, Converter={StaticResource BooleanToVisibility}}" 
+                           Source="/Resources/Images/aromatic.png" Width="16" Height="16" Margin="5,0,0,0"
+                           ToolTip="aromatic"/>
+                    <StackPanel Visibility="{Binding IsInRing, Converter={StaticResource BooleanToVisibility}}"
+                                Orientation="Horizontal" Margin="5,0,0,0">
+                        <Image Source="/Resources/Images/aromatic.png" Width="14" Height="14" 
+                               ToolTip="aromatic"/>
+                        <TextBlock Text="{Binding SmallestRingSize}" Margin="4,0,0,0"
+                                   Foreground="LightBlue" ToolTip="Smallest ring size"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5,0,0,0"
+                                Visibility="{Binding Stereo, Converter={StaticResource NotNullToVisibility}}">
+                        <Image Source="/Resources/Images/stereo.png" Width="32" Height="32" />
+                        <TextBlock Text="{Binding Stereo}" />
+                    </StackPanel>
+                    <TextBlock Foreground="Orange" Margin="5,0,0,0"
+                               ToolTip="Bond class">
+                        <Run Text="{Binding BondClass}"></Run>
+                    </TextBlock>
+                </WrapPanel>
 
             </Border>
         </StackPanel>
@@ -124,8 +173,10 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <TextBlock Text="{Binding Index}"
+                <TextBlock Text="{Binding Index}" Width="20"
                            Margin="5,0,0,0" VerticalAlignment="Center"
+                           TextAlignment="Center"
+                           FontWeight="Bold"
                            Foreground="#DDD" />
                 <Border Width="50" Height="50" Background="#FFF" Margin="10,2,2,2"
                         VerticalAlignment="Top">
@@ -155,17 +206,19 @@
                                    ToolTip="Formal charge"/>
                     </Grid>
                 </Border>
-                <ItemsControl ItemsSource="{Binding EmissionLines}" 
-                              VerticalAlignment="Center"
-                              Margin="5,0">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type spectrum:SpectralLine}">
-                            <TextBlock FontSize="10" Foreground="#AAA">
-                                <Run Text="{Binding WavelengthNm, Mode=OneWay, StringFormat=N1}" /><Run Text="nm" />
-                            </TextBlock>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <Border Padding="3" Background="#000" BorderBrush="#444" BorderThickness="1" Margin="2,0">
+                    <ItemsControl ItemsSource="{Binding EmissionLines}" 
+                                  VerticalAlignment="Center"
+                                  Margin="5,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type spectrum:SpectralLine}">
+                                <TextBlock FontSize="10" Foreground="{Binding WavelengthNm, Converter={StaticResource WavelengthToBrush}}">
+                                    <Run Text="{Binding WavelengthNm, Mode=OneWay, StringFormat=N1}" /><Run Text="nm" />
+                                </TextBlock>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
                 <ContentControl Content="{Binding AtomProps}" ContentTemplate="{StaticResource AtomPropTemplate}"
                                 VerticalAlignment="Center" Margin="5,0,0,0"/>
 
@@ -257,8 +310,7 @@
 
     <DataTemplate DataType="{x:Type chem:MoleculeModel}" x:Key="MoleculeDisplayTemplate">
         <GroupBox Style="{StaticResource GroupBoxStyle}"
-                  Visibility="{Binding Converter={StaticResource NotNullToVisibility}}"
-                  MaxWidth="330">
+                  Visibility="{Binding Converter={StaticResource NotNullToVisibility}}">
             <GroupBox.Header>
                 <TextBlock FontWeight="Bold" FontSize="24" Text="{Binding PreferredName}"
                            TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
@@ -278,8 +330,6 @@
                     <TextBlock Text="{Binding Ids.MolecularFormula}"
                                Margin="5,0,5,5"
                                FontSize="16"></TextBlock>
-                    <Image Grid.Row="1" Source="{Binding DepictionPng, Converter={StaticResource CroppedImage}}" Width="300"
-                           Stretch="Uniform"/>
                     <ContentControl Grid.Row="2" Content="{Binding Properties}" />
                     <Border Grid.Row="3" Style="{StaticResource SectionHeaderBorderStyle}">
                         <TextBlock Text="Atoms" Style="{StaticResource SectionHeaderStyle}" />

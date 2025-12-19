@@ -43,6 +43,19 @@ public class MoleculeSelectionViewModel : BindableBase, IDialogAware
     }
 
     private MoleculeModel? _molecule;
+    public MoleculeModel? Molecule
+    {
+        get => _molecule;
+        set => SetProperty(ref _molecule, value);
+    }
+
+    private bool _error;
+
+    public bool Error
+    {
+        get => _error;
+        set => SetProperty(ref _error, value);
+    }
 
     public MoleculeSelectionViewModel(PubChemClient pubChemClient)
     {
@@ -74,6 +87,7 @@ public class MoleculeSelectionViewModel : BindableBase, IDialogAware
         
     }
 
+
     private void Cancel()
     {
         RaiseRequestClose(new DialogResult(ButtonResult.Cancel));
@@ -95,25 +109,29 @@ public class MoleculeSelectionViewModel : BindableBase, IDialogAware
 
     private async Task Search()
     {
+        Error = false;
         Cids.Clear();
         try
         {
+            Molecule = null;
             Message = "Searching...";
             var result = await _pubChemClient.SearchCidsByNameAsync(Query);
             Cids = result.ToList();
             if (result.Count > 0)
             {
                 var cid = result.First();
-                _molecule = await _pubChemClient.GetMoleculeModelAsync(cid);
-                Message = $"The search resulted in the following hit: \"{_molecule.PreferredName}\" (CID = {cid})";
+                Molecule = await _pubChemClient.GetMoleculeModelAsync(cid);
+                Message = Molecule.PreferredName.Length < 30 ? Molecule.PreferredName : Molecule.Ids.MolecularFormula;
             }
             else
             {
-                Message = "No results found.";
+                Error = true;
+                Message = $"No results found for search term '{Query}'.";
             }
         }
         catch (HttpRequestException e)
         {
+            Error = true;
             Cids = new();
             Message = $"Error fetching data: {e.Message}";
         }

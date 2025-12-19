@@ -6,7 +6,9 @@
     <ApplicationIcon>chem.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Resources\Images\aromatic.png" />
     <None Remove="Resources\Images\Boltzmann.png" />
+    <None Remove="Resources\Images\stereo.png" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.json">
@@ -39,7 +41,13 @@
     <ProjectReference Include="..\Egami.Sequencer\Egami.Sequencer.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\Images\aromatic.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\Images\Boltzmann.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\stereo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
