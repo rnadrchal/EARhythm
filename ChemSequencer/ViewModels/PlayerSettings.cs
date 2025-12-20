@@ -146,6 +146,7 @@ public class PlayerSettings : BindableBase
             if (_traversalOptions.MaxRevisitsPerNode != value)
             {
                 _traversalOptions.MaxRevisitsPerNode = value;
+                RaisePropertyChanged(nameof(MaxRevisitsPerRow));
                 _player.UpdateSequence();
             }
         }
@@ -159,6 +160,7 @@ public class PlayerSettings : BindableBase
             if (_traversalOptions.BacktrackMinDepth != value)
             {
                 _traversalOptions.BacktrackMinDepth = value;
+                RaisePropertyChanged(nameof(BacktrackMinDepth));
                 _player.UpdateSequence();
             }
         }

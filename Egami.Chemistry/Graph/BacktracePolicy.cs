@@ -12,6 +12,6 @@ public enum BacktracePolicy
     OnlyInCycles,           // Rückwege nur, wenn der Node in einem Ring/Zyklus liegt
     [Display(Name = "Branching")]
     OnlyWhenBranching,      // Rückwege nur, wenn der Node/Parent eine Verzweigung hat
-    [Display(Name = "Depth dependent")]
+    [Display(Name = "Depth")]
     OnlyIfDepthAtLeast      // Rückwege nur ab einer Mindesttiefe
 }
