@@ -1,0 +1,123 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:Blattwerk.ViewModels"
+                    xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
+                    xmlns:views="clr-namespace:Blattwerk.Views"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
+    <converters:EqualityToBrushConverter x:Key="EqualityToBrush" />
+
+    <DataTemplate DataType="{x:Type vm:ImageConfiguration}">
+        <GroupBox Header="Image">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Round3DButton}"
+                        Width="24" Height="24"
+                        Background="{Binding Direction, Converter={StaticResource EqualityToBrush}, ConverterParameter=Ltr}"
+                        ToolTip="LTR"
+                        Command="{Binding SetDirectionCommand}" 
+                        CommandParameter="{x:Static vm:ImageDirection.Ltr}">
+                    
+                    <TextBlock Text="↦" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                </Button>
+                <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource Round3DButton}"
+                        Width="24" Height="24"
+                        Background="{Binding Direction, Converter={StaticResource EqualityToBrush}, ConverterParameter=Rtl}"
+                        ToolTip="RTL"
+                        Command="{Binding SetDirectionCommand}" 
+                        CommandParameter="{x:Static vm:ImageDirection.Rtl}">
+                    <TextBlock Text="↤" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                </Button>
+                <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Round3DButton}"
+                        Width="24" Height="24"
+                        Background="{Binding Direction, Converter={StaticResource EqualityToBrush}, ConverterParameter=TopDown}"
+                        Command="{Binding SetDirectionCommand}" 
+                        CommandParameter="{x:Static vm:ImageDirection.TopDown}"  
+                        ToolTip="Top down">
+                    <TextBlock Text="↧" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                </Button>
+                <Button Grid.Row="0" Grid.Column="3" Style="{StaticResource Round3DButton}"
+                        Width="24" Height="24"
+                        Background="{Binding Direction, Converter={StaticResource EqualityToBrush}, ConverterParameter=BottomUp}"
+                        Command="{Binding SetDirectionCommand}" 
+                        CommandParameter="{x:Static vm:ImageDirection.BottomUp}"  
+                        ToolTip="Bottom up">
+                    <TextBlock Text="↥" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                </Button>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4"
+                           HorizontalAlignment="Stretch" Padding="5"
+                           Margin="0,5"
+                           Style="{StaticResource DigitalTextStyle}">
+                    <Run Text="Position" />
+                    <Run Text="{Binding ColumnOrRow, Mode=OneWay}" />
+                    <Run Text=" - "></Run>
+                    <Run Text="{Binding SegmentCount, Mode=OneWay}" />
+                    <Run Text="Segments" />
+                </TextBlock>
+
+                <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Width="Auto" Height="80"
+                                           HorizontalAlignment="Center"
+                                           Minimum="0" Maximum="{Binding MaxPosition}"
+                                           Value="{Binding ColumnOrRow, Mode=TwoWay}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#444"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="100"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden">
+                    <TextBlock Text="P" Foreground="Red" />
+                </syncfusion:SfRadialSlider>
+
+                <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Width="Auto" Height="80"
+                                           Minimum="0" Maximum="4" HorizontalAlignment="Center"
+                                           Value="{Binding SegmentCountIndex, Mode=TwoWay}"
+                                           OuterRimRadiusFactor="0.6"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#444"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.4"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                           LabelVisibility="Hidden">
+                    <TextBlock Text="S" Foreground="Red" />
+                </syncfusion:SfRadialSlider>
+
+                <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="4"
+                        BorderBrush="#666" BorderThickness="1">
+                    <Grid>
+                        <Image x:Name="Image"
+                               Source="{Binding Bitmap}" Width="256" />
+
+                        <views:ImageOverlayView Source="{Binding Bitmap}"
+                                                Direction="{Binding Direction}"
+                                                ColumnOrRow="{Binding ColumnOrRow}"
+                                                SegmentCount="{Binding SegmentCount}"
+                                                Width="256"
+                                                Opacity="0.5"/>
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </GroupBox>
+    </DataTemplate>
+</ResourceDictionary>

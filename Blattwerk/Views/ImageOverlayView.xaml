@@ -1,0 +1,11 @@
+﻿<UserControl x:Class="Blattwerk.Views.ImageOverlayView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Blattwerk.ViewModels"
+             xmlns:local="clr-namespace:Blattwerk.Views">
+    <Grid>
+        <!-- Image mit Overlay-Canvas oben drauf -->
+        <Image x:Name="PART_Image" Stretch="Uniform" />
+        <Canvas x:Name="PART_Overlay" IsHitTestVisible="False" />
+    </Grid>
+</UserControl>
