@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows7.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>chem.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Resources\Images\aromatic.png" />
+    <None Remove="Resources\Images\Boltzmann.png" />
+    <None Remove="Resources\Images\stereo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="chem.ico" />
+  </ItemGroup>
+  <ItemGroup>
+	  <PackageReference Include="Material.Icons.WPF" Version="2.4.1" />
+	  <PackageReference Include="Melanchall.DryWetMidi" Version="8.0.2" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.10" />
+	  <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+	  <PackageReference Include="Prism.Unity" Version="9.0.537" />
+	  <PackageReference Include="Syncfusion.Licensing" Version="31.2.2" />
+	  <PackageReference Include="Syncfusion.SfBusyIndicator.WPF" Version="31.2.2" />
+	  <PackageReference Include="Syncfusion.SfChart.WPF" Version="31.2.2" />
+	  <PackageReference Include="Syncfusion.SfGauge.WPF" Version="31.2.2" />
+	  <PackageReference Include="Syncfusion.SfInput.WPF" Version="31.2.2" />
+	  <PackageReference Include="Syncfusion.SfRadialMenu.WPF" Version="31.2.2" />
+	  <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="31.2.2" />
+	  <PackageReference Include="Syncfusion.Shared.WPF" Version="31.2.2" />
+	  <PackageReference Include="Syncfusion.Themes.FluentDark.WPF" Version="31.2.2" />
+	  <PackageReference Include="Syncfusion.Tools.WPF" Version="31.2.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Egami.Chemistry\Egami.Chemistry.csproj" />
+    <ProjectReference Include="..\Egami.Rhythm.Midi\Egami.Rhythm.Midi.csproj" />
+    <ProjectReference Include="..\Egami.Sequencer.UI\Egami.Sequencer.UI.csproj" />
+    <ProjectReference Include="..\Egami.Sequencer\Egami.Sequencer.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Fonts\LEDREALI.TTF">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Fonts\LED_REAL.TTF">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Fonts\LED_REAL.TXT">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Fonts\LED_SAS.TTF">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\aromatic.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\Boltzmann.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\stereo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+</Project>

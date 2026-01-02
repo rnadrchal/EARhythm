@@ -1,0 +1,472 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:ChemSequencer.ViewModels"
+                    xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+                    xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF">
+    <converters:BooleanToOpacityConverter x:Key="BooleanToOpacity" />
+    <converters:StringConverter x:Key="EnumToDouble" />
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
+    <converters:EnumDisplayNameConverter x:Key="EnumDisplayName" />
+    <converters:BooleanToStringConverter x:Key="BooleanToString" />
+    <converters:AddConverter x:Key="Add" />
+
+    <Style TargetType="TextBlock" x:Key="TopLabelStyle">
+        <Setter Property="Foreground" Value="#AAA" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,0,-10" />
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="BottomLabelStyle">
+        <Setter Property="Foreground" Value="#AAA" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="DigitalTextStyle">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontFamily" Value="{DynamicResource LED_Real}" />
+        <Setter Property="Foreground" Value="OrangeRed" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+    </Style>
+
+    <DataTemplate DataType="{x:Type vm:MoleculePlayer}">
+        <Grid VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Ellipse Grid.Column="0" Style="{StaticResource LedEllipseStyle}" Fill="OrangeRed" Stroke="DarkRed"
+                     Opacity="{Binding LedOn, Converter={StaticResource BooleanToOpacity}}"
+                     Margin="5,0,10,0" VerticalAlignment="Center"/>
+
+            <ItemsControl Grid.Column="1" ItemsSource="{Binding StepLeds}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:StepLed}">
+                        <StackPanel Orientation="Vertical" Margin="2,0">
+                            <Ellipse Style="{StaticResource LedEllipseStyle}"
+                                     Opacity="{Binding IsCurrent, Converter={StaticResource BooleanToOpacity}}"
+                                     Width="14" Height="14" />
+                            <TextBlock Text="{Binding Index, ConverterParameter=1, Converter={StaticResource Add}}" HorizontalAlignment="Center"
+                                       Foreground="{Binding IsCurrent, Converter={StaticResource BooleanToBrush}, ConverterParameter=LightGreen}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:PlayerSettings}">
+        <WrapPanel Orientation="Horizontal">
+            <GroupBox Header="Division">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border  Grid.Row="0" Grid.Column="0" Background="#200" Padding="3">
+                        <TextBlock Style="{StaticResource DigitalTextStyle}"
+                                   Text="{Binding Division, Converter={StaticResource EnumDisplayName}}">
+                        </TextBlock>
+                    </Border>
+
+                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Width="100" Height="80"
+                                               Minimum="0" Maximum="10"
+                                               Value="{Binding DivisionAsInt, Mode=TwoWay}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#444"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="1"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden">
+                    </syncfusion:SfRadialSlider>
+                    <Border  Grid.Row="0" Grid.Column="1" Background="#200" Padding="3" MinWidth="30">
+                        <TextBlock Style="{StaticResource DigitalTextStyle}">
+                            <Run Text="{Binding Compressed, Converter={StaticResource BooleanToString}, ConverterParameter=C, Mode=OneWay}" />
+                            <Run Text="{Binding Quantize, Converter={StaticResource BooleanToString}, ConverterParameter=Q, Mode=OneWay}"></Run>
+                        </TextBlock>
+                    </Border>
+                    <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1"
+                                VerticalAlignment="Center">
+                        <Button Style="{StaticResource Round3DButton}"
+                                Margin="0,0,0,5"
+                                Width="24" Height="24"
+                                Background="{Binding Compressed, Converter={StaticResource BooleanToBrush}}" 
+                                HorizontalAlignment="Center"
+                                Command="{Binding ToggleCompressedCommand}">
+                            <TextBlock Grid.Column="0" Grid.Row="3" Text="C" 
+                                       FontSize="10" Margin="0,0,3,2" />
+                        </Button>
+                        <Button Style="{StaticResource Round3DButton}"
+                                Margin="0,5,0,0"
+                                Width="24" Height="24"
+                                Background="{Binding Quantize, Converter={StaticResource BooleanToBrush}}" 
+                                HorizontalAlignment="Center"
+                                Command="{Binding ToggleQuantizeCommand}">
+                            <TextBlock Grid.Column="0" Grid.Row="3" Text="Q" 
+                                       FontSize="10" Margin="0,0,3,2" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+            <GroupBox Header="Traversal">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border  Grid.Row="0" Grid.Column="0" Background="#200" Padding="3">
+                        <TextBlock Style="{StaticResource DigitalTextStyle}"
+                                   Text="{Binding TraversalMode, Converter={StaticResource EnumDisplayName}}">
+                        </TextBlock>
+                    </Border>
+                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Width="80" Height="80"
+                                               Margin="0,-10" Padding="0"
+                                               Minimum="0" Maximum="2"
+                                               Value="{Binding TraversalModeValue, Mode=TwoWay}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#444"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="1"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden">
+                    </syncfusion:SfRadialSlider>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource BottomLabelStyle}"
+                               Text="Strategy" />
+
+                    <Border  Grid.Row="0" Grid.Column="1" Background="#200" Padding="3">
+                        <TextBlock Grid.Column="1" Grid.Row="0" Style="{StaticResource DigitalTextStyle}"
+                                   Text="{Binding MaxRevisitsPerRow}" />
+                    </Border>
+
+                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="1" Width="80" Height="80"
+                                               Margin="0,-10" Padding="0"
+                                               Minimum="1" Maximum="10"
+                                               Value="{Binding MaxRevisitsPerRow, Mode=TwoWay}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#444"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="1"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden">
+                    </syncfusion:SfRadialSlider>
+
+                    <TextBlock Grid.Row="2" Grid.Column="1"  Style="{StaticResource BottomLabelStyle}"
+                               Text="Revisits" />
+
+                    <Border  Grid.Row="0" Grid.Column="2" Background="#200" Padding="3">
+                        <TextBlock Grid.Column="1" Grid.Row="0" Style="{StaticResource DigitalTextStyle}"
+                                   Text="{Binding Polyphonic, Converter={StaticResource BooleanToString}, ConverterParameter=P|M}" />
+                    </Border>
+                    <Button Grid.Column="2" Grid.Row="1" Style="{StaticResource Round3DButton}"
+                            VerticalAlignment="Center"
+                            Width="24" Height="24"
+                            Background="{Binding Polyphonic, Converter={StaticResource BooleanToBrush}}"
+                            Command="{Binding TogglePolyphonicCommand}">
+                        <TextBlock Text="P"></TextBlock>
+                    </Button>
+
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Column="3" Grid.Row="0" Header="Backtracking">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Ellipse Grid.Row="0" Style="{StaticResource LedEllipseStyle}"
+                             Opacity="{Binding MarkBacktracking, Converter={StaticResource BooleanToOpacity}}" />
+                    <Button Grid.Column="0" Grid.Row="1" Style="{StaticResource Round3DButton}"
+                            Width="24" Height="24"
+                            Background="{Binding MarkBacktracking, Converter={StaticResource BooleanToBrush}, ConverterParameter=DarkGreen}"
+                            HorizontalAlignment="Center"
+                            Command="{Binding ToggleMarkBacktrackingCommand}"
+                            ToolTip="Mark backtracking on/off.">
+                        <TextBlock Text="▷" VerticalAlignment="Center" Margin="0,0,0,3" Opacity="0.5" />
+                    </Button>
+
+
+                    <Border  Grid.Row="0" Grid.Column="1" Background="#200" Padding="3">
+						<TextBlock  Style="{StaticResource DigitalTextStyle}">
+                            <Run Text="S" /> <Run Text="{Binding BacktrackVelocityScale, StringFormat=N1}"></Run>
+                        </TextBlock>
+                    </Border>
+                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="1" Width="80" Height="80"
+                                               IsEnabled="{Binding MarkBacktracking}"
+                                               Margin="0,-10" Padding="0"
+                                               Minimum="0" Maximum="1"
+                                               Value="{Binding BacktrackVelocityScale, Mode=TwoWay}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#444"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               ToolTip="Backtrack velocity scaling.">
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Row="2" Grid.Column="1"  Style="{StaticResource BottomLabelStyle}"
+                               Text="Velocity" />
+
+
+					<Border  Grid.Row="0" Grid.Column="2" Background="#200" Padding="3" MinWidth="30 ">
+                        <TextBlock Visibility="{Binding BacktrackInvertPitchbend, Converter={StaticResource BooleanToVisibility}}" 
+                                   Style="{StaticResource DigitalTextStyle}" Text="1/X" />
+                    </Border>
+                    <Button Grid.Row="1" Grid.Column="2" Style="{StaticResource Round3DButton}"
+                            IsEnabled="{Binding MarkBacktracking}"
+                            Width="24" Height="24"
+                            Background="{Binding BacktrackInvertPitchbend, Converter={StaticResource BooleanToBrush}}"
+                            HorizontalAlignment="Center"
+                            Command="{Binding ToggleBacktrackInvertPitchbendCommand}"
+                            ToolTip="Invert pitchbend when backtracking on/off.">
+                        <TextBlock Grid.Column="0" Grid.Row="3" Text="I"
+                                   FontSize="10" Margin="0,0,3,2" />
+                    </Button>
+
+					<Border  Grid.Row="0" Grid.Column="3" Background="#200" Padding="3">
+                        <TextBlock Style="{StaticResource DigitalTextStyle}">
+                            <Run Text="OFF"></Run>
+                            <Run Text="{Binding BacktrackPitchbendOffset}" />
+                        </TextBlock>
+                    </Border>
+					<syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="3" Width="80" Height="80"
+                                               Margin="0,-10" Padding="0"
+                                               IsEnabled="{Binding MarkBacktracking}"
+                                               Minimum="0" Maximum="127"
+                                               Value="{Binding BacktrackPitchbendOffset, Mode=TwoWay}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#444"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               ToolTip="Backtrack pitchbend offset">
+                    </syncfusion:SfRadialSlider>
+
+					<TextBlock Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="2" Text="Pitchbend"
+                               Style="{StaticResource BottomLabelStyle}"></TextBlock>
+
+
+					<Border  Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="2" Background="#200" Padding="3">
+                        <TextBlock Style="{StaticResource DigitalTextStyle}">
+                            <Run Text="CC"></Run> <Run Text="{Binding BacktrackMarkerCcNumber}" />
+                            <Run Text="-" /> <Run Text="{Binding BacktrackMarkerCcValue}"></Run>
+                        </TextBlock>
+                    </Border>
+
+					<syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="4" Width="80" Height="80"
+                                               Margin="0,-10" Padding="0"
+                                               IsEnabled="{Binding MarkBacktracking}"
+                                               Minimum="0" Maximum="127"
+                                               Value="{Binding BacktrackMarkerCcNumber, Mode=TwoWay}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#444"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden"
+                                               ToolTip="Backtrack marker CC value.">
+                    </syncfusion:SfRadialSlider>
+					<TextBlock Grid.Column="4" Grid.Row="2" Grid.ColumnSpan="2" Text="CC Number | Value"
+                               Style="{StaticResource BottomLabelStyle}"></TextBlock>
+
+                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="5" Width="80" Height="80"
+                                               Margin="0,-10" Padding="0"
+                                               IsEnabled="{Binding MarkBacktracking}"
+                                               Minimum="0" Maximum="127"
+                                               Value="{Binding BacktrackMarkerCcValue, Mode=TwoWay}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#444"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="16"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                               LabelVisibility="Hidden"
+                                               ToolTip="Backtrack marker CC value.">
+                    </syncfusion:SfRadialSlider>
+                    <Border  Grid.Row="0" Grid.Column="6" Background="#200" Padding="3">
+                        <TextBlock Style="{StaticResource DigitalTextStyle}"
+                                   Text="{Binding BacktracePolicy, Converter={StaticResource EnumDisplayName}}">
+                        </TextBlock>
+                    </Border>
+                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="6" Width="80" Height="80"
+                                               IsEnabled="{Binding MarkBacktracking}"
+                                               Margin="0,-10" Padding="0"
+                                               Minimum="0" Maximum="4"
+                                               Value="{Binding BacktracePolicyInt, Mode=TwoWay}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#444"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="1"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden">
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Grid.Column="6" Grid.Row="2" Text="Policy"
+                               Style="{StaticResource BottomLabelStyle}"/>
+
+                    <Border  Grid.Row="0" Grid.Column="7" Background="#200" Padding="3">
+                        <TextBlock Style="{StaticResource DigitalTextStyle}"
+                                   Text="{Binding BacktrackMinDepth}">
+                        </TextBlock>
+                    </Border>
+                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="7" Width="80" Height="80"
+                                               IsEnabled="{Binding MarkBacktracking}"
+                                               Margin="0,-10" Padding="0"
+                                               Minimum="2" Maximum="10"
+                                               Value="{Binding BacktrackMinDepth, Mode=TwoWay}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#444"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="1"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
+                                               LabelVisibility="Hidden">
+                    </syncfusion:SfRadialSlider>
+
+                    <TextBlock Grid.Column="7" Grid.Row="2" Text="Depth"
+                               Style="{StaticResource BottomLabelStyle}"/>
+
+
+</Grid>
+            </GroupBox>
+
+            <GroupBox Header="Step Generation">
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Border  Grid.Row="0" Grid.Column="0" Background="#200" Padding="3">
+                        <TextBlock Style="{StaticResource DigitalTextStyle}"
+                                   Text="{Binding PitchSelect, Converter={StaticResource EnumDisplayName}}"/>
+                    </Border>
+					<syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Height="80" Width="80"
+                                               Margin="0,-10" Padding="0"
+                                               Minimum="0" Maximum="5"
+                                               Value="{Binding PitchSelectInt, Mode=TwoWay}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#444"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="1"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                               LabelVisibility="Hidden"
+                                               ToolTip="Backtrack pitchbend offset" />
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="Select"
+                               Style="{StaticResource BottomLabelStyle}"></TextBlock>
+					<Border  Grid.Row="0" Grid.Column="1" Background="#200" Padding="3">
+						<TextBlock Style="{StaticResource DigitalTextStyle}"
+                                   Text="{Binding PitchRange, Converter={StaticResource EnumDisplayName}}"/>
+					</Border>
+					<syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="1" Height="80" Width="80"
+                                               Margin="0,-10" Padding="0"
+                                               Minimum="0" Maximum="11"
+                                               Value="{Binding PitchRangeInt, Mode=TwoWay}"
+                                               OuterRimRadiusFactor="0.6"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#444"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.4"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="1"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.6" PointerRadiusFactor="0.5"
+                                               LabelVisibility="Hidden"
+                                               ToolTip="Backtrack pitchbend offset" />
+					<TextBlock Grid.Column="1" Grid.Row="2" Text="Range"
+                               Style="{StaticResource BottomLabelStyle}"></TextBlock>
+				</Grid>
+            </GroupBox>
+        </WrapPanel>
+    </DataTemplate>
+
+
+</ResourceDictionary>

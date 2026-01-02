@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="element_top3_visible_lines.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="element_top3_visible_lines.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="PubChem\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NCDK" Version="1.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Egami.Sequencer\Egami.Sequencer.csproj" />
+  </ItemGroup>
+
+</Project>

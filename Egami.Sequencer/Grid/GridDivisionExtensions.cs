@@ -1,17 +1,30 @@
-﻿namespace Egami.Sequencer.Grid;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Egami.Sequencer.Grid;
 
 public enum GridDivision
 {
+    [Display(Name = "32n")]
     ThirtySecond,
+    [Display(Name = "16nt")]
     SixteenthTriplet,
-    Sixteenth,      
-    Eighth,        
+    [Display(Name = "16n")]
+    Sixteenth,    
+    [Display(Name = "8nt")]
     EighthTriplet, 
-    Quarter,      
+    [Display(Name = "8n")]
+    Eighth,  
+    [Display(Name = "4nt")]
     QuarterTriplet,
-    Half,          
+    [Display(Name = "4n")]
+    Quarter,  
+    [Display(Name = "2nt")]
     HalfTriplet,
-    Whole,         
+    [Display(Name = "2n")]
+    Half,    
+    [Display(Name = "1n")]
+    Whole,      
+    [Display(Name = "2 bars")]
     DoubleWhole   
 }
 

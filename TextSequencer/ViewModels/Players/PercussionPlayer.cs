@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Egami.Rhythm.Midi;
 using Egami.Sequencer;
+using Egami.Sequencer.Common;
 using Egami.Sequencer.Grid;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
