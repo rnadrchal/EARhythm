@@ -10,6 +10,7 @@
     <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
     <converters:EnumDisplayNameConverter x:Key="EnumDisplayName" />
     <converters:BooleanToStringConverter x:Key="BooleanToString" />
+    <converters:AddConverter x:Key="Add" />
 
     <Style TargetType="TextBlock" x:Key="TopLabelStyle">
         <Setter Property="Foreground" Value="#AAA" />
@@ -50,7 +51,7 @@
                             <Ellipse Style="{StaticResource LedEllipseStyle}"
                                      Opacity="{Binding IsCurrent, Converter={StaticResource BooleanToOpacity}}"
                                      Width="14" Height="14" />
-                            <TextBlock Text="{Binding Index}" HorizontalAlignment="Center"
+                            <TextBlock Text="{Binding Index, ConverterParameter=1, Converter={StaticResource Add}}" HorizontalAlignment="Center"
                                        Foreground="{Binding IsCurrent, Converter={StaticResource BooleanToBrush}, ConverterParameter=LightGreen}" />
                         </StackPanel>
                     </DataTemplate>
@@ -78,10 +79,13 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource TopLabelStyle}"
-                               Text="{Binding Division, Converter={StaticResource EnumDisplayName}}" />
+                    <Border  Grid.Row="0" Grid.Column="0" Background="#200" Padding="3">
+                        <TextBlock Style="{StaticResource DigitalTextStyle}"
+                                   Text="{Binding Division, Converter={StaticResource EnumDisplayName}}">
+                        </TextBlock>
+                    </Border>
 
-                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Width="100" Height="80"
+                    <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Width="100" Height="80"
                                                Minimum="0" Maximum="10"
                                                Value="{Binding DivisionAsInt, Mode=TwoWay}"
                                                OuterRimRadiusFactor="0.6"
@@ -96,7 +100,13 @@
                                                TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
                                                LabelVisibility="Hidden">
                     </syncfusion:SfRadialSlider>
-                    <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2"
+                    <Border  Grid.Row="0" Grid.Column="1" Background="#200" Padding="3" MinWidth="30">
+                        <TextBlock Style="{StaticResource DigitalTextStyle}">
+                            <Run Text="{Binding Compressed, Converter={StaticResource BooleanToString}, ConverterParameter=C, Mode=OneWay}" />
+                            <Run Text="{Binding Quantize, Converter={StaticResource BooleanToString}, ConverterParameter=Q, Mode=OneWay}"></Run>
+                        </TextBlock>
+                    </Border>
+                    <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1"
                                 VerticalAlignment="Center">
                         <Button Style="{StaticResource Round3DButton}"
                                 Margin="0,0,0,5"
@@ -252,7 +262,7 @@
                                Text="Velocity" />
 
 
-					<Border  Grid.Row="0" Grid.Column="2" Background="#200" Padding="3">
+					<Border  Grid.Row="0" Grid.Column="2" Background="#200" Padding="3" MinWidth="30 ">
                         <TextBlock Visibility="{Binding BacktrackInvertPitchbend, Converter={StaticResource BooleanToVisibility}}" 
                                    Style="{StaticResource DigitalTextStyle}" Text="1/X" />
                     </Border>

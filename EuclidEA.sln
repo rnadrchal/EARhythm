@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChemSequencer", "ChemSequen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Egami.Chemistry", "Egami.Chemistry\Egami.Chemistry.csproj", "{444E4798-37EE-42D0-82FA-81454F358511}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blattwerk", "Blattwerk\Blattwerk.csproj", "{974D4F38-F41F-4358-99B8-C88F60940120}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,6 +125,10 @@ Global
 		{444E4798-37EE-42D0-82FA-81454F358511}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{444E4798-37EE-42D0-82FA-81454F358511}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{444E4798-37EE-42D0-82FA-81454F358511}.Release|Any CPU.Build.0 = Release|Any CPU
+		{974D4F38-F41F-4358-99B8-C88F60940120}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{974D4F38-F41F-4358-99B8-C88F60940120}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{974D4F38-F41F-4358-99B8-C88F60940120}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{974D4F38-F41F-4358-99B8-C88F60940120}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

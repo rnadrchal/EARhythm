@@ -15,7 +15,7 @@ public sealed record MoleculeSequenceBuildOptions(
 
     // --- Backtracking-Marker (nur relevant für DFS mit PlayBacktrackEdges=true) ---
     bool MarkBacktracking = true,
-    int BacktrackMarkerCcNumber = 119, // 0..127
+    int BacktrackMarkerCcNumber = 11, // 0..127
     SevenBitNumber BacktrackMarkerCcValue = default, // default -> 127 (siehe ctor unten)
     double BacktrackVelocityScale = 0.85, // 0..1 (0.85 = leicht leiser)
     bool BacktrackInvertPitchbend = false, // invertiert PB für Backtrack-Schritte
@@ -234,14 +234,22 @@ public sealed class MoleculeSequenceBuilder
                 pitchBend = pb;
             }
         }
+        else
+        {
+            if (!packet.IgnoreCc && opt.BacktrackMarkerCcNumber is >= 0 and <= 127)
+            {
+                cc[opt.BacktrackMarkerCcNumber] = (SevenBitNumber)0;
+            }
+
+        }
 
         // 3) Ramps: optional auch Backtrack-Invert/Offset auf PitchbendRamp anwenden
         GridPitchbendRamp? pbRamp = packet.PitchbendRamp is null
-            ? null
-            : new GridPitchbendRamp(
-                StartValue: packet.PitchbendRamp.StartValue,
-                EndValue: packet.PitchbendRamp.EndValue,
-                DurationPulses: packet.PitchbendRamp.DurationPulses);
+                ? null
+                : new GridPitchbendRamp(
+                    StartValue: packet.PitchbendRamp.StartValue,
+                    EndValue: packet.PitchbendRamp.EndValue,
+                    DurationPulses: packet.PitchbendRamp.DurationPulses);
 
         if (isBacktrack && opt.MarkBacktracking && pbRamp is not null && !packet.IgnorePitchbend)
         {

@@ -85,8 +85,11 @@ public sealed class GridSequencePlayerV2 : IDisposable
         }
     }
 
-    public void Start(bool resetPosition = true)
+    public void Start(bool resetPosition = true, bool alignToNextGrid = false)
     {
+        IReadOnlyList<AtomNode> atomsToNotify = Array.Empty<AtomNode>();
+        IReadOnlyList<BondEdge> bondsToNotify = Array.Empty<BondEdge>();
+
         lock (_sync)
         {
             if (_isPlaying) return;
@@ -98,7 +101,22 @@ public sealed class GridSequencePlayerV2 : IDisposable
             // Safety: keine hängenden Noten
             StopAllNotes_NoLock();
             _activeRampJobs.Clear();
+
+            // Wenn nicht auf nächsten Grid-Tick ausrichten, dann sofort Steps am aktuellen Index starten
+            if (!alignToNextGrid && _stepsByStart.TryGetValue(_currentStepIndex, out var steps))
+            {
+                foreach (var step in steps)
+                {
+                    StartStep(step);
+                }
+            }
+
+            // Kopiere aktive Entities für Event (wird außerhalb des Locks gefeuert)
+            (atomsToNotify, bondsToNotify) = GetActiveEntities_Copied_NoLock();
         }
+
+        // Event außerhalb des Locks feuern (UI darf reagieren)
+        RaiseActivationChanged(atomsToNotify, bondsToNotify);
     }
 
     public void Stop()

@@ -35,6 +35,11 @@ public class PlayerSettings : BindableBase
         ToggleMarkBacktrackingCommand = new DelegateCommand(() => MarkBacktracking = !MarkBacktracking);
         ToggleBacktrackInvertPitchbendCommand =
             new DelegateCommand(() => BacktrackInvertPitchbend = !BacktrackInvertPitchbend);
+        _buildOptions.MarkBacktracking = true;
+        _buildOptions.BacktrackInvertPitchbend = true;
+        _buildOptions.BacktrackPitchbendOffset = 127;
+        _buildOptions.BacktrackMarkerCcNumber = 11;
+        _buildOptions.BacktrackMarkerCcValue = (SevenBitNumber)127;
     }
 
     public GridDivision Division => (GridDivision)_divisionAsIntAsInt;

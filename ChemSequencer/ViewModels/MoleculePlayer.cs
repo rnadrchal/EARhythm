@@ -57,7 +57,7 @@ public class MoleculePlayer : BindableBase
         _packetSettings = new PacketSettings();
         _traversalOptions = new TraversalOptions(
             MaxRevisitsPerNode: 2,
-            BacktrackPolicy: BacktracePolicy.OnlyInCycles);
+            BacktrackPolicy: BacktracePolicy.Always);
         _buildOptions = new MoleculeSequenceBuildOptions(
             Mode: TraversalMode.DfsEdgeVisited,
             TraversalOptions: _traversalOptions);
@@ -74,6 +74,7 @@ public class MoleculePlayer : BindableBase
 
     private void OnActiveStepChanged(object sender, SequenceActivationChangedEventArgs e)
     {
+        if (_model == null) return;
         Application.Current.Dispatcher.Invoke(() =>
         {
             _moleculePlayback.UpdateFromSequence(_model.Graph, e.ActiveAtoms.Select(a => a.Index));
