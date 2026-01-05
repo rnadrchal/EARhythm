@@ -1,0 +1,130 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:Blattwerk.ViewModels"
+                    xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
+    <converters:BooleanToBrushConverter x:Key="BooleanToBrush" />
+    <converters:EnumDisplayNameConverter x:Key="DisplayName" />
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    <DataTemplate DataType="{x:Type vm:TrackConfiguration}">
+        <StackPanel Orientation="Horizontal">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Round3DButton}"
+                        Height="24" Width="24"
+                        Background="{Binding IsPitchTrack, Converter={StaticResource BooleanToBrush}, ConverterParameter=Red}"
+                        Command="{Binding SetConfigurationCommand}" CommandParameter="{x:Static vm:TrackConfigurationType.Pitch}"
+                        Margin="2,2,2,0">
+                    <TextBlock Text="P" Margin="0,0,0,3"></TextBlock>
+                </Button>
+                <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource Round3DButton}"
+                        Height="24" Width="24"
+                        Background="{Binding IsVelocityTrack, Converter={StaticResource BooleanToBrush}, ConverterParameter=Green}"
+                        Command="{Binding SetConfigurationCommand}" CommandParameter="{x:Static vm:TrackConfigurationType.Velocity}"
+                        Margin="2,3,2,2">
+                    <TextBlock Text="V" Margin="0,0,0,3"></TextBlock>
+                </Button>
+                <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource Round3DButton}"
+                        Height="24" Width="24"
+                        Background="{Binding IsPitchbendTrack, Converter={StaticResource BooleanToBrush}, ConverterParameter=DarkRed}"
+                        Command="{Binding SetConfigurationCommand}" CommandParameter="{x:Static vm:TrackConfigurationType.Pitchbend}"
+                        Margin="2,2,2,0">
+                    <TextBlock Text="B" Margin="0,0,0,3"></TextBlock>
+                </Button>
+                <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource Round3DButton}"
+                        Height="24" Width="24"
+                        Background="{Binding IsControlChangeTrack, Converter={StaticResource BooleanToBrush}, ConverterParameter=DarkCyan}"
+                        Command="{Binding SetConfigurationCommand}" CommandParameter="{x:Static vm:TrackConfigurationType.ControlChange}"
+                        Margin="2,3,2,2">
+                    <TextBlock Text="C" Margin="0,0,0,3"></TextBlock>
+                </Button>
+            </Grid>
+            <Grid Margin="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Background="Red" Padding="2">
+                    <TextBlock Text="Pitch" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock.LayoutTransform>
+                            <RotateTransform Angle="-90"></RotateTransform>
+                        </TextBlock.LayoutTransform>
+                    </TextBlock>
+                </Border>
+
+                <Grid Grid.Column="1" 
+                      Visibility="{Binding IsPitchTrack, Converter={StaticResource BooleanToVisibility}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Vertical" Grid.Column="0">
+                        <Border Padding="2" Background="#400">
+                            <TextBlock Style="{StaticResource DigitalTextStyle}"
+                                       Text="{Binding PitchType, Converter={StaticResource DisplayName}}" />
+                        </Border>
+                        <syncfusion:SfRadialSlider Width="40" Height="40"
+                                                   Minimum="0" Maximum="5" HorizontalAlignment="Center"
+                                                   Value="{Binding PitchTypeIndex, Mode=TwoWay}"
+                                                   OuterRimRadiusFactor="0.9"
+                                                   OuterRimStroke="#444"
+                                                   OuterRimStrokeThickness="3"
+                                                   InnerRimFill="#444"
+                                                   InnerRimStroke="#444"
+                                                   InnerRimRadiusFactor="0.7"
+                                                   StartAngle="135" EndAngle="405"
+                                                   TickFrequency="1"
+                                                   TickVisibility="Visible"
+                                                   TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                                   LabelVisibility="Collapsed">
+                            <TextBlock Text="{Binding SegmentCount}" />
+                        </syncfusion:SfRadialSlider>
+                    </StackPanel>
+                    <ContentControl Grid.Column="1" Content="{Binding Pitch}"></ContentControl>
+                </Grid>
+                
+                <Border Grid.Column="2" Background="Green" Padding="2">
+                    <TextBlock Text="Velocity" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock.LayoutTransform>
+                            <RotateTransform Angle="-90" />
+                        </TextBlock.LayoutTransform>
+                    </TextBlock>
+                </Border>
+
+                <ContentControl Grid.Column="3" Content="{Binding Velocity}"
+                                Visibility="{Binding IsVelocityTrack, Converter={StaticResource BooleanToVisibility}}"></ContentControl>
+                <Border Grid.Column="4" Background="DarkRed" Padding="2">
+                    <TextBlock Text="Pitchbend" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock.LayoutTransform>
+                            <RotateTransform Angle="-90"></RotateTransform>
+                        </TextBlock.LayoutTransform>
+                    </TextBlock>
+                </Border>
+                <ContentControl Grid.Column="5" Content="{Binding Pitchbend}"
+                                Visibility="{Binding IsPitchbendTrack, Converter={StaticResource BooleanToVisibility}}" />
+                <Border Grid.Column="6" Background="DarkCyan" Padding="2">
+                    <TextBlock Text="CC" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock.LayoutTransform>
+                            <RotateTransform Angle="-90"></RotateTransform>
+                        </TextBlock.LayoutTransform>
+                    </TextBlock>
+                </Border>
+                <ContentControl Grid.Column="7" Content="{Binding ControlChange}"
+                                Visibility="{Binding IsControlChangeTrack, Converter={StaticResource BooleanToVisibility}}" />
+            </Grid>
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

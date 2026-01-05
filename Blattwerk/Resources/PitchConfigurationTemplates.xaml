@@ -1,0 +1,129 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:Blattwerk.ViewModels"
+                    xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
+                    xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
+
+    <converters:EnumDisplayNameConverter x:Key="DisplayName" />
+
+    <DataTemplate DataType="{x:Type vm:PercussionConfiguration}">
+        <Image Source="/Resources/Images/percussion.png" Width="80" Margin="0,10,5,0" />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:PianoConfiguration}">
+        <Image Source="/Resources/Images/keys.png" Width="80" Margin="0,10,5,0" />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:DrumkitConfiguration}">
+        <Grid Width="80">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Border Background="#400" Padding="2">
+                <TextBlock Style="{StaticResource DigitalTextStyle}"
+                           Text="{Binding Type, Converter={StaticResource DisplayName}}" />
+            </Border>
+            <syncfusion:SfRadialSlider Grid.Row="1" Width="40" Height="40"
+                                       Minimum="0" Maximum="6" HorizontalAlignment="Center"
+                                       Value="{Binding TypeIndex, Mode=TwoWay}"
+                                       OuterRimRadiusFactor="0.9"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#444"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.7"
+                                       StartAngle="135" EndAngle="405"
+                                       TickFrequency="1"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                       LabelVisibility="Collapsed">
+            </syncfusion:SfRadialSlider>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:VocalConfiguration}">
+        <Grid Width="80">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Border Background="#400" Padding="2">
+                <TextBlock Style="{StaticResource DigitalTextStyle}"
+                           Text="{Binding Type, Converter={StaticResource DisplayName}}" />
+            </Border>
+            <syncfusion:SfRadialSlider Grid.Row="1" Width="40" Height="40"
+                                       Minimum="0" Maximum="4" HorizontalAlignment="Center"
+                                       Value="{Binding TypeIndex, Mode=TwoWay}"
+                                       OuterRimRadiusFactor="0.9"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#444"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.7"
+                                       StartAngle="135" EndAngle="405"
+                                       TickFrequency="1"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                       LabelVisibility="Collapsed">
+            </syncfusion:SfRadialSlider>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:StringsConfiguration}">
+        <Grid Width="80">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Border Background="#400" Padding="2">
+                <TextBlock Style="{StaticResource DigitalTextStyle}"
+                           Text="{Binding Type, Converter={StaticResource DisplayName}}" />
+            </Border>
+            <syncfusion:SfRadialSlider Grid.Row="1" Width="40" Height="40"
+                                       Minimum="0" Maximum="14" HorizontalAlignment="Center"
+                                       Value="{Binding TypeIndex, Mode=TwoWay}"
+                                       OuterRimRadiusFactor="0.9"
+                                       OuterRimStroke="#444"
+                                       OuterRimStrokeThickness="3"
+                                       InnerRimFill="#444"
+                                       InnerRimStroke="#444"
+                                       InnerRimRadiusFactor="0.7"
+                                       StartAngle="135" EndAngle="405"
+                                       TickFrequency="1"
+                                       TickVisibility="Visible"
+                                       TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                       LabelVisibility="Collapsed">
+            </syncfusion:SfRadialSlider>
+        </Grid>
+    </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:ReedsConfiguration}">
+            <Grid Width="80">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Border Background="#400" Padding="2">
+                    <TextBlock Style="{StaticResource DigitalTextStyle}"
+                               Text="{Binding Type, Converter={StaticResource DisplayName}}" />
+                </Border>
+                <syncfusion:SfRadialSlider Grid.Row="1" Width="40" Height="40"
+                                           Minimum="0" Maximum="19" HorizontalAlignment="Center"
+                                           Value="{Binding TypeIndex, Mode=TwoWay}"
+                                           OuterRimRadiusFactor="0.9"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#444"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.7"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                           LabelVisibility="Collapsed">
+                </syncfusion:SfRadialSlider>
+            </Grid>
+    </DataTemplate>
+
+</ResourceDictionary>

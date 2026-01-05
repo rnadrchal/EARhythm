@@ -10,6 +10,11 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Egami.Sequencer.UI;component/Resources/Styles.xaml" />
                 <ResourceDictionary Source="Resources/Styles.xaml" />
+                <ResourceDictionary Source="Resources/PitchConfigurationTemplates.xaml" />
+                <ResourceDictionary Source="Resources/VelocityConfigurationTemplate.xaml" />
+                <ResourceDictionary Source="Resources/PitchbendConfigurationTemplate.xaml" />
+                <ResourceDictionary Source="Resources/CCConfigurationTemplate.xaml" />
+                <ResourceDictionary Source="Resources/TrackConfigurationTemplate.xaml" />
                 <ResourceDictionary Source="Resources/ImageConfigurationTemplate.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

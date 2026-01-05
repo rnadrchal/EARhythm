@@ -6,6 +6,6 @@
     <Grid>
         <!-- Image mit Overlay-Canvas oben drauf -->
         <Image x:Name="PART_Image" Stretch="Uniform" />
-        <Canvas x:Name="PART_Overlay" IsHitTestVisible="False" />
+        <Canvas x:Name="PART_Overlay" IsHitTestVisible="True" Background="Transparent" Focusable="True" />
     </Grid>
 </UserControl>

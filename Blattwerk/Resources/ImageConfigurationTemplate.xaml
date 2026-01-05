@@ -5,9 +5,44 @@
                     xmlns:views="clr-namespace:Blattwerk.Views"
                     xmlns:syncfusion="http://schemas.syncfusion.com/wpf">
     <converters:EqualityToBrushConverter x:Key="EqualityToBrush" />
+    <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibility" />
+    <converters:ValuesToPointsConverter x:Key="ValuesToPoints" />
+
+    <Style TargetType="ContentControl" x:Key="ChartStyle">
+        <Setter Property="Height" Value="60" />
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="ChartLabelStyle">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Margin" Value="0,0,5,0" />
+    </Style>
+
+    <DataTemplate x:Key="ChartTemplate">
+        <Border BorderBrush="#666" BorderThickness="1">
+            <Grid x:Name="ChartHost">
+                <Canvas>
+                    <Polyline Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ContentControl}, FallbackValue=DodgerBlue}"
+                              StrokeThickness="1" StrokeLineJoin="Round" Fill="Transparent">
+                        <Polyline.Points>
+                            <MultiBinding Converter="{StaticResource ValuesToPoints}">
+                                <!-- erstes Binding bindet auf das gesamte DataContext/Content (float[]) -->
+                                <Binding Path="."/>
+                                <!-- Canvas / Host Breite & Höhe -->
+                                <Binding ElementName="ChartHost" Path="ActualWidth"/>
+                                <Binding ElementName="ChartHost" Path="ActualHeight"/>
+                            </MultiBinding>
+                        </Polyline.Points>
+                    </Polyline>
+                </Canvas>
+            </Grid>
+
+        </Border>
+    </DataTemplate>
 
     <DataTemplate DataType="{x:Type vm:ImageConfiguration}">
-        <GroupBox Header="Image">
+        <GroupBox Header="Image"
+                  Visibility="{Binding Bitmap, Converter={StaticResource NotNullToVisibility}}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -16,107 +51,237 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Round3DButton}"
-                        Width="24" Height="24"
-                        Background="{Binding Direction, Converter={StaticResource EqualityToBrush}, ConverterParameter=Ltr}"
-                        ToolTip="LTR"
-                        Command="{Binding SetDirectionCommand}" 
-                        CommandParameter="{x:Static vm:ImageDirection.Ltr}">
-                    
-                    <TextBlock Text="↦" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                </Button>
-                <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource Round3DButton}"
-                        Width="24" Height="24"
-                        Background="{Binding Direction, Converter={StaticResource EqualityToBrush}, ConverterParameter=Rtl}"
-                        ToolTip="RTL"
-                        Command="{Binding SetDirectionCommand}" 
-                        CommandParameter="{x:Static vm:ImageDirection.Rtl}">
-                    <TextBlock Text="↤" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                </Button>
-                <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Round3DButton}"
-                        Width="24" Height="24"
-                        Background="{Binding Direction, Converter={StaticResource EqualityToBrush}, ConverterParameter=TopDown}"
-                        Command="{Binding SetDirectionCommand}" 
-                        CommandParameter="{x:Static vm:ImageDirection.TopDown}"  
-                        ToolTip="Top down">
-                    <TextBlock Text="↧" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                </Button>
-                <Button Grid.Row="0" Grid.Column="3" Style="{StaticResource Round3DButton}"
-                        Width="24" Height="24"
-                        Background="{Binding Direction, Converter={StaticResource EqualityToBrush}, ConverterParameter=BottomUp}"
-                        Command="{Binding SetDirectionCommand}" 
-                        CommandParameter="{x:Static vm:ImageDirection.BottomUp}"  
-                        ToolTip="Bottom up">
-                    <TextBlock Text="↥" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                </Button>
+                <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
+                        Background="#400"
+                        Padding="5"
+                        Margin="36,0,0,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" 
+                                   Style="{StaticResource DigitalTextStyle}"
+                                   HorizontalAlignment="Left">
+                            <Run Text="{Binding Direction, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock Grid.Column="1" 
+                                   Style="{StaticResource DigitalTextStyle}">
+                            <Run Text="Pos." />
+                            <Run Text="{Binding ColumnOrRow, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock Grid.Column="2" 
+                                   Style="{StaticResource DigitalTextStyle}"
+                                   HorizontalAlignment="Right">
+                            <Run Text="{Binding SegmentCount, Mode=OneWay}" />
+                            <Run Text="Segments" />
+                        </TextBlock>
+                    </Grid>
 
-                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4"
-                           HorizontalAlignment="Stretch" Padding="5"
-                           Margin="0,5"
-                           Style="{StaticResource DigitalTextStyle}">
-                    <Run Text="Position" />
-                    <Run Text="{Binding ColumnOrRow, Mode=OneWay}" />
-                    <Run Text=" - "></Run>
-                    <Run Text="{Binding SegmentCount, Mode=OneWay}" />
-                    <Run Text="Segments" />
-                </TextBlock>
+                </Border>
 
-                <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Width="Auto" Height="80"
-                                           HorizontalAlignment="Center"
-                                           Minimum="0" Maximum="{Binding MaxPosition}"
-                                           Value="{Binding ColumnOrRow, Mode=TwoWay}"
-                                           OuterRimRadiusFactor="0.6"
-                                           OuterRimStroke="#444"
-                                           OuterRimStrokeThickness="3"
-                                           InnerRimFill="#444"
-                                           InnerRimStroke="#444"
-                                           InnerRimRadiusFactor="0.4"
-                                           StartAngle="135" EndAngle="405"
-                                           TickFrequency="100"
-                                           TickVisibility="Visible"
-                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
-                                           LabelVisibility="Hidden">
-                    <TextBlock Text="P" Foreground="Red" />
-                </syncfusion:SfRadialSlider>
+                <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0"
+                            VerticalAlignment="Bottom" Margin="0,0,10,0">
+                    <Button Style="{StaticResource Round3DButton}"
+                            Width="24" Height="24"
+                            Background="{Binding Direction, Converter={StaticResource EqualityToBrush}, ConverterParameter=TopDown}"
+                            Command="{Binding SetDirectionCommand}" 
+                            CommandParameter="{x:Static vm:ImageDirection.TopDown}"  
+                            ToolTip="Top down">
+                        <TextBlock Text="↧" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </Button>
+                    <Button Style="{StaticResource Round3DButton}"
+                            Margin="0,5,0,0"
+                            Width="24" Height="24"
+                            Background="{Binding Direction, Converter={StaticResource EqualityToBrush}, ConverterParameter=BottomUp}"
+                            Command="{Binding SetDirectionCommand}" 
+                            CommandParameter="{x:Static vm:ImageDirection.BottomUp}"  
+                            ToolTip="Bottom up">
+                        <TextBlock Text="↥" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </Button>
+                </StackPanel>
 
-                <syncfusion:SfRadialSlider Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Width="Auto" Height="80"
-                                           Minimum="0" Maximum="4" HorizontalAlignment="Center"
-                                           Value="{Binding SegmentCountIndex, Mode=TwoWay}"
-                                           OuterRimRadiusFactor="0.6"
-                                           OuterRimStroke="#444"
-                                           OuterRimStrokeThickness="3"
-                                           InnerRimFill="#444"
-                                           InnerRimStroke="#444"
-                                           InnerRimRadiusFactor="0.4"
-                                           StartAngle="135" EndAngle="405"
-                                           TickFrequency="1"
-                                           TickVisibility="Visible"
-                                           TickRadiusFactor="0.6" PointerRadiusFactor="0.5" 
-                                           LabelVisibility="Hidden">
-                    <TextBlock Text="S" Foreground="Red" />
-                </syncfusion:SfRadialSlider>
+                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left"
+                            Margin="0,10,5,5">
+                    <Button Style="{StaticResource Round3DButton}"
+                            Width="24" Height="24"
+                            Background="{Binding Direction, Converter={StaticResource EqualityToBrush}, ConverterParameter=Ltr}"
+                            ToolTip="LTR"
+                            Command="{Binding SetDirectionCommand}" 
+                            CommandParameter="{x:Static vm:ImageDirection.Ltr}">
 
-                <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="4"
+                        <TextBlock Text="↦" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </Button>
+                    <Button Style="{StaticResource Round3DButton}"
+                            Margin="5,0,0,0"
+                            Width="24" Height="24"
+                            Background="{Binding Direction, Converter={StaticResource EqualityToBrush}, ConverterParameter=Rtl}"
+                            ToolTip="RTL"
+                            Command="{Binding SetDirectionCommand}" 
+                            CommandParameter="{x:Static vm:ImageDirection.Rtl}">
+                        <TextBlock Text="↤" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </Button>
+                </StackPanel>
+                
+                <StackPanel Grid.Row="2" Grid.Column="1" Margin="00,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                            Orientation="Vertical">
+                    <syncfusion:SfRadialSlider Width="40" Height="40"
+                                               Minimum="0" Maximum="4" HorizontalAlignment="Center"
+                                               Value="{Binding SegmentCountIndex, Mode=TwoWay}"
+                                               OuterRimRadiusFactor="0.9"
+                                               OuterRimStroke="#444"
+                                               OuterRimStrokeThickness="3"
+                                               InnerRimFill="#444"
+                                               InnerRimStroke="#444"
+                                               InnerRimRadiusFactor="0.7"
+                                               StartAngle="135" EndAngle="405"
+                                               TickFrequency="1"
+                                               TickVisibility="Visible"
+                                               TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                               LabelVisibility="Collapsed">
+                        <TextBlock Text="{Binding SegmentCount}" />
+                    </syncfusion:SfRadialSlider>
+                    <TextBlock Text="Segments" HorizontalAlignment="Center"></TextBlock>
+                </StackPanel>
+
+
+                <Border Grid.Row="1" Grid.Column="1"
                         BorderBrush="#666" BorderThickness="1">
                     <Grid>
                         <Image x:Name="Image"
-                               Source="{Binding Bitmap}" Width="256" />
+                               Source="{Binding Bitmap}" Width="384" />
 
                         <views:ImageOverlayView Source="{Binding Bitmap}"
                                                 Direction="{Binding Direction}"
-                                                ColumnOrRow="{Binding ColumnOrRow}"
+                                                ColumnOrRow="{Binding ColumnOrRow, Mode=TwoWay}"
                                                 SegmentCount="{Binding SegmentCount}"
-                                                Width="256"
-                                                Opacity="0.5"/>
+                                                Width="384"
+                                                Opacity="1"/>
                     </Grid>
                 </Border>
 
+                <Grid Grid.Row="1" Grid.RowSpan="3" Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="256" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="R"
+                               Style="{StaticResource ChartLabelStyle}"
+                               Foreground="Red" />
+                    <ContentControl Grid.Column="1" Grid.Row="0"
+                                    Content="{Binding R}"
+                                    ContentTemplate="{StaticResource ChartTemplate}"
+                                    Foreground="Red"
+                                    Style="{StaticResource ChartStyle}" />
+                    <ContentControl Grid.Column="2" Grid.Row="0"
+                                    Content="{Binding RConfiguration}" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="G"
+                               Style="{StaticResource ChartLabelStyle}"
+                               Foreground="Green" />
+                    <ContentControl Grid.Column="1" Grid.Row="1"
+                                    Content="{Binding G}"
+                                    ContentTemplate="{StaticResource ChartTemplate}"
+                                    Foreground="Green"
+                                    Style="{StaticResource ChartStyle}"/>
+                    <ContentControl Grid.Column="2" Grid.Row="1"
+                                    Content="{Binding GConfiguration}" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="B"
+                               Style="{StaticResource ChartLabelStyle}"
+                               Foreground="Blue" />
+                    <ContentControl Grid.Column="1" Grid.Row="2"
+                                    Content="{Binding B}"
+                                    ContentTemplate="{StaticResource ChartTemplate}"
+                                    Foreground="Blue"
+                                    Style="{StaticResource ChartStyle}"/>
+                    <ContentControl Grid.Column="2" Grid.Row="2"
+                                    Content="{Binding BConfiguration}" />
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Y"
+                               Style="{StaticResource ChartLabelStyle}"
+                               Foreground="Yellow" />
+                    <ContentControl Grid.Column="1" Grid.Row="3"
+                                    Content="{Binding Y}"
+                                    ContentTemplate="{StaticResource ChartTemplate}"
+                                    Foreground="Yellow"
+                                    Style="{StaticResource ChartStyle}"/>
+                    <ContentControl Grid.Column="2" Grid.Row="3"
+                                    Content="{Binding YConfiguration}" />
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="M"
+                               Style="{StaticResource ChartLabelStyle}"
+                               Foreground="Magenta" />
+                    <ContentControl Grid.Column="1" Grid.Row="4"
+                                    Content="{Binding M}"
+                                    ContentTemplate="{StaticResource ChartTemplate}"
+                                    Foreground="Magenta"
+                                    Style="{StaticResource ChartStyle}"/>
+                    <ContentControl Grid.Column="2" Grid.Row="4"
+                                    Content="{Binding MConfiguration}" />
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="C"
+                               Style="{StaticResource ChartLabelStyle}"
+                               Foreground="Cyan" />
+                    <ContentControl Grid.Column="1" Grid.Row="5"
+                                    Content="{Binding C}"
+                                    ContentTemplate="{StaticResource ChartTemplate}"
+                                    Foreground="Cyan"
+                                    Style="{StaticResource ChartStyle}"/>
+                    <ContentControl Grid.Column="2" Grid.Row="5"
+                                    Content="{Binding CConfiguration}" />
+                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Brightness"
+                               Style="{StaticResource ChartLabelStyle}"  />
+                    <ContentControl Grid.Column="1" Grid.Row="6"
+                                    Content="{Binding RecipWeightedBrightness}"
+                                    ContentTemplate="{StaticResource ChartTemplate}"
+                                    Foreground="White"
+                                    Style="{StaticResource ChartStyle}"/>
+                    <ContentControl Grid.Column="2" Grid.Row="6"
+                                    Content="{Binding BrightnessConfiguration}" />
+                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Luminance"
+                               Style="{StaticResource ChartLabelStyle}"  />
+                    <ContentControl Grid.Column="1" Grid.Row="7"
+                                    Content="{Binding Luminance}"
+                                    ContentTemplate="{StaticResource ChartTemplate}"
+                                    Foreground="White"
+                                    Style="{StaticResource ChartStyle}"/>
+                    <ContentControl Grid.Column="2" Grid.Row="7"
+                                    Content="{Binding LuminanceConfiguration}" />
+                    <TextBlock Grid.Row="8" Grid.Column="0" Text="Saturation"
+                               Style="{StaticResource ChartLabelStyle}"  />
+                    <ContentControl Grid.Column="1" Grid.Row="8"
+                                    Content="{Binding Saturation}"
+                                    ContentTemplate="{StaticResource ChartTemplate}"
+                                    Foreground="White"
+                                    Style="{StaticResource ChartStyle}"/>
+                    <ContentControl Grid.Column="2" Grid.Row="8"
+                                    Content="{Binding SaturationConfiguration}" />
+                    <TextBlock Grid.Row="9" Grid.Column="0" Text="A"
+                               Style="{StaticResource ChartLabelStyle}"
+                               Foreground="Gray"/>
+                    <ContentControl Grid.Column="1" Grid.Row="9"
+                                    Content="{Binding A}"
+                                    ContentTemplate="{StaticResource ChartTemplate}"
+                                    Foreground="Gray"
+                                    Style="{StaticResource ChartStyle}"/>
+                    <ContentControl Grid.Column="2" Grid.Row="9"
+                                    Content="{Binding AConfiguration}" />
+                </Grid>
             </Grid>
         </GroupBox>
     </DataTemplate>

@@ -3,6 +3,7 @@ using Egami.Rhythm.Midi;
 using Microsoft.Extensions.Configuration;
 using Prism.Ioc;
 using System.Windows;
+using Blattwerk.ViewModels;
 
 namespace Blattwerk
 {
@@ -32,7 +33,7 @@ namespace Blattwerk
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-
+            containerRegistry.RegisterSingleton<ImageConfiguration>();
         }
     }
 }

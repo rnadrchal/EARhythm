@@ -6,8 +6,18 @@
     <ApplicationIcon>ahorn.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Resources\Images\keys.png" />
+    <None Remove="Resources\Images\percussion.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="ahorn.ico" />
     <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Images\keys.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Images\percussion.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
