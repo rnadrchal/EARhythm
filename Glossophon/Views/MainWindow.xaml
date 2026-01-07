@@ -1,0 +1,361 @@
+﻿<Window x:Class="Glossophon.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:wpf="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+        xmlns:converters="clr-namespace:Egami.Sequencer.UI.Converters;assembly=Egami.Sequencer.UI"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        syncfusion:SfSkinManager.Theme="{syncfusion:SkinManagerExtension ThemeName=FluentDark}"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        FontFamily="Book Antiqua"
+        Title="{Binding Title}" Height="350" Width="525"
+        WindowState="Maximized">
+    <Grid>
+        <Grid.Resources>
+            <converters:BooleanToOpacityConverter x:Key="BooleanToOpacity" />
+            <converters:EqualityToBrushConverter x:Key="EqualityToBrush" />
+            <converters:EnumDisplayNameConverter x:Key="DisplayName" />
+            <converters:NoteNumberConverter x:Key="NoteNumber" />
+
+            <Style TargetType="TextBlock" x:Key="DigitalTextStyle">
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontFamily" Value="{DynamicResource LED_Real}" />
+                <Setter Property="Foreground" Value="OrangeRed" />
+                <Setter Property="Background" Value="#400" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="TextAlignment" Value="Center" />
+            </Style>
+
+            <Style TargetType="TextBlock" x:Key="ColumnLabelStyle">
+                <Setter Property="Foreground" Value="#DDD" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+            </Style>
+
+            <Style TargetType="TextBlock" x:Key="ColumnValueStyle">
+                <Setter Property="Foreground" Value="Red" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="Margin" Value="0,5,0,0"></Setter>
+            </Style>
+            
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="200" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+        </Border>
+
+        <Grid Grid.Row="0" Grid.Column="0" Margin="5,5,0,5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <WrapPanel Grid.Row="0" Orientation="Horizontal"
+                       HorizontalAlignment="Center"
+                       Margin="0,8,0,0">
+                <Button Style="{StaticResource Round3DButton}"
+                        Width="24" Height="24"
+                        Background="{Binding Language, ConverterParameter=de, Converter={StaticResource EqualityToBrush}}"
+                        Command="{Binding SetLanguageCommand}" CommandParameter="de">
+                    <TextBlock Text="de" FontSize="10" />
+                </Button>
+                <Button Style="{StaticResource Round3DButton}"
+                        Width="24" Height="24"
+                        Background="{Binding Language, ConverterParameter=en, Converter={StaticResource EqualityToBrush}}"
+                        Command="{Binding SetLanguageCommand}" CommandParameter="en">
+                    <TextBlock Text="en" FontSize="10" />
+                </Button>
+            </WrapPanel>
+        </Grid>
+
+        <Border Grid.Column="2" Grid.Row="1" Margin="0,5,0,0"
+                BorderBrush="#333" BorderThickness="1"></Border>
+
+        <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Text}"
+                 FontSize="16"
+                 Margin="5, 5,5,0"
+                 Padding="5,0"
+                 FontFamily="Book Antiqua"
+                 Foreground="Yellow"/>
+        <Grid Grid.Column="2" Grid.Row="0" Grid.RowSpan="2"
+              Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button Style="{StaticResource Round3DButton}"
+                        Command="{Binding TranscribeCommand}"
+                        Background="DarkRed">
+                    <wpf:MaterialIcon Kind="MessageProcessing" Height="24" Opacity="0.5"></wpf:MaterialIcon>
+                </Button>
+                <Ellipse Style="{StaticResource LedEllipseStyle}"
+                         Opacity="{Binding LedOn, Converter={StaticResource BooleanToOpacity}}"
+                         Margin="45,0,0,0"/>
+            </StackPanel>
+
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource ColumnValueStyle}"
+                           Text="{Binding Sequencer.Division, Converter={StaticResource DisplayName}}"></TextBlock>
+
+                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Width="40" Height="40"
+                                           VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                           Minimum="0" Maximum="10"
+                                           Value="{Binding Sequencer.GridDivisionIndex, Mode=TwoWay}"
+                                           OuterRimRadiusFactor="0.9"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#444"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.7"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                           LabelVisibility="Collapsed"
+                                           ToolTip="Grid Division">
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Division" 
+                           Style="{StaticResource ColumnLabelStyle}" />
+                <TextBlock Grid.Column="1" Grid.Row="0" Style="{StaticResource ColumnValueStyle}"
+                           Text="{Binding Sequencer.StepsPerUnit}" />
+
+                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="1" Width="40" Height="40"
+                                           VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                           Minimum="1" Maximum="8"
+                                           Value="{Binding Sequencer.StepsPerUnit, Mode=TwoWay}"
+                                           OuterRimRadiusFactor="0.9"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#444"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.7"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                           LabelVisibility="Collapsed"
+                                           ToolTip="Grid Division">
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="Steps/Unit" 
+                           Style="{StaticResource ColumnLabelStyle}" />
+            </Grid>
+            <Separator Grid.Row="4" />
+
+            <Grid Grid.Row="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                           Style="{StaticResource ColumnValueStyle}">
+                    <Run Text="{Binding Sequencer.RootNote, Converter={StaticResource NoteNumber}, Mode=OneWay}" />
+                    <Run Text="{Binding Sequencer.ScaleType, Converter={StaticResource DisplayName}, Mode=OneWay}" />
+                </TextBlock>
+                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Width="40" Height="40"
+                                           VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                           Minimum="0" Maximum="127"
+                                           Value="{Binding Sequencer.RootNote, Mode=TwoWay}"
+                                           OuterRimRadiusFactor="0.9"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#444"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.7"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="12"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                           LabelVisibility="Collapsed"
+                                           ToolTip="Grid Division">
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Row="2" Text="Root"  Grid.Column="0"
+                           Style="{StaticResource ColumnLabelStyle}" />
+
+                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="1" Width="40" Height="40"
+                                           VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                           Minimum="0" Maximum="31"
+                                           Value="{Binding Sequencer.ScaleTypeIndex, Mode=TwoWay}"
+                                           OuterRimRadiusFactor="0.9"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#444"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.7"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                           LabelVisibility="Collapsed"
+                                           ToolTip="Grid Division">
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="Scale" 
+                           Style="{StaticResource ColumnLabelStyle}" />
+
+
+            </Grid>
+
+
+            <Separator Grid.Row="6" />
+
+            <Grid Grid.Row="7">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                           Style="{StaticResource ColumnValueStyle}">
+                    <Run Text="CC LP"></Run>
+                    <Run Text="{Binding Sequencer.FilterNeutralValue, Mode=OneWay}" />
+                    <Run Text=":"></Run>
+                    <Run Text="{Binding Sequencer.FilterFrictionValue, Mode=OneWay}" />
+                </TextBlock>
+                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Width="40" Height="40"
+                                           VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                           Minimum="0" Maximum="127"
+                                           Value="{Binding Sequencer.FilterNeutralValue, Mode=TwoWay}"
+                                           OuterRimRadiusFactor="0.9"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#444"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.7"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="16"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                           LabelVisibility="Collapsed"
+                                           ToolTip="Grid Division">
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Row="2" Text="Neutral"  Grid.Column="0"
+                           Style="{StaticResource ColumnLabelStyle}" />
+
+                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="1" Width="40" Height="40"
+                                           VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                           Minimum="0" Maximum="127"
+                                           Value="{Binding Sequencer.FilterFrictionValue, Mode=TwoWay}"
+                                           OuterRimRadiusFactor="0.9"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#444"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.7"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="16"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                           LabelVisibility="Collapsed"
+                                           ToolTip="Grid Division">
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="Fricative" 
+                           Style="{StaticResource ColumnLabelStyle}" />
+
+
+            </Grid>
+
+
+            <Separator Grid.Row="8" />
+
+            <Grid Grid.Row="9">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                           Style="{StaticResource ColumnValueStyle}">
+                    <Run Text="Trill" />
+                    <Run Text="{Binding Sequencer.TrillCount, Mode=OneWay}" /><Run Text="x,"></Run>
+                    <Run Text="{Binding Sequencer.TrillInterval, Mode=OneWay}" />
+                    <Run Text="Semi"></Run>
+                </TextBlock>
+                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="0" Width="40" Height="40"
+                                           VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                           Minimum="1" Maximum="4"
+                                           Value="{Binding Sequencer.TrillCount, Mode=TwoWay}"
+                                           OuterRimRadiusFactor="0.9"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#444"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.7"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                           LabelVisibility="Collapsed"
+                                           ToolTip="Grid Division">
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Row="2" Text="Count"  Grid.Column="0"
+                           Style="{StaticResource ColumnLabelStyle}" />
+
+                <syncfusion:SfRadialSlider Grid.Row="1" Grid.Column="1" Width="40" Height="40"
+                                           VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                           Minimum="1" Maximum="12"
+                                           Value="{Binding Sequencer.TrillInterval, Mode=TwoWay}"
+                                           OuterRimRadiusFactor="0.9"
+                                           OuterRimStroke="#444"
+                                           OuterRimStrokeThickness="3"
+                                           InnerRimFill="#444"
+                                           InnerRimStroke="#444"
+                                           InnerRimRadiusFactor="0.7"
+                                           StartAngle="135" EndAngle="405"
+                                           TickFrequency="1"
+                                           TickVisibility="Visible"
+                                           TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
+                                           LabelVisibility="Collapsed"
+                                           ToolTip="Grid Division">
+                </syncfusion:SfRadialSlider>
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="Interval" 
+                           Style="{StaticResource ColumnLabelStyle}" />
+
+
+            </Grid>
+        </Grid>
+
+        <ContentControl Grid.Row="1" Grid.Column="1" Content="{Binding Sequencer}" />
+    </Grid>
+</Window>

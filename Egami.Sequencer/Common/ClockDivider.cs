@@ -1,7 +1,6 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Blattwerk.ViewModels;
+namespace Egami.Sequencer.Common;
 
 public enum ClockDivider
 {

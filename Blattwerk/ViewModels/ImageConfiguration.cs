@@ -12,6 +12,7 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using Blattwerk.Events;
 using Egami.Rhythm.Midi;
+using Egami.Sequencer.Common;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;

@@ -25,6 +25,8 @@
             <ColumnDefinition />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                Background="#222" Margin="0,5,0,5"></Border>
         <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
                     Margin="10">
             <Button Style="{StaticResource Round3DButton}" Background="Green"
@@ -33,41 +35,7 @@
             </Button>
         </StackPanel>
 
-        <Grid Grid.Column="1" Grid.Row="0"
-              HorizontalAlignment="Right">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <syncfusion:SfRadialSlider Grid.Row="1" Width="30" Height="30"
-                                       Minimum="0" Maximum="11" HorizontalAlignment="Center"
-                                       Value="{Binding ImageConfig.DividerIndex, Mode=TwoWay}"
-                                       OuterRimRadiusFactor="0.9"
-                                       OuterRimStroke="#444"
-                                       OuterRimStrokeThickness="3"
-                                       InnerRimFill="#444"
-                                       InnerRimStroke="#444"
-                                       InnerRimRadiusFactor="0.7"
-                                       StartAngle="135" EndAngle="405"
-                                       TickFrequency="1"
-                                       TickVisibility="Visible"
-                                       TickRadiusFactor="0.9" PointerRadiusFactor="0.8" 
-                                       LabelVisibility="Collapsed">
-            </syncfusion:SfRadialSlider>
-            <Border Grid.Row="0" Background="#400" Padding="5" Width="80">
-                <TextBlock Style="{StaticResource DigitalTextStyle}" VerticalAlignment="Center"
-                           Text="{Binding ImageConfig.Divider, Converter={StaticResource DisplayName}, Mode=OneWay}" />
-
-            </Border>
-
-
-        </Grid>
-
-
-        <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Vertical" Margin="0,2,10,2">
+        <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Vertical" Margin="0,10,10,2">
             <Ellipse Style="{StaticResource LedEllipseStyle}"
                      Opacity="{Binding LedOn, Converter={StaticResource BooleanToOpacity}}"/>
             <TextBlock Text="MIDI Clock"></TextBlock>
