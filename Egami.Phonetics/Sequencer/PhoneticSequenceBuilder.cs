@@ -297,11 +297,12 @@ public sealed class PhoneticSequenceBuilder
     {
         var last = steps[lastVowelIndex];
 
+        // Gesamtanzahl Steps, die für den Triller reserviert werden (relativ zur Vokal-Dauer)
         var trillTotalLen = Math.Max(2,
             (int)Math.Round(last.LengthInSteps * _settings.TrillFraction));
 
-        var half = trillTotalLen / 2;
-        var otherHalf = trillTotalLen - half;
+        // Anzahl der Trill-Schläge (mindestens 2 Schritte)
+        var trillNotes = Math.Max(2, _settings.TrillCount);
 
         var interval = _settings.TrillIntervalSemitones;
 
@@ -309,31 +310,31 @@ public sealed class PhoneticSequenceBuilder
         var upMidi = (SevenBitNumber)Math.Clamp((int)baseMidi + interval, 0, 127);
         var downMidi = (SevenBitNumber)Math.Clamp((int)baseMidi - interval, 0, 127);
 
-        var ccCopyUp = last.CcValues != null ? last.CcValues.ToDictionary(kv => kv.Key, kv => kv.Value) : null;
-        var ccCopyDown = last.CcValues != null ? last.CcValues.ToDictionary(kv => kv.Key, kv => kv.Value) : null;
+        // Aufteilen: möglichst gleichmäßige Länge pro Trill-Note, Rest wird ans Ende gehängt
+        var perNote = Math.Max(1, trillTotalLen / trillNotes);
+        var remainder = trillTotalLen - (perNote * trillNotes);
 
-        // zwei Steps: hoch → runter (oder umgekehrt)
-        var stepUp = new SequenceStep(
-            stepIndex: currentStepIndex,
-            lengthInSteps: half,
-            pitch: upMidi,
-            velocity: last.Velocity,
-            pitchBend: 0,
-            ccValues: ccCopyUp);
+        for (int i = 0; i < trillNotes; i++)
+        {
+            var len = perNote + (i == trillNotes - 1 ? remainder : 0);
+            var pitch = (i % 2 == 0) ? upMidi : downMidi;
 
-        steps.Add(stepUp);
-        currentStepIndex += half;
+            var ccCopy = last.CcValues != null ? last.CcValues.ToDictionary(kv => kv.Key, kv => kv.Value) : null;
 
-        var stepDown = new SequenceStep(
-            stepIndex: currentStepIndex,
-            lengthInSteps: otherHalf,
-            pitch: downMidi,
-            velocity: last.Velocity,
-            pitchBend: 0,
-            ccValues: ccCopyDown);
+            var step = new SequenceStep(
+                stepIndex: currentStepIndex,
+                lengthInSteps: len,
+                pitch: pitch,
+                velocity: last.Velocity,
+                pitchBend: 0,
+                ccValues: ccCopy);
 
-        steps.Add(stepDown);
-        currentStepIndex += otherHalf;
+            steps.Add(step);
+            currentStepIndex += len;
+        }
+
+        // lastVowelIndex auf den letzten hinzugefügten Schritt zeigen
+        lastVowelIndex = steps.Count - 1;
     }
 
     private bool TryGetDefinition(string symbol, out PhonemeDefinition def)

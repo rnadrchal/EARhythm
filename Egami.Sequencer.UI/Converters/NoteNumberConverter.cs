@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
+using Melanchall.DryWetMidi.Common;
 
 namespace Egami.Sequencer.UI.Converters;
 
@@ -22,6 +23,12 @@ public class NoteNumberConverter : IValueConverter
         {
             int noteIndex = intValue % 12;
             return $"{NoteNames[noteIndex]}{intValue / 12}";
+        }
+
+        if (value is SevenBitNumber sbn)
+        {
+            int noteIndex = (byte)sbn % 12;
+            return $"{NoteNames[noteIndex]}{(byte)sbn / 12}";
         }
 
         return value;

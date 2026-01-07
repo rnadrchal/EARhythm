@@ -25,6 +25,9 @@ public sealed class PhoneticSequencerSettings
     // Triller-Intervall für r/l (in Halbtönen)
     public int TrillIntervalSemitones { get; init; } = 1;
 
+    // Anzahl der Trillerschläge (Neu)
+    public int TrillCount { get; init; } = 1;
+
     // Nasal-Microglide-Intervall (Halbtöne, typ. 1)
     public int NasalGlideSemitones { get; init; } = 1;
 
