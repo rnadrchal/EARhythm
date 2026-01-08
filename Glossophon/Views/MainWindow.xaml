@@ -563,21 +563,27 @@
         <Grid Grid.Row="1" Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
                 <RowDefinition />
             </Grid.RowDefinitions>
             <Border Grid.Row="0">
                 <ContentControl Grid.Row="1" Grid.Column="1" Content="{Binding Sequencer}" />
             </Border>
-            <Border Grid.Row="1">
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          CanContentScroll="False"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch">
                 <ItemsControl ItemsSource="{Binding Sequencer.Steps}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal"></WrapPanel>
+                            <WrapPanel Orientation="Horizontal"
+                                       IsItemsHost="True"
+                                       Width="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}, Path=ViewportWidth}" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
-            </Border>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </Window>
