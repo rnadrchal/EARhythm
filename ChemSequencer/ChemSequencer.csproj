@@ -6,12 +6,20 @@
     <ApplicationIcon>chem.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Native\libinchi.dll" />
     <None Remove="Resources\Images\aromatic.png" />
     <None Remove="Resources\Images\Boltzmann.png" />
     <None Remove="Resources\Images\stereo.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="chem.ico" />
+    <Content Include="Native\libinchi.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
 	  <PackageReference Include="Material.Icons.WPF" Version="2.4.1" />
