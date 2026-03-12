@@ -1,11 +1,11 @@
-﻿using Blattwerk.Views;
-using Egami.Rhythm.Midi;
+﻿using Egami.Rhythm.Midi;
+using Glossophon.Views;
 using Microsoft.Extensions.Configuration;
 using Prism.Ioc;
 using System.Windows;
-using Blattwerk.ViewModels;
+using Glossophon.ViewModels;
 
-namespace Blattwerk
+namespace Glossophon
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -33,7 +33,7 @@ namespace Blattwerk
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.RegisterSingleton<ImageConfiguration>();
+            containerRegistry.RegisterSingleton<IpaSequencer>();
         }
     }
 }

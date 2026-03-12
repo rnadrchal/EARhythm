@@ -1,4 +1,4 @@
-﻿<prism:PrismApplication x:Class="Blattwerk.App"
+﻿<prism:PrismApplication x:Class="Glossophon.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/" >
@@ -9,13 +9,9 @@
             </FontFamily>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Egami.Sequencer.UI;component/Resources/Styles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Egami.Sequencer.UI;component/Resources/SequenceStepTemplate.xaml" />
                 <ResourceDictionary Source="Resources/Styles.xaml" />
-                <ResourceDictionary Source="Resources/PitchConfigurationTemplates.xaml" />
-                <ResourceDictionary Source="Resources/VelocityConfigurationTemplate.xaml" />
-                <ResourceDictionary Source="Resources/PitchbendConfigurationTemplate.xaml" />
-                <ResourceDictionary Source="Resources/CCConfigurationTemplate.xaml" />
-                <ResourceDictionary Source="Resources/TrackConfigurationTemplate.xaml" />
-                <ResourceDictionary Source="Resources/ImageConfigurationTemplate.xaml" />
+                <ResourceDictionary Source="Resources/IpaSequencerTemplate.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
